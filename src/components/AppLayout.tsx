@@ -20,6 +20,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="min-h-screen bg-card-muted">
+      <DemoBadge />
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center justify-between gap-6">
           <button onClick={() => navigate("/app")} className="flex items-center gap-2">
