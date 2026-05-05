@@ -78,6 +78,18 @@ const Dashboard = () => {
     toast.success("Demo data loaded", { id: "seed" });
   };
 
+  const unloadDemo = async () => {
+    if (!user) return;
+    toast.loading("Unloading demo data…", { id: "seed" });
+    await supabase.from("reminders").delete().eq("user_id", user.id);
+    await supabase.from("interactions").delete().eq("user_id", user.id);
+    await supabase.from("contact_groups").delete().eq("user_id", user.id);
+    await supabase.from("contacts").delete().eq("user_id", user.id);
+    await supabase.from("groups").delete().eq("user_id", user.id);
+    qc.invalidateQueries();
+    toast.success("Demo data removed", { id: "seed" });
+  };
+
   const isEmpty = (contacts?.length ?? 0) === 0;
 
   return (
@@ -88,7 +100,11 @@ const Dashboard = () => {
           <p className="text-muted-foreground mt-1">{format(new Date(), "EEEE, MMMM d")}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={runDemo}><Sparkles className="h-4 w-4 mr-2" />Load demo data</Button>
+          {isEmpty ? (
+            <Button variant="outline" onClick={runDemo}><Sparkles className="h-4 w-4 mr-2" />Load demo data</Button>
+          ) : (
+            <Button variant="outline" onClick={unloadDemo}><Sparkles className="h-4 w-4 mr-2" />Unload demo data</Button>
+          )}
           <Button asChild className="gradient-primary"><Link to="/app/people"><Plus className="h-4 w-4 mr-2" />Add contact</Link></Button>
         </div>
       </div>
