@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ const schema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   due_date: z.string().min(1, "Due date is required"),
   priority: z.enum(["low", "medium", "high"]),
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
 type Props = {
@@ -29,7 +31,7 @@ export const ReminderDialog = ({ open, onOpenChange, onSaved, reminder, defaultC
   const { user } = useAuth();
   const [form, setForm] = useState<any>({
     title: "", due_date: new Date().toISOString().slice(0, 10),
-    priority: "medium", contact_id: defaultContactId ?? "none", completed: false,
+    priority: "medium", contact_id: defaultContactId ?? "none", completed: false, notes: "",
   });
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -49,11 +51,12 @@ export const ReminderDialog = ({ open, onOpenChange, onSaved, reminder, defaultC
         priority: reminder.priority ?? "medium",
         contact_id: reminder.contact_id ?? "none",
         completed: !!reminder.completed,
+        notes: reminder.notes ?? "",
       });
     } else {
       setForm({
         title: "", due_date: new Date().toISOString().slice(0, 10),
-        priority: "medium", contact_id: defaultContactId ?? "none", completed: false,
+        priority: "medium", contact_id: defaultContactId ?? "none", completed: false, notes: "",
       });
     }
   }, [reminder, open, defaultContactId]);
@@ -73,6 +76,7 @@ export const ReminderDialog = ({ open, onOpenChange, onSaved, reminder, defaultC
       due_date: form.due_date,
       priority: form.priority,
       completed: form.completed,
+      notes: form.notes?.trim() || null,
       contact_id: form.contact_id && form.contact_id !== "none" ? form.contact_id : null,
       user_id: user.id,
     };
@@ -139,6 +143,10 @@ export const ReminderDialog = ({ open, onOpenChange, onSaved, reminder, defaultC
               </Select>
             </div>
           )}
+          <div className="space-y-1.5">
+            <Label>Notes</Label>
+            <Textarea rows={3} value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Optional context for this follow-up." />
+          </div>
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
