@@ -62,7 +62,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="container py-20 grid md:grid-cols-3 gap-6">
+      <section id="features" className="container py-20 grid md:grid-cols-3 gap-6">
         {[
           { icon: Users, title: "Your people, organized", desc: "Group contacts by context — investors, friends, recruiters, classmates." },
           { icon: Bell, title: "Never go cold", desc: "Cooling alerts surface relationships drifting out of touch." },
