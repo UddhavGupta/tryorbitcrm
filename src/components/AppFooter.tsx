@@ -251,6 +251,7 @@ export const AppFooter = () => {
           </div>
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link to="/project-notes" className={linkCls}>Project Notes</Link>
+            <Link to="/changelog" className={linkCls}>Changelog</Link>
             <button onClick={() => setOpen("privacy")} className={linkCls}>Privacy</button>
             <button onClick={() => setOpen("terms")} className={linkCls}>Terms</button>
             <button onClick={() => setOpen("help")} className={linkCls}>Help</button>
