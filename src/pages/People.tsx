@@ -382,8 +382,15 @@ const People = () => {
           {filtered.map((c: any) => {
             const days = c.last_contacted_at ? differenceInDays(new Date(), parseISO(c.last_contacted_at)) : null;
             const isCooling = days !== null && days >= (c.cooling_days ?? 30);
-            const hasOpenReminder = openReminders?.has(c.id);
+            const hasOpenReminder = openReminders?.set.has(c.id);
             const priorityVal = c.priority ?? "medium";
+            const status = getRelationshipStatus(c.last_contacted_at);
+            const action = getSuggestedAction({
+              priority: c.priority,
+              last_contacted_at: c.last_contacted_at,
+              birthday: c.birthday,
+              nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
+            });
 
             return (
               <Link
@@ -405,6 +412,13 @@ const People = () => {
                     }`}>
                       {priorityVal}
                     </span>
+                  )}
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${STATUS_CLASSES[status]}`}>{STATUS_LABEL[status]}</span>
+                  {action !== "no_action" && (
+                    <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${ACTION_CLASSES[action]}`}>{ACTION_LABEL[action]}</span>
                   )}
                 </div>
 
