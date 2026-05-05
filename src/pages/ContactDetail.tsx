@@ -19,7 +19,8 @@ const ContactDetail = () => {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
-  const [note, setNote] = useState("");
+  const [interactionOpen, setInteractionOpen] = useState(false);
+  const [editingInteraction, setEditingInteraction] = useState<any>(null);
   const [reminderTitle, setReminderTitle] = useState("");
   const [reminderDate, setReminderDate] = useState(new Date().toISOString().slice(0, 10));
 
