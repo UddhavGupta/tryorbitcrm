@@ -133,8 +133,17 @@ const People = () => {
         }
         return true;
       });
+    if (statusFilter !== "all") {
+      list = list.filter((c: any) => getRelationshipStatus(c.last_contacted_at) === statusFilter);
     }
-    if (q) {
+    if (actionFilter !== "all") {
+      list = list.filter((c: any) => getSuggestedAction({
+        priority: c.priority,
+        last_contacted_at: c.last_contacted_at,
+        birthday: c.birthday,
+        nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
+      }) === actionFilter);
+    }
       const t = q.toLowerCase();
       list = list.filter((c: any) =>
         [c.name, c.last_name, c.title, c.company, c.city, c.email, c.notes,
