@@ -72,7 +72,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
           </div>
         </nav>
       </header>
-      <main className="container py-8">{children}</main>
+      <main className="container py-8 flex-1">{children}</main>
+      <AppFooter />
     </div>
   );
 };
