@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { startDemo } from "@/lib/startDemo";
 import { useState } from "react";
 import { toast } from "sonner";
+import logo from "@/assets/orbitcrm-logo.png";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -26,11 +27,8 @@ const Landing = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-xl gradient-primary grid place-items-center">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold">OrbitCRM</span>
+          <div className="flex items-center">
+            <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
