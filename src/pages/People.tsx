@@ -21,6 +21,8 @@ type LastRange = "all" | "7" | "30" | "90" | "never" | "cooling60" | "cooling";
 type FollowUp = "all" | "overdue" | "today" | "week" | "month" | "none";
 type OpenReminder = "all" | "yes" | "no";
 type SortBy = "name" | "recent" | "stale" | "follow" | "priority";
+type StatusFilter = "all" | RelationshipStatus;
+type ActionFilter = "all" | SuggestedAction;
 
 const People = () => {
   const [q, setQ] = useState("");
@@ -37,6 +39,8 @@ const People = () => {
   const [lastRange, setLastRange] = useState<LastRange>("all");
   const [followUp, setFollowUp] = useState<FollowUp>("all");
   const [openReminder, setOpenReminder] = useState<OpenReminder>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [actionFilter, setActionFilter] = useState<ActionFilter>("all");
   const [sortBy, setSortBy] = useState<SortBy>("name");
   const qc = useQueryClient();
 
@@ -60,10 +64,19 @@ const People = () => {
   const { data: openReminders } = useQuery({
     queryKey: ["open-reminders-by-contact"],
     queryFn: async () => {
-      const { data } = await supabase.from("reminders").select("contact_id").eq("completed", false);
+      const { data } = await supabase
+        .from("reminders")
+        .select("contact_id, due_date")
+        .eq("completed", false)
+        .order("due_date");
       const set = new Set<string>();
-      (data ?? []).forEach((r: any) => r.contact_id && set.add(r.contact_id));
-      return set;
+      const earliest = new Map<string, string>();
+      (data ?? []).forEach((r: any) => {
+        if (!r.contact_id) return;
+        set.add(r.contact_id);
+        if (!earliest.has(r.contact_id)) earliest.set(r.contact_id, r.due_date);
+      });
+      return { set, earliest };
     },
   });
 
