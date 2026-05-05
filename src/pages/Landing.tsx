@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Calendar, Sparkles, Users, ArrowRight, CircleCheck, PlayCircle, Mail, MapPin, Github, Twitter, Linkedin } from "lucide-react";
+import { Bell, Calendar, Users, ArrowRight, CircleCheck, PlayCircle, Github, Linkedin, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { startDemo } from "@/lib/startDemo";
 import { useState } from "react";
 import { toast } from "sonner";
 import logo from "@/assets/orbitcrm-logo.png";
+import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 
 const Landing = () => {
   const navigate = useNavigate();
