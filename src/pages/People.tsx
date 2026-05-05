@@ -65,9 +65,27 @@ const People = () => {
         <Button onClick={() => setOpen(true)} className="gradient-primary"><Plus className="h-4 w-4 mr-2" />Add contact</Button>
       </div>
 
-      <div className="relative mb-6">
-        <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search by name, title, company, city, notes…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="flex flex-wrap gap-3 mb-6">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Search by name, title, company, city, notes…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        <Select value={groupFilter} onValueChange={setGroupFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All groups" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All groups</SelectItem>
+            {(allGroups ?? []).map((g: any) => (
+              <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {groupFilter !== "all" && activeGroupName && (
+          <Button variant="ghost" size="sm" onClick={() => setGroupFilter("all")}>
+            <X className="h-4 w-4 mr-1" />Clear "{activeGroupName}"
+          </Button>
+        )}
       </div>
 
       {isLoading && (
