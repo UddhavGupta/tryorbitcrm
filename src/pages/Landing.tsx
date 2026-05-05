@@ -28,13 +28,13 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
+        <div className="container flex h-14 sm:h-16 items-center justify-between gap-2">
+          <div className="flex items-center min-w-0">
+            <img src={logo} alt="OrbitCRM" className="h-7 sm:h-8 w-auto object-contain" />
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
-            <Button asChild className="gradient-primary"><Link to="/auth?mode=signup">Sign up</Link></Button>
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <Button variant="ghost" asChild size="sm" className="sm:size-default"><Link to="/auth">Sign in</Link></Button>
+            <Button asChild size="sm" className="gradient-primary sm:size-default"><Link to="/auth?mode=signup">Sign up</Link></Button>
           </div>
         </div>
       </header>
