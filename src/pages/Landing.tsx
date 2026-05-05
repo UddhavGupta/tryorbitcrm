@@ -122,7 +122,7 @@ const Landing = () => {
             <FooterButton onClick={() => setDoc("help")}>Getting Started</FooterButton>
             <FooterButton onClick={() => setDoc("help")}>Demo Data Guide</FooterButton>
             <FooterButton onClick={() => setDoc("help")}>Changelog</FooterButton>
-            <FooterButton onClick={() => setDoc("help")}>Project Notes</FooterButton>
+            <FooterLink to="/project-notes">Project Notes</FooterLink>
           </FooterCol>
 
           <FooterCol title="Legal">
