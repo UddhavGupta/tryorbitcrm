@@ -70,15 +70,24 @@ const Dashboard = () => {
 
   // Reach-outs: reminders + contacts with next_follow_up_date today/overdue
   const reachOuts = (() => {
-    const fromReminders = (reminders ?? []).map((r: any) => ({
-      kind: "reminder" as const,
-      id: r.id,
-      title: r.title,
-      contact: r.contacts ? { id: r.contacts.id, name: [r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ") } : null,
-      date: r.due_date,
-      overdue: r.due_date < todayStr,
-      priority: r.priority ?? r.contacts?.priority ?? "medium",
-    }));
+    const fromReminders = (reminders ?? []).map((r: any) => {
+      const contactName = r.contacts ? [r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ") : "";
+      // Normalize titles like "Follow up with Owen" -> "Follow up" so the contact line below isn't redundant
+      let title = (r.title ?? "").trim();
+      if (contactName && new RegExp(`\\s+with\\s+${r.contacts.name}.*$`, "i").test(title)) {
+        title = title.replace(/\s+with\s+.+$/i, "");
+      }
+      if (!title) title = "Follow up";
+      return {
+        kind: "reminder" as const,
+        id: r.id,
+        title,
+        contact: r.contacts ? { id: r.contacts.id, name: contactName } : null,
+        date: r.due_date,
+        overdue: r.due_date < todayStr,
+        priority: r.priority ?? r.contacts?.priority ?? "medium",
+      };
+    });
     const fromContacts = (contacts ?? [])
       .filter((c: any) => c.next_follow_up_date && c.next_follow_up_date <= todayStr)
       .map((c: any) => ({
