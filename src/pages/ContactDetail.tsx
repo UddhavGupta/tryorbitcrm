@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO, differenceInDays } from "date-fns";
-import { ArrowLeft, Cake, Mail, MapPin, Pencil, Phone, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { ContactDialog } from "@/components/ContactDialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 const ContactDetail = () => {
@@ -22,10 +23,11 @@ const ContactDetail = () => {
   const [reminderTitle, setReminderTitle] = useState("");
   const [reminderDate, setReminderDate] = useState(new Date().toISOString().slice(0, 10));
 
-  const { data: contact } = useQuery({
+  const { data: contact, isLoading, error } = useQuery({
     queryKey: ["contact", id],
     queryFn: async () => {
-      const { data } = await supabase.from("contacts").select("*, contact_groups(group_id, groups(*))").eq("id", id!).single();
+      const { data, error } = await supabase.from("contacts").select("*, contact_groups(group_id, groups(*))").eq("id", id!).single();
+      if (error) throw error;
       return data;
     },
   });
@@ -51,7 +53,8 @@ const ContactDetail = () => {
     queryFn: async () => (await supabase.from("groups").select("*").order("name")).data ?? [],
   });
 
-  if (!contact) return <AppLayout><div className="text-muted-foreground">Loading…</div></AppLayout>;
+  if (isLoading) return <AppLayout><div className="surface-card p-10 flex flex-col items-center text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin mb-2" /><p className="text-sm">Loading contact…</p></div></AppLayout>;
+  if (error || !contact) return <AppLayout><div className="surface-card p-6 border border-destructive/30 bg-destructive/5 text-destructive flex items-start gap-3"><AlertCircle className="h-5 w-5 shrink-0 mt-0.5" /><div><p className="font-medium">Couldn't load contact</p><p className="text-sm opacity-80">{(error as Error)?.message ?? "Not found"}</p></div></div></AppLayout>;
 
   const addInteraction = async () => {
     if (!note.trim() || !user) return;
@@ -79,8 +82,8 @@ const ContactDetail = () => {
   };
 
   const remove = async () => {
-    if (!confirm("Delete this contact?")) return;
-    await supabase.from("contacts").delete().eq("id", id!);
+    const { error } = await supabase.from("contacts").delete().eq("id", id!);
+    if (error) return toast.error(error.message);
     toast.success("Contact deleted");
     navigate("/app/people");
   };
@@ -98,17 +101,40 @@ const ContactDetail = () => {
             <div className="h-20 w-20 rounded-full mx-auto gradient-primary text-primary-foreground grid place-items-center text-2xl font-semibold">
               {contact.name.charAt(0)}
             </div>
-            <h1 className="mt-4 text-xl font-semibold">{contact.name}</h1>
+            <h1 className="mt-4 text-xl font-semibold">{[contact.name, contact.last_name].filter(Boolean).join(" ")}</h1>
             <p className="text-sm text-muted-foreground">{[contact.title, contact.company].filter(Boolean).join(" · ")}</p>
+            {contact.priority && contact.priority !== "medium" && (
+              <span className={`inline-block mt-2 text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full ${contact.priority === "high" ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
+                {contact.priority} priority
+              </span>
+            )}
             <div className="mt-4 flex justify-center gap-2">
               <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil className="h-3.5 w-3.5 mr-1" />Edit</Button>
-              <Button size="sm" variant="outline" onClick={remove}><Trash2 className="h-3.5 w-3.5 mr-1" />Delete</Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="outline"><Trash2 className="h-3.5 w-3.5 mr-1" />Delete</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete this contact?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently remove {contact.name} and their interactions, reminders, and group memberships. This can't be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
             <div className="mt-6 space-y-2 text-sm text-left">
               {contact.email && <Row icon={Mail}>{contact.email}</Row>}
               {contact.phone && <Row icon={Phone}>{contact.phone}</Row>}
               {contact.city && <Row icon={MapPin}>{contact.city}</Row>}
+              {contact.linkedin_url && <Row icon={Linkedin}><a href={contact.linkedin_url} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate inline-block max-w-[200px] align-bottom">LinkedIn</a></Row>}
               {contact.birthday && <Row icon={Cake}>{format(parseISO(contact.birthday), "MMMM d")}</Row>}
+              {contact.next_follow_up_date && <Row icon={CalendarClock}>Follow up {format(parseISO(contact.next_follow_up_date), "MMM d, yyyy")}</Row>}
               {days !== null && (
                 <div className="pt-2 text-xs text-muted-foreground">
                   Last contact: {days} day{days === 1 ? "" : "s"} ago {days >= contact.cooling_days && <span className="text-warning font-medium">· cooling</span>}

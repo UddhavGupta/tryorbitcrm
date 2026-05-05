@@ -59,9 +59,13 @@ export type Database = {
           email: string | null
           id: string
           last_contacted_at: string | null
+          last_name: string | null
+          linkedin_url: string | null
           name: string
+          next_follow_up_date: string | null
           notes: string | null
           phone: string | null
+          priority: string
           title: string | null
           updated_at: string
           user_id: string
@@ -77,9 +81,13 @@ export type Database = {
           email?: string | null
           id?: string
           last_contacted_at?: string | null
+          last_name?: string | null
+          linkedin_url?: string | null
           name: string
+          next_follow_up_date?: string | null
           notes?: string | null
           phone?: string | null
+          priority?: string
           title?: string | null
           updated_at?: string
           user_id: string
@@ -95,9 +103,13 @@ export type Database = {
           email?: string | null
           id?: string
           last_contacted_at?: string | null
+          last_name?: string | null
+          linkedin_url?: string | null
           name?: string
+          next_follow_up_date?: string | null
           notes?: string | null
           phone?: string | null
+          priority?: string
           title?: string | null
           updated_at?: string
           user_id?: string
