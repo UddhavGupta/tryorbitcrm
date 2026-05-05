@@ -30,7 +30,7 @@ const Dashboard = () => {
       const today = new Date().toISOString().slice(0, 10);
       const { data } = await supabase
         .from("reminders")
-        .select("*, contacts(name)")
+        .select("*, contacts(id, name, last_name)")
         .eq("completed", false)
         .lte("due_date", today)
         .order("due_date");
