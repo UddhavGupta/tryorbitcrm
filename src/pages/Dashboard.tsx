@@ -156,18 +156,18 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
+      <div className="flex items-end justify-between flex-wrap gap-3 mb-6 md:mb-8">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Today</h1>
-          <p className="text-muted-foreground mt-1">{format(new Date(), "EEEE, MMMM d")}</p>
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Today</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">{format(new Date(), "EEEE, MMMM d")}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {isEmpty ? (
-            <Button variant="outline" onClick={runDemo}><Sparkles className="h-4 w-4 mr-2" />Load demo data</Button>
+            <Button variant="outline" onClick={runDemo} className="flex-1 sm:flex-none"><Sparkles className="h-4 w-4 mr-2" />Load demo data</Button>
           ) : (
-            <Button variant="outline" onClick={unloadDemo}><Sparkles className="h-4 w-4 mr-2" />Unload demo data</Button>
+            <Button variant="outline" onClick={unloadDemo} className="flex-1 sm:flex-none"><Sparkles className="h-4 w-4 mr-2" />Unload demo data</Button>
           )}
-          <Button asChild className="gradient-primary"><Link to="/app/people"><Plus className="h-4 w-4 mr-2" />Add contact</Link></Button>
+          <Button asChild className="gradient-primary flex-1 sm:flex-none"><Link to="/app/people"><Plus className="h-4 w-4 mr-2" />Add contact</Link></Button>
         </div>
       </div>
 

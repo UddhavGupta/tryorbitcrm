@@ -24,9 +24,9 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
     <div className="min-h-screen flex flex-col bg-card-muted">
       <DemoBadge />
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between gap-6">
-          <button onClick={() => navigate("/app")} className="flex items-center" aria-label="OrbitCRM home">
-            <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
+        <div className="container flex h-14 md:h-16 items-center justify-between gap-2 md:gap-6">
+          <button onClick={() => navigate("/app")} className="flex items-center shrink-0" aria-label="OrbitCRM home">
+            <img src={logo} alt="OrbitCRM" className="h-7 md:h-8 w-auto object-contain" />
           </button>
           <nav className="hidden md:flex items-center gap-1">
             {links.map((l) => (
@@ -45,7 +45,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
               </NavLink>
             ))}
           </nav>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2 shrink-0">
             <div className="h-8 w-8 rounded-full bg-ink text-ink-foreground grid place-items-center text-sm font-medium">{initial}</div>
             <Button variant="ghost" size="icon" onClick={async () => { await signOut(); navigate("/"); }} aria-label="Sign out">
               <LogOut className="h-4 w-4" />
@@ -53,26 +53,26 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
           </div>
         </div>
         <nav className="md:hidden border-t border-border overflow-x-auto">
-          <div className="container flex gap-1 py-2">
+          <div className="container flex gap-1 py-2 min-w-max">
             {links.map((l) => (
               <NavLink
                 key={l.to}
                 to={l.to}
                 end={l.end as any}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap ${
+                  `flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs whitespace-nowrap ${
                     isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground"
                   }`
                 }
               >
-                <l.icon className="h-4 w-4" />
+                <l.icon className="h-3.5 w-3.5" />
                 {l.label}
               </NavLink>
             ))}
           </div>
         </nav>
       </header>
-      <main className="container py-8 flex-1">{children}</main>
+      <main className="container py-4 md:py-8 flex-1">{children}</main>
       <AppFooter />
     </div>
   );

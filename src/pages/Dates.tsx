@@ -38,8 +38,8 @@ const Dates = () => {
   return (
     <AppLayout>
       <div className="mb-6">
-        <h1 className="text-3xl font-semibold tracking-tight">Dates</h1>
-        <p className="text-muted-foreground mt-1">Birthdays and anniversaries across your network.</p>
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Dates</h1>
+        <p className="text-muted-foreground mt-1 text-sm md:text-base">Birthdays and anniversaries across your network.</p>
       </div>
 
       {isLoading && (

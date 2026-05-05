@@ -28,35 +28,35 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
+        <div className="container flex h-14 sm:h-16 items-center justify-between gap-2">
+          <div className="flex items-center min-w-0">
+            <img src={logo} alt="OrbitCRM" className="h-7 sm:h-8 w-auto object-contain" />
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
-            <Button asChild className="gradient-primary"><Link to="/auth?mode=signup">Sign up</Link></Button>
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <Button variant="ghost" asChild size="sm" className="sm:size-default"><Link to="/auth">Sign in</Link></Button>
+            <Button asChild size="sm" className="gradient-primary sm:size-default"><Link to="/auth?mode=signup">Sign up</Link></Button>
           </div>
         </div>
       </header>
 
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 gradient-soft pointer-events-none" />
-        <div className="container relative py-24 md:py-32 text-center">
+        <div className="container relative py-16 sm:py-24 md:py-32 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Personal CRM, reimagined
           </span>
-          <h1 className="font-display mt-6 text-5xl md:text-7xl font-medium tracking-tight leading-[1.05]">
+          <h1 className="font-display mt-6 text-4xl sm:text-5xl md:text-7xl font-medium tracking-tight leading-[1.05]">
             Remember everyone <br />
             <span className="italic text-primary">in your orbit.</span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto">
+          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2">
             A lightweight CRM for students, founders, operators, and job seekers. Track who you know, what matters, and when to reach out next.
           </p>
-          <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
-            <Button size="lg" variant="outline" onClick={handleStartDemo} disabled={loadingDemo}>
+          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none">
+            <Button size="lg" variant="outline" onClick={handleStartDemo} disabled={loadingDemo} className="w-full sm:w-auto">
               <PlayCircle className="mr-2 h-4 w-4" />{loadingDemo ? "Loading demo…" : "Start Demo"}
             </Button>
-            <Button size="lg" asChild className="gradient-primary"><Link to="/auth?mode=signup">Sign Up <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto"><Link to="/auth?mode=signup">Sign Up <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">Demo loads sample contacts in a temporary account — no real data is shown.</p>
         </div>
@@ -154,8 +154,8 @@ const Landing = () => {
       </section>
 
       <footer className="border-t border-border bg-card/40">
-        <div className="container py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
-          <div className="col-span-2 md:col-span-1">
+        <div className="container py-12 md:py-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 md:gap-10">
+          <div className="col-span-1 sm:col-span-2 md:col-span-1">
             <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">
               Everything in your circle, always in motion.
