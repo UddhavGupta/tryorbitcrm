@@ -329,6 +329,35 @@ const People = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Relationship status</Label>
+              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any status</SelectItem>
+                  <SelectItem value="active">Active (≤30d)</SelectItem>
+                  <SelectItem value="warming">Warming (31–60d)</SelectItem>
+                  <SelectItem value="cooling">Cooling (61–90d)</SelectItem>
+                  <SelectItem value="cold">Cold (90+d)</SelectItem>
+                  <SelectItem value="unknown">No history</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Suggested action</Label>
+              <Select value={actionFilter} onValueChange={(v) => setActionFilter(v as ActionFilter)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any action</SelectItem>
+                  <SelectItem value="overdue_follow_up">Overdue follow-up</SelectItem>
+                  <SelectItem value="follow_up_today">Follow up today</SelectItem>
+                  <SelectItem value="reconnect_soon">Reconnect soon</SelectItem>
+                  <SelectItem value="send_birthday_note">Send birthday note</SelectItem>
+                  <SelectItem value="no_action">No action needed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed pt-1 border-t border-border">{INTEL_DISCLAIMER}</p>
             {activeFilterCount > 0 && (
               <Button variant="ghost" size="sm" className="w-full" onClick={clearAll}>
                 <X className="h-4 w-4 mr-1" />Clear all filters
