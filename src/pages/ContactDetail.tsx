@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { ContactDialog } from "@/components/ContactDialog";
 import { InteractionDialog, interactionTypeLabel } from "@/components/InteractionDialog";
+import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -22,8 +24,8 @@ const ContactDetail = () => {
   const [editing, setEditing] = useState(false);
   const [interactionOpen, setInteractionOpen] = useState(false);
   const [editingInteraction, setEditingInteraction] = useState<any>(null);
-  const [reminderTitle, setReminderTitle] = useState("");
-  const [reminderDate, setReminderDate] = useState(new Date().toISOString().slice(0, 10));
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [editingReminder, setEditingReminder] = useState<any>(null);
 
   const { data: contact, isLoading, error } = useQuery({
     queryKey: ["contact", id],
@@ -70,13 +72,7 @@ const ContactDetail = () => {
     toast.success("Interaction deleted");
   };
 
-  const addReminder = async () => {
-    if (!reminderTitle.trim() || !user) return;
-    await supabase.from("reminders").insert({ user_id: user.id, contact_id: id!, title: reminderTitle, due_date: reminderDate });
-    setReminderTitle("");
-    qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
-    toast.success("Reminder added");
-  };
+
 
   const toggleGroup = async (gid: string, has: boolean) => {
     if (!user) return;
@@ -232,27 +228,42 @@ const ContactDetail = () => {
           </div>
 
           <div className="surface-card p-6">
-            <h3 className="font-semibold mb-3">Reminders</h3>
-            <div className="flex gap-2">
-              <Input placeholder="Follow up about…" value={reminderTitle} onChange={(e) => setReminderTitle(e.target.value)} />
-              <Input type="date" value={reminderDate} onChange={(e) => setReminderDate(e.target.value)} className="w-44" />
-              <Button onClick={addReminder} className="gradient-primary"><Plus className="h-4 w-4" /></Button>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">Reminders</h3>
+              <Button size="sm" onClick={() => { setEditingReminder(null); setReminderOpen(true); }} className="gradient-primary">
+                <Plus className="h-4 w-4 mr-1" />New
+              </Button>
             </div>
-            <ul className="mt-4 divide-y divide-border">
-              {(reminders ?? []).map((r: any) => (
-                <li key={r.id} className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <input type="checkbox" checked={r.completed} onChange={async () => {
+            {(reminders ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground py-2">No reminders for this contact.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {reminders!.map((r: any) => (
+                  <li key={r.id} className="py-2.5 flex items-center gap-3">
+                    <Checkbox checked={r.completed} onCheckedChange={async () => {
                       await supabase.from("reminders").update({ completed: !r.completed }).eq("id", r.id);
                       qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
+                      qc.invalidateQueries({ queryKey: ["reminders"] });
+                      qc.invalidateQueries({ queryKey: ["reminders-today"] });
                     }} />
-                    <span className={r.completed ? "line-through text-muted-foreground" : ""}>{r.title}</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{format(parseISO(r.due_date), "MMM d")}</span>
-                </li>
-              ))}
-              {(reminders ?? []).length === 0 && <p className="text-sm text-muted-foreground py-2">No reminders.</p>}
-            </ul>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-sm truncate ${r.completed ? "line-through text-muted-foreground" : ""}`}>{r.title}</span>
+                        <span className={`text-[10px] uppercase tracking-wide font-semibold px-1.5 py-0.5 rounded-full ${priorityClasses(r.priority)}`}>{r.priority}</span>
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{format(parseISO(r.due_date), "MMM d")}</span>
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditingReminder(r); setReminderOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
+                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={async () => {
+                      await supabase.from("reminders").delete().eq("id", r.id);
+                      qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
+                      qc.invalidateQueries({ queryKey: ["reminders"] });
+                      toast.success("Deleted");
+                    }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>

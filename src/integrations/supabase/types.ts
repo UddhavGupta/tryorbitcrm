@@ -206,6 +206,7 @@ export type Database = {
           created_at: string
           due_date: string
           id: string
+          priority: string
           title: string
           user_id: string
         }
@@ -215,6 +216,7 @@ export type Database = {
           created_at?: string
           due_date: string
           id?: string
+          priority?: string
           title: string
           user_id: string
         }
@@ -224,6 +226,7 @@ export type Database = {
           created_at?: string
           due_date?: string
           id?: string
+          priority?: string
           title?: string
           user_id?: string
         }

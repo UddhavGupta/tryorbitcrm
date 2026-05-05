@@ -1,111 +1,155 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { format, parseISO, isPast, isToday } from "date-fns";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, AlertCircle, CheckCircle2, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 const Reminders = () => {
-  const { user } = useAuth();
   const qc = useQueryClient();
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [contactId, setContactId] = useState<string>("none");
+  const [tab, setTab] = useState<"open" | "completed">("open");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
 
-  const { data: reminders } = useQuery({
+  const { data: reminders, isLoading, error } = useQuery({
     queryKey: ["reminders"],
     queryFn: async () => {
-      const { data } = await supabase.from("reminders").select("*, contacts(id, name)").order("due_date");
+      const { data, error } = await supabase
+        .from("reminders")
+        .select("*, contacts(id, name, last_name)")
+        .order("due_date");
+      if (error) throw error;
       return data ?? [];
     },
   });
 
-  const { data: contacts } = useQuery({
-    queryKey: ["all-contacts-mini"],
-    queryFn: async () => (await supabase.from("contacts").select("id, name").order("name")).data ?? [],
-  });
-
-  const create = async () => {
-    if (!title.trim() || !user) return;
-    await supabase.from("reminders").insert({
-      user_id: user.id, title, due_date: date,
-      contact_id: contactId === "none" ? null : contactId,
-    });
-    setTitle("");
-    qc.invalidateQueries({ queryKey: ["reminders"] });
-    toast.success("Reminder added");
-  };
+  const open = useMemo(() => (reminders ?? []).filter((r: any) => !r.completed), [reminders]);
+  const done = useMemo(() => (reminders ?? []).filter((r: any) => r.completed).reverse(), [reminders]);
+  const list = tab === "open" ? open : done;
 
   const toggle = async (r: any) => {
-    await supabase.from("reminders").update({ completed: !r.completed }).eq("id", r.id);
+    const { error } = await supabase.from("reminders").update({ completed: !r.completed }).eq("id", r.id);
+    if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["reminders"] });
+    qc.invalidateQueries({ queryKey: ["reminders-today"] });
+    qc.invalidateQueries({ queryKey: ["contact-reminders"] });
+    toast.success(!r.completed ? "Marked complete" : "Reopened");
   };
 
   const remove = async (id: string) => {
-    await supabase.from("reminders").delete().eq("id", id);
+    const { error } = await supabase.from("reminders").delete().eq("id", id);
+    if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["reminders"] });
+    qc.invalidateQueries({ queryKey: ["reminders-today"] });
+    qc.invalidateQueries({ queryKey: ["contact-reminders"] });
+    toast.success("Reminder deleted");
   };
-
-  const open = (reminders ?? []).filter((r: any) => !r.completed);
-  const done = (reminders ?? []).filter((r: any) => r.completed);
 
   return (
     <AppLayout>
-      <h1 className="text-3xl font-semibold tracking-tight">Reminders</h1>
-      <p className="text-muted-foreground mt-1 mb-6">Stay on top of follow-ups.</p>
-
-      <div className="surface-card p-4 grid sm:grid-cols-[1fr_auto_auto_auto] gap-2 mb-6">
-        <Input placeholder="What's the follow-up?" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <Select value={contactId} onValueChange={setContactId}>
-          <SelectTrigger className="sm:w-48"><SelectValue placeholder="No contact" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">No contact</SelectItem>
-            {(contacts ?? []).map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="sm:w-44" />
-        <Button onClick={create} className="gradient-primary"><Plus className="h-4 w-4 mr-1" />Add</Button>
+      <div className="flex items-end justify-between flex-wrap gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">Reminders</h1>
+          <p className="text-muted-foreground mt-1">Stay on top of follow-ups.</p>
+        </div>
+        <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gradient-primary">
+          <Plus className="h-4 w-4 mr-2" />New reminder
+        </Button>
       </div>
 
-      <h2 className="font-semibold mb-2">Open ({open.length})</h2>
-      <div className="surface-card divide-y divide-border mb-8">
-        {open.map((r: any) => {
-          const overdue = !r.completed && isPast(parseISO(r.due_date)) && !isToday(parseISO(r.due_date));
-          return (
-            <div key={r.id} className="flex items-center gap-3 p-4">
-              <input type="checkbox" checked={r.completed} onChange={() => toggle(r)} />
-              <div className="flex-1">
-                <p className="font-medium">{r.title}</p>
-                {r.contacts && <Link to={`/app/people/${r.contacts.id}`} className="text-sm text-muted-foreground hover:text-primary">{r.contacts.name}</Link>}
-              </div>
-              <span className={`text-sm ${overdue ? "text-destructive" : "text-muted-foreground"}`}>{format(parseISO(r.due_date), "MMM d")}</span>
-              <Button variant="ghost" size="icon" onClick={() => remove(r.id)}><Trash2 className="h-4 w-4" /></Button>
-            </div>
-          );
-        })}
-        {open.length === 0 && <div className="p-8 text-center text-muted-foreground text-sm">All clear.</div>}
-      </div>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="mb-4">
+        <TabsList>
+          <TabsTrigger value="open">Open ({open.length})</TabsTrigger>
+          <TabsTrigger value="completed">Completed ({done.length})</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-      {done.length > 0 && (
-        <>
-          <h2 className="font-semibold mb-2">Completed</h2>
-          <div className="surface-card divide-y divide-border">
-            {done.map((r: any) => (
-              <div key={r.id} className="flex items-center gap-3 p-4">
-                <input type="checkbox" checked onChange={() => toggle(r)} />
-                <div className="flex-1 line-through text-muted-foreground">{r.title}</div>
-                <Button variant="ghost" size="icon" onClick={() => remove(r.id)}><Trash2 className="h-4 w-4" /></Button>
-              </div>
-            ))}
-          </div>
-        </>
+      {isLoading && (
+        <div className="surface-card p-10 flex flex-col items-center text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin mb-2" /><p className="text-sm">Loading reminders…</p>
+        </div>
       )}
+
+      {error && (
+        <div className="surface-card p-6 border border-destructive/30 bg-destructive/5 text-destructive flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+          <div><p className="font-medium">Couldn't load reminders</p><p className="text-sm opacity-80">{(error as Error).message}</p></div>
+        </div>
+      )}
+
+      {!isLoading && !error && list.length === 0 && (
+        <div className="surface-card p-12 text-center">
+          <div className="h-14 w-14 rounded-2xl gradient-primary mx-auto grid place-items-center mb-4">
+            {tab === "open" ? <Bell className="h-6 w-6 text-primary-foreground" /> : <CheckCircle2 className="h-6 w-6 text-primary-foreground" />}
+          </div>
+          <h3 className="text-lg font-semibold">{tab === "open" ? "All clear" : "Nothing completed yet"}</h3>
+          <p className="text-muted-foreground mt-1">{tab === "open" ? "No open follow-ups. Add one to keep momentum." : "Completed reminders will show up here."}</p>
+          {tab === "open" && (
+            <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gradient-primary mt-5">
+              <Plus className="h-4 w-4 mr-2" />New reminder
+            </Button>
+          )}
+        </div>
+      )}
+
+      {!isLoading && !error && list.length > 0 && (
+        <div className="surface-card divide-y divide-border">
+          {list.map((r: any) => {
+            const due = parseISO(r.due_date);
+            const overdue = !r.completed && isPast(due) && !isToday(due);
+            const today = isToday(due);
+            return (
+              <div key={r.id} className="flex items-center gap-3 p-4">
+                <Checkbox checked={r.completed} onCheckedChange={() => toggle(r)} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className={`font-medium truncate ${r.completed ? "line-through text-muted-foreground" : ""}`}>{r.title}</p>
+                    <span className={`text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full ${priorityClasses(r.priority)}`}>{r.priority}</span>
+                  </div>
+                  {r.contacts && (
+                    <Link to={`/app/people/${r.contacts.id}`} className="text-sm text-muted-foreground hover:text-primary">
+                      {[r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ")}
+                    </Link>
+                  )}
+                </div>
+                <span className={`text-sm whitespace-nowrap ${overdue ? "text-destructive font-medium" : today ? "text-primary font-medium" : "text-muted-foreground"}`}>
+                  {overdue ? "Overdue · " : today ? "Today · " : ""}{format(due, "MMM d")}
+                </span>
+                <Button variant="ghost" size="icon" onClick={() => { setEditing(r); setDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4" /></Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete this reminder?</AlertDialogTitle>
+                      <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => remove(r.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <ReminderDialog
+        open={dialogOpen}
+        onOpenChange={(o) => { setDialogOpen(o); if (!o) setEditing(null); }}
+        reminder={editing}
+        onSaved={() => qc.invalidateQueries({ queryKey: ["reminders"] })}
+      />
     </AppLayout>
   );
 };
