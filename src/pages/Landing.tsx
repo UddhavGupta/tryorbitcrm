@@ -10,6 +10,7 @@ import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFoo
 const Landing = () => {
   const navigate = useNavigate();
   const [loadingDemo, setLoadingDemo] = useState(false);
+  const [doc, setDoc] = useState<DocKey>(null);
 
   const handleStartDemo = async () => {
     setLoadingDemo(true);
