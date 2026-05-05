@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
 import { DemoBadge } from "@/components/DemoBadge";
+import { AppFooter } from "@/components/AppFooter";
 import logo from "@/assets/orbitcrm-logo.png";
 
 const links = [
