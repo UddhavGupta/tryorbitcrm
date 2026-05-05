@@ -6,6 +6,8 @@ import { ReactNode } from "react";
 import { DemoBadge } from "@/components/DemoBadge";
 import { AppFooter } from "@/components/AppFooter";
 import logo from "@/assets/orbitcrm-logo.png";
+import demoAvatar from "@/assets/demo-avatar.png";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const links = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -46,7 +48,10 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
             ))}
           </nav>
           <div className="flex items-center gap-1 md:gap-2 shrink-0">
-            <div className="h-8 w-8 rounded-full bg-ink text-ink-foreground grid place-items-center text-sm font-medium">{initial}</div>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={demoAvatar} alt="Demo profile" />
+              <AvatarFallback className="bg-ink text-ink-foreground text-sm font-medium">{initial}</AvatarFallback>
+            </Avatar>
             <Button variant="ghost" size="icon" onClick={async () => { await signOut(); navigate("/"); }} aria-label="Sign out">
               <LogOut className="h-4 w-4" />
             </Button>
