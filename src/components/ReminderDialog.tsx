@@ -143,6 +143,10 @@ export const ReminderDialog = ({ open, onOpenChange, onSaved, reminder, defaultC
               </Select>
             </div>
           )}
+          <div className="space-y-1.5">
+            <Label>Notes</Label>
+            <Textarea rows={3} value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Optional context for this follow-up." />
+          </div>
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
