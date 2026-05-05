@@ -6,6 +6,8 @@ import { ReactNode } from "react";
 import { DemoBadge } from "@/components/DemoBadge";
 import { AppFooter } from "@/components/AppFooter";
 import logo from "@/assets/orbitcrm-logo.png";
+import demoAvatar from "@/assets/demo-avatar.png";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const links = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true },
