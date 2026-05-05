@@ -146,6 +146,7 @@ export type Database = {
           created_at: string
           id: string
           kind: string
+          next_steps: string | null
           note: string | null
           occurred_at: string
           user_id: string
@@ -155,6 +156,7 @@ export type Database = {
           created_at?: string
           id?: string
           kind?: string
+          next_steps?: string | null
           note?: string | null
           occurred_at?: string
           user_id: string
@@ -164,6 +166,7 @@ export type Database = {
           created_at?: string
           id?: string
           kind?: string
+          next_steps?: string | null
           note?: string | null
           occurred_at?: string
           user_id?: string
