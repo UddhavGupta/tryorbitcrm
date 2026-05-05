@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ const schema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   due_date: z.string().min(1, "Due date is required"),
   priority: z.enum(["low", "medium", "high"]),
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 
 type Props = {
