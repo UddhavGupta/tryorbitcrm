@@ -1,17 +1,29 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
-import { Plus, Search, UserPlus, Loader2, AlertCircle } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Plus, Search, UserPlus, Loader2, AlertCircle, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ContactDialog } from "@/components/ContactDialog";
 
 const People = () => {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const groupFilter = searchParams.get("group") ?? "all";
+  const setGroupFilter = (v: string) => {
+    if (v === "all") setSearchParams({});
+    else setSearchParams({ group: v });
+  };
   const qc = useQueryClient();
+
+  const { data: allGroups } = useQuery({
+    queryKey: ["all-groups"],
+    queryFn: async () => (await supabase.from("groups").select("*").order("name")).data ?? [],
+  });
 
   const { data: contacts, isLoading, error } = useQuery({
     queryKey: ["contacts"],
@@ -26,15 +38,22 @@ const People = () => {
   });
 
   const filtered = useMemo(() => {
-    if (!q) return contacts ?? [];
-    const t = q.toLowerCase();
-    return (contacts ?? []).filter((c: any) =>
-      [c.name, c.last_name, c.title, c.company, c.city, c.email, c.notes, ...(c.contact_groups?.map((cg: any) => cg.groups?.name) ?? [])]
-        .filter(Boolean).join(" ").toLowerCase().includes(t)
-    );
-  }, [contacts, q]);
+    let list = contacts ?? [];
+    if (groupFilter !== "all") {
+      list = list.filter((c: any) => c.contact_groups?.some((cg: any) => cg.group_id === groupFilter));
+    }
+    if (q) {
+      const t = q.toLowerCase();
+      list = list.filter((c: any) =>
+        [c.name, c.last_name, c.title, c.company, c.city, c.email, c.notes, ...(c.contact_groups?.map((cg: any) => cg.groups?.name) ?? [])]
+          .filter(Boolean).join(" ").toLowerCase().includes(t)
+      );
+    }
+    return list;
+  }, [contacts, q, groupFilter]);
 
   const fullName = (c: any) => [c.name, c.last_name].filter(Boolean).join(" ");
+  const activeGroupName = allGroups?.find((g: any) => g.id === groupFilter)?.name;
 
   return (
     <AppLayout>
@@ -46,9 +65,27 @@ const People = () => {
         <Button onClick={() => setOpen(true)} className="gradient-primary"><Plus className="h-4 w-4 mr-2" />Add contact</Button>
       </div>
 
-      <div className="relative mb-6">
-        <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search by name, title, company, city, notes…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="flex flex-wrap gap-3 mb-6">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Search by name, title, company, city, notes…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+        </div>
+        <Select value={groupFilter} onValueChange={setGroupFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All groups" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All groups</SelectItem>
+            {(allGroups ?? []).map((g: any) => (
+              <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {groupFilter !== "all" && activeGroupName && (
+          <Button variant="ghost" size="sm" onClick={() => setGroupFilter("all")}>
+            <X className="h-4 w-4 mr-1" />Clear "{activeGroupName}"
+          </Button>
+        )}
       </div>
 
       {isLoading && (
