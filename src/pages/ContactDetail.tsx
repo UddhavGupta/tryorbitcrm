@@ -72,13 +72,7 @@ const ContactDetail = () => {
     toast.success("Interaction deleted");
   };
 
-  const addReminder = async () => {
-    if (!reminderTitle.trim() || !user) return;
-    await supabase.from("reminders").insert({ user_id: user.id, contact_id: id!, title: reminderTitle, due_date: reminderDate });
-    setReminderTitle("");
-    qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
-    toast.success("Reminder added");
-  };
+
 
   const toggleGroup = async (gid: string, has: boolean) => {
     if (!user) return;
