@@ -277,3 +277,24 @@ export const AppFooter = () => {
     </>
   );
 };
+
+export const DocModal = ({ open, onClose }: { open: DocKey; onClose: () => void }) => (
+  <Dialog open={open !== null} onOpenChange={(v) => !v && onClose()}>
+    <DialogContent className="max-w-2xl rounded-2xl p-0 overflow-hidden">
+      {open && (
+        <>
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+            <DialogTitle className="text-lg">{TITLES[open]}</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[70vh]">
+            <div className="px-6 py-5 space-y-6">
+              {open === "privacy" && PRIVACY}
+              {open === "terms" && TERMS}
+              {open === "help" && HELP}
+            </div>
+          </ScrollArea>
+        </>
+      )}
+    </DialogContent>
+  </Dialog>
+);
