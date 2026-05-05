@@ -254,12 +254,30 @@ const ContactDetail = () => {
                     </div>
                     <span className="text-xs text-muted-foreground whitespace-nowrap">{format(parseISO(r.due_date), "MMM d")}</span>
                     <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditingReminder(r); setReminderOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={async () => {
-                      await supabase.from("reminders").delete().eq("id", r.id);
-                      qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
-                      qc.invalidateQueries({ queryKey: ["reminders"] });
-                      toast.success("Deleted");
-                    }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="icon" variant="ghost" className="h-7 w-7"><Trash2 className="h-3.5 w-3.5" /></Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this reminder?</AlertDialogTitle>
+                          <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={async () => {
+                              await supabase.from("reminders").delete().eq("id", r.id);
+                              qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
+                              qc.invalidateQueries({ queryKey: ["reminders"] });
+                              qc.invalidateQueries({ queryKey: ["reminders-today"] });
+                              toast.success("Reminder deleted");
+                            }}
+                          >Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </li>
                 ))}
               </ul>
@@ -275,6 +293,18 @@ const ContactDetail = () => {
         contactId={id!}
         interaction={editingInteraction}
         onSaved={refreshInteractions}
+      />
+      <ReminderDialog
+        open={reminderOpen}
+        onOpenChange={(o) => { setReminderOpen(o); if (!o) setEditingReminder(null); }}
+        reminder={editingReminder}
+        defaultContactId={id!}
+        lockContact
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
+          qc.invalidateQueries({ queryKey: ["reminders"] });
+          qc.invalidateQueries({ queryKey: ["reminders-today"] });
+        }}
       />
     </AppLayout>
   );

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Plus, Pencil, Trash2, Loader2, AlertCircle, UsersRound } from "lucide-react";
+import { Plus, Pencil, Trash2, UsersRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { GroupDialog } from "@/components/GroupDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { toast } from "sonner";
 
 const Groups = () => {
@@ -49,18 +50,9 @@ const Groups = () => {
         </Button>
       </div>
 
-      {isLoading && (
-        <div className="surface-card p-10 flex flex-col items-center text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin mb-2" /><p className="text-sm">Loading groups…</p>
-        </div>
-      )}
+      {isLoading && <CardListSkeleton count={3} />}
 
-      {error && (
-        <div className="surface-card p-6 border border-destructive/30 bg-destructive/5 text-destructive flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-          <div><p className="font-medium">Couldn't load groups</p><p className="text-sm opacity-80">{(error as Error).message}</p></div>
-        </div>
-      )}
+      {error && <ErrorState title="Couldn't load groups" message={(error as Error).message} />}
 
       {!isLoading && !error && (groups?.length ?? 0) === 0 && (
         <div className="surface-card p-12 text-center">
