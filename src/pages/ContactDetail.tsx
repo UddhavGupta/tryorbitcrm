@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { ContactDialog } from "@/components/ContactDialog";
 import { InteractionDialog, interactionTypeLabel } from "@/components/InteractionDialog";
+import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -22,8 +24,8 @@ const ContactDetail = () => {
   const [editing, setEditing] = useState(false);
   const [interactionOpen, setInteractionOpen] = useState(false);
   const [editingInteraction, setEditingInteraction] = useState<any>(null);
-  const [reminderTitle, setReminderTitle] = useState("");
-  const [reminderDate, setReminderDate] = useState(new Date().toISOString().slice(0, 10));
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [editingReminder, setEditingReminder] = useState<any>(null);
 
   const { data: contact, isLoading, error } = useQuery({
     queryKey: ["contact", id],
