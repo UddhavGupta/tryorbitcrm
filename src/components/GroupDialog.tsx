@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ export const GROUP_COLORS = ["#a78bfa", "#34d399", "#fb923c", "#60a5fa", "#f472b
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(60),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Pick a color"),
+  description: z.string().trim().max(500).optional().or(z.literal("")),
 });
 
 type Props = {
@@ -24,14 +26,14 @@ type Props = {
 
 export const GroupDialog = ({ open, onOpenChange, onSaved, group }: Props) => {
   const { user } = useAuth();
-  const [form, setForm] = useState<any>({ name: "", color: GROUP_COLORS[0] });
+  const [form, setForm] = useState<any>({ name: "", color: GROUP_COLORS[0], description: "" });
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     setErrorMsg(null);
-    if (group) setForm({ name: group.name ?? "", color: group.color ?? GROUP_COLORS[0] });
-    else setForm({ name: "", color: GROUP_COLORS[0] });
+    if (group) setForm({ name: group.name ?? "", color: group.color ?? GROUP_COLORS[0], description: group.description ?? "" });
+    else setForm({ name: "", color: GROUP_COLORS[0], description: "" });
   }, [group, open]);
 
   const save = async () => {
@@ -42,7 +44,7 @@ export const GroupDialog = ({ open, onOpenChange, onSaved, group }: Props) => {
       setErrorMsg(msg); toast.error(msg); return;
     }
     setSaving(true); setErrorMsg(null);
-    const payload = { name: form.name.trim(), color: form.color, user_id: user.id };
+    const payload = { name: form.name.trim(), color: form.color, description: form.description?.trim() || null, user_id: user.id };
     const { error } = group
       ? await supabase.from("groups").update(payload).eq("id", group.id)
       : await supabase.from("groups").insert(payload);
@@ -62,6 +64,10 @@ export const GroupDialog = ({ open, onOpenChange, onSaved, group }: Props) => {
           <div className="space-y-1.5">
             <Label>Name *</Label>
             <Input value={form.name} onChange={(e) => setForm((f: any) => ({ ...f, name: e.target.value }))} placeholder="e.g. Investors" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Description</Label>
+            <Textarea rows={2} value={form.description} onChange={(e) => setForm((f: any) => ({ ...f, description: e.target.value }))} placeholder="What is this group for?" />
           </div>
           <div className="space-y-1.5">
             <Label>Color</Label>
