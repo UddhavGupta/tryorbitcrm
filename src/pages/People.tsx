@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { differenceInDays, parseISO, format } from "date-fns";
-import { Plus, Search, UserPlus, X, SlidersHorizontal, MapPin, CalendarClock, Clock, Bell, ArrowUpDown } from "lucide-react";
+import { Plus, Search, UserPlus, X, SlidersHorizontal, MapPin, CalendarClock, Clock, Bell, ArrowUpDown, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { ContactDialog } from "@/components/ContactDialog";
+import { ImportCsvDialog } from "@/components/ImportCsvDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
@@ -27,6 +28,7 @@ type ActionFilter = "all" | SuggestedAction;
 const People = () => {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const groupFilter = searchParams.get("group") ?? "all";
   const setGroupFilter = (v: string) => {
@@ -220,7 +222,10 @@ const People = () => {
           <p className="text-muted-foreground mt-1">Search, filter, and manage the relationships in your orbit.</p>
           <p className="text-xs text-muted-foreground mt-1">{contacts?.length ?? 0} contacts</p>
         </div>
-        <Button onClick={() => setOpen(true)} className="gradient-primary"><Plus className="h-4 w-4 mr-2" />Add contact</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4 mr-2" />Import CSV</Button>
+          <Button onClick={() => setOpen(true)} className="gradient-primary"><Plus className="h-4 w-4 mr-2" />Add contact</Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
@@ -490,6 +495,10 @@ const People = () => {
       )}
 
       <ContactDialog open={open} onOpenChange={setOpen} onSaved={() => qc.invalidateQueries({ queryKey: ["contacts"] })} />
+      <ImportCsvDialog open={importOpen} onOpenChange={setImportOpen} onImported={() => {
+        qc.invalidateQueries({ queryKey: ["contacts"] });
+        qc.invalidateQueries({ queryKey: ["all-groups"] });
+      }} />
     </AppLayout>
   );
 };
