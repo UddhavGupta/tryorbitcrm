@@ -14,6 +14,7 @@ import Groups from "./pages/Groups";
 import Dates from "./pages/Dates";
 import Reminders from "./pages/Reminders";
 import NotFound from "./pages/NotFound.tsx";
+import ProjectNotes from "./pages/ProjectNotes";
 
 const queryClient = new QueryClient();
 
