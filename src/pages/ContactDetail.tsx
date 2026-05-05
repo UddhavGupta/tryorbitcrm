@@ -258,6 +258,13 @@ const ContactDetail = () => {
       </div>
 
       <ContactDialog open={editing} onOpenChange={setEditing} contact={contact} onSaved={() => qc.invalidateQueries({ queryKey: ["contact", id] })} />
+      <InteractionDialog
+        open={interactionOpen}
+        onOpenChange={(o) => { setInteractionOpen(o); if (!o) setEditingInteraction(null); }}
+        contactId={id!}
+        interaction={editingInteraction}
+        onSaved={refreshInteractions}
+      />
     </AppLayout>
   );
 };
