@@ -236,4 +236,104 @@ const FooterRoute = ({ to, children }: { to: string; children: React.ReactNode }
   <li><Link to={to} className={linkBase}>{children}</Link></li>
 );
 
+const TODAYS = [
+  { name: "Priya Shah", ctx: "Recruiter · Stripe", tag: "Follow up on referral", priority: "high" as const },
+  { name: "Marcus Lee", ctx: "Investor · Foundry", tag: "Send updated deck", priority: "med" as const },
+  { name: "Aisha Okonkwo", ctx: "Alumni · INSEAD", tag: "Coffee chat reply", priority: "low" as const },
+];
+const BIRTHDAYS = [
+  { name: "Daniel Cho", when: "Today", role: "Mentor" },
+  { name: "Lina Roth", when: "in 3 days", role: "Classmate" },
+];
+const COOLING = [
+  { name: "Jordan Reyes", days: 47, role: "Operator · Notion" },
+  { name: "Hana Park", days: 62, role: "Founder · Loom" },
+];
+
+const priorityDot: Record<"high" | "med" | "low", string> = {
+  high: "bg-primary",
+  med: "bg-amber-500",
+  low: "bg-muted-foreground/40",
+};
+
+const DashboardPreview = () => (
+  <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden max-w-5xl mx-auto">
+    {/* Window chrome */}
+    <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background/60">
+      <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
+      <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
+      <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
+      <div className="ml-3 text-xs text-muted-foreground font-mono truncate">orbitcrm.app/app</div>
+    </div>
+
+    <div className="p-5 md:p-7">
+      <div className="flex items-baseline justify-between mb-5">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Dashboard</p>
+          <h3 className="font-display text-xl md:text-2xl mt-0.5">Good morning, Uddhav</h3>
+        </div>
+        <span className="hidden sm:inline text-xs text-muted-foreground">Tuesday, May 5</span>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        {/* Today's reach-outs */}
+        <PreviewPanel icon={<Sun className="h-3.5 w-3.5" />} title="Today's reach-outs" count={TODAYS.length}>
+          {TODAYS.map((t) => (
+            <li key={t.name} className="flex items-start gap-2.5 py-2 border-b border-border/60 last:border-0">
+              <span className={`mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${priorityDot[t.priority]}`} />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{t.name}</p>
+                <p className="text-[11px] text-muted-foreground truncate">{t.ctx}</p>
+                <p className="text-[11px] text-foreground/70 mt-0.5 truncate">{t.tag}</p>
+              </div>
+            </li>
+          ))}
+        </PreviewPanel>
+
+        {/* Birthdays */}
+        <PreviewPanel icon={<Cake className="h-3.5 w-3.5" />} title="Birthdays" count={BIRTHDAYS.length}>
+          {BIRTHDAYS.map((b) => (
+            <li key={b.name} className="flex items-center justify-between py-2 border-b border-border/60 last:border-0">
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{b.name}</p>
+                <p className="text-[11px] text-muted-foreground truncate">{b.role}</p>
+              </div>
+              <span className="text-[11px] text-primary font-medium shrink-0 ml-2">{b.when}</span>
+            </li>
+          ))}
+          <li className="pt-2 text-[11px] text-muted-foreground">+2 more this month</li>
+        </PreviewPanel>
+
+        {/* Cooling */}
+        <PreviewPanel icon={<Flame className="h-3.5 w-3.5" />} title="Cooling alerts" count={COOLING.length}>
+          {COOLING.map((c) => (
+            <li key={c.name} className="flex items-center justify-between py-2 border-b border-border/60 last:border-0">
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{c.name}</p>
+                <p className="text-[11px] text-muted-foreground truncate">{c.role}</p>
+              </div>
+              <span className="text-[11px] text-muted-foreground shrink-0 ml-2">{c.days}d cold</span>
+            </li>
+          ))}
+        </PreviewPanel>
+      </div>
+    </div>
+  </div>
+);
+
+const PreviewPanel = ({
+  icon, title, count, children,
+}: { icon: React.ReactNode; title: string; count: number; children: React.ReactNode }) => (
+  <div className="rounded-xl border border-border bg-background/40 p-4">
+    <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+        <span className="text-primary">{icon}</span>
+        {title}
+      </div>
+      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{count}</span>
+    </div>
+    <ul>{children}</ul>
+  </div>
+);
+
 export default Landing;
