@@ -34,7 +34,7 @@ const Landing = () => {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild><Link to="/auth">Sign in</Link></Button>
-            <Button asChild className="gradient-primary"><Link to="/auth?mode=signup">Get started</Link></Button>
+            <Button asChild className="gradient-primary"><Link to="/auth?mode=signup">Sign up</Link></Button>
           </div>
         </div>
       </header>
@@ -52,10 +52,13 @@ const Landing = () => {
           <p className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto">
             A lightweight CRM for students, founders, operators, and job seekers. Track who you know, what matters, and when to reach out next.
           </p>
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <Button size="lg" asChild className="gradient-primary"><Link to="/auth?mode=signup">Start free <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-            <Button size="lg" variant="outline" asChild><Link to="/auth">Try the demo</Link></Button>
+          <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+            <Button size="lg" variant="outline" onClick={handleStartDemo} disabled={loadingDemo}>
+              <PlayCircle className="mr-2 h-4 w-4" />{loadingDemo ? "Loading demo…" : "Start Demo"}
+            </Button>
+            <Button size="lg" asChild className="gradient-primary"><Link to="/auth?mode=signup">Sign Up <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
           </div>
+          <p className="mt-3 text-xs text-muted-foreground">Demo loads sample contacts in a temporary account — no real data is shown.</p>
         </div>
       </section>
 
