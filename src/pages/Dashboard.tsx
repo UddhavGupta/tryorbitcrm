@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { seedDemo } from "@/lib/demo";
 import { toast } from "sonner";
+import {
+  getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
+  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
+} from "@/lib/relationshipIntel";
 
 function nextOccurrence(dateStr: string) {
   const d = parseISO(dateStr);
