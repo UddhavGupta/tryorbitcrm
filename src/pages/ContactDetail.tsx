@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { ContactDialog } from "@/components/ContactDialog";
+import { InteractionDialog, interactionTypeLabel } from "@/components/InteractionDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
@@ -173,21 +174,61 @@ const ContactDetail = () => {
 
         <div className="lg:col-span-2 space-y-6">
           <div className="surface-card p-6">
-            <h3 className="font-semibold mb-3">Log interaction</h3>
-            <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="What did you talk about?" />
-            <div className="mt-3 flex justify-end"><Button onClick={addInteraction} className="gradient-primary"><Plus className="h-4 w-4 mr-2" />Log</Button></div>
-            <div className="mt-6 space-y-3">
-              {(interactions ?? []).map((i: any) => (
-                <div key={i.id} className="flex gap-3 items-start">
-                  <div className="h-2 w-2 mt-2 rounded-full bg-primary shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm">{i.note}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{format(parseISO(i.occurred_at), "MMM d, yyyy · h:mm a")}</p>
-                  </div>
-                </div>
-              ))}
-              {(interactions ?? []).length === 0 && <p className="text-sm text-muted-foreground">No history yet.</p>}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">Interaction history</h3>
+              <Button size="sm" onClick={() => { setEditingInteraction(null); setInteractionOpen(true); }} className="gradient-primary">
+                <Plus className="h-4 w-4 mr-1" />Log interaction
+              </Button>
             </div>
+            {(interactions ?? []).length === 0 ? (
+              <div className="py-10 text-center text-sm text-muted-foreground">
+                <p>No interactions yet.</p>
+                <p className="mt-1">Log your first conversation, meeting, or intro to start a timeline.</p>
+              </div>
+            ) : (
+              <ol className="space-y-5 border-l border-border ml-1.5">
+                {interactions!.map((i: any) => (
+                  <li key={i.id} className="relative pl-5">
+                    <div className="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full bg-primary ring-4 ring-background" />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{interactionTypeLabel(i.kind)}</span>
+                          <span className="text-xs text-muted-foreground">{format(parseISO(i.occurred_at), "MMM d, yyyy")}</span>
+                        </div>
+                        {i.note && <p className="text-sm mt-2 whitespace-pre-wrap">{i.note}</p>}
+                        {i.next_steps && (
+                          <div className="mt-2 rounded-md bg-secondary px-3 py-2 text-xs">
+                            <span className="font-semibold text-foreground">Next steps: </span>
+                            <span className="text-muted-foreground whitespace-pre-wrap">{i.next_steps}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditingInteraction(i); setInteractionOpen(true); }}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-7 w-7"><Trash2 className="h-3.5 w-3.5" /></Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete this interaction?</AlertDialogTitle>
+                              <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteInteraction(i.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
 
           <div className="surface-card p-6">
