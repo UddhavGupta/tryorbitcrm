@@ -1,108 +1,117 @@
 import { supabase } from "@/integrations/supabase/client";
+import SEED from "./seedContacts.json";
 
-export type Contact = {
-  id: string;
-  user_id: string;
-  name: string;
+type SeedRow = {
+  first_name: string;
+  last_name: string | null;
   title: string | null;
   company: string | null;
+  city: string | null;
   email: string | null;
   phone: string | null;
-  city: string | null;
-  notes: string | null;
-  birthday: string | null;
-  anniversary: string | null;
+  linkedin_url: string | null;
+  group: string | null;
+  priority: string;
   last_contacted_at: string | null;
-  cooling_days: number;
-  avatar_url: string | null;
+  next_follow_up_date: string | null;
+  birthday: string | null;
+  notes: string | null;
 };
 
-export type Group = {
-  id: string;
-  user_id: string;
-  name: string;
-  color: string | null;
-};
-
-export type Reminder = {
-  id: string;
-  user_id: string;
-  contact_id: string | null;
-  title: string;
-  due_date: string;
-  completed: boolean;
-};
-
-export type Interaction = {
-  id: string;
-  user_id: string;
-  contact_id: string;
-  kind: string;
-  note: string | null;
-  occurred_at: string;
-};
-
-const SAMPLE = [
-  { name: "Maya Chen", title: "Product Designer", company: "Linear", city: "San Francisco", email: "maya@example.com", birthday: "1995-05-12", cooling_days: 21, notes: "Met at Config 2024. Loves bouldering." },
-  { name: "Jordan Patel", title: "Founder", company: "Tideflow", city: "London", email: "jordan@example.com", birthday: "1990-07-04", cooling_days: 14, notes: "Intro from Sam. Talk hiring." },
-  { name: "Sofia Rossi", title: "Engineering Manager", company: "Vercel", city: "Berlin", email: "sofia@example.com", anniversary: "2022-09-21", cooling_days: 30, notes: "Possible advisor." },
-  { name: "Liam O'Connor", title: "VC Associate", company: "Northwind", city: "New York", email: "liam@example.com", cooling_days: 45, notes: "Seed-stage, fintech focus." },
-  { name: "Aiko Tanaka", title: "Researcher", company: "DeepMind", city: "Tokyo", email: "aiko@example.com", birthday: "1992-11-30", cooling_days: 60, notes: "Sent paper draft." },
-  { name: "Noah Kim", title: "Recruiter", company: "Stripe", city: "Dublin", email: "noah@example.com", cooling_days: 30, notes: "Job lead — staff PM." },
-  { name: "Priya Singh", title: "CTO", company: "Loomly", city: "Bangalore", email: "priya@example.com", birthday: "1988-03-18", cooling_days: 21, notes: "Co-founder of friend's startup." },
-  { name: "Elena García", title: "Marketing Lead", company: "Notion", city: "Madrid", email: "elena@example.com", cooling_days: 30, notes: "Helped with launch copy." },
-];
-
-const GROUPS = [
-  { name: "Investors", color: "#a78bfa" },
-  { name: "Friends", color: "#34d399" },
-  { name: "Recruiters", color: "#fb923c" },
-  { name: "Founders", color: "#60a5fa" },
+const GROUP_COLORS = [
+  "#a78bfa", "#34d399", "#fb923c", "#60a5fa", "#f472b6",
+  "#facc15", "#22d3ee", "#fb7185", "#4ade80", "#c084fc",
+  "#fcd34d", "#7dd3fc", "#fda4af", "#a3e635", "#f97316",
+  "#818cf8", "#2dd4bf", "#e879f9", "#84cc16", "#0ea5e9",
+  "#ef4444", "#10b981", "#8b5cf6",
 ];
 
 export async function seedDemo(userId: string) {
-  // Clear existing user data first
+  // Clear existing data for this user (anonymous demo session)
   await supabase.from("reminders").delete().eq("user_id", userId);
   await supabase.from("interactions").delete().eq("user_id", userId);
   await supabase.from("contact_groups").delete().eq("user_id", userId);
   await supabase.from("contacts").delete().eq("user_id", userId);
   await supabase.from("groups").delete().eq("user_id", userId);
 
-  const { data: groups } = await supabase
-    .from("groups")
-    .insert(GROUPS.map((g) => ({ ...g, user_id: userId })))
-    .select();
+  const rows = SEED as SeedRow[];
 
-  const now = new Date();
-  const contactsPayload = SAMPLE.map((c, i) => {
-    const daysAgo = [2, 50, 5, 90, 12, 1, 40, 25][i] ?? 10;
-    const last = new Date(now);
-    last.setDate(last.getDate() - daysAgo);
-    return { ...c, user_id: userId, last_contacted_at: last.toISOString() };
-  });
+  // Build group palette from CSV
+  const groupNames = Array.from(new Set(rows.map((r) => r.group).filter(Boolean))) as string[];
+  const groupsPayload = groupNames.map((name, i) => ({
+    user_id: userId,
+    name,
+    color: GROUP_COLORS[i % GROUP_COLORS.length],
+  }));
+  const { data: groups } = await supabase.from("groups").insert(groupsPayload).select();
+  const groupByName = new Map((groups ?? []).map((g: any) => [g.name, g.id]));
+
+  // Insert contacts
+  const contactsPayload = rows.map((r) => ({
+    user_id: userId,
+    name: r.first_name,
+    last_name: r.last_name,
+    title: r.title,
+    company: r.company,
+    city: r.city,
+    email: r.email,
+    phone: r.phone,
+    linkedin_url: r.linkedin_url,
+    priority: r.priority,
+    last_contacted_at: r.last_contacted_at ? new Date(r.last_contacted_at).toISOString() : null,
+    next_follow_up_date: r.next_follow_up_date,
+    birthday: r.birthday,
+    notes: r.notes,
+    cooling_days: 30,
+  }));
   const { data: contacts } = await supabase.from("contacts").insert(contactsPayload).select();
 
-  if (contacts && groups) {
-    const cg: any[] = [];
-    contacts.forEach((c, i) => {
-      const g = groups[i % groups.length];
-      cg.push({ contact_id: c.id, group_id: g.id, user_id: userId });
-    });
-    await supabase.from("contact_groups").insert(cg);
+  if (!contacts) return;
 
-    const today = new Date();
-    const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-    const nextWeek = new Date(today); nextWeek.setDate(today.getDate() + 7);
-    await supabase.from("reminders").insert([
-      { user_id: userId, contact_id: contacts[0].id, title: "Send portfolio link", due_date: today.toISOString().slice(0, 10) },
-      { user_id: userId, contact_id: contacts[1].id, title: "Follow up on hiring chat", due_date: today.toISOString().slice(0, 10) },
-      { user_id: userId, contact_id: contacts[3].id, title: "Share deck v2", due_date: tomorrow.toISOString().slice(0, 10) },
-      { user_id: userId, contact_id: contacts[5].id, title: "Confirm interview slot", due_date: nextWeek.toISOString().slice(0, 10) },
-    ]);
+  // Group memberships
+  const cgPayload = contacts
+    .map((c, i) => {
+      const groupName = rows[i].group;
+      const gid = groupName ? groupByName.get(groupName) : null;
+      if (!gid) return null;
+      return { contact_id: c.id, group_id: gid, user_id: userId };
+    })
+    .filter(Boolean) as any[];
+  if (cgPayload.length) await supabase.from("contact_groups").insert(cgPayload);
 
-    await supabase.from("interactions").insert([
-      { user_id: userId, contact_id: contacts[0].id, kind: "meeting", note: "Coffee at Sightglass — discussed roadmap.", occurred_at: new Date(now.getTime() - 2 * 86400000).toISOString() },
-      { user_id: userId, contact_id: contacts[1].id, kind: "email", note: "Sent intro to Sam.", occurred_at: new Date(now.getTime() - 50 * 86400000).toISOString() },
-    ]);
-  }
+  // Reminders — pull from next_follow_up_date when present, prioritize today/overdue
+  const today = new Date().toISOString().slice(0, 10);
+  const reminders = contacts
+    .map((c, i) => {
+      if (!rows[i].next_follow_up_date) return null;
+      return {
+        user_id: userId,
+        contact_id: c.id,
+        title: `Follow up with ${rows[i].first_name}`,
+        due_date: rows[i].next_follow_up_date,
+        priority: rows[i].priority,
+        completed: false,
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 12) as any[];
+  // Force a couple to be due today for a lively dashboard
+  if (reminders[0]) reminders[0].due_date = today;
+  if (reminders[1]) reminders[1].due_date = today;
+  if (reminders.length) await supabase.from("reminders").insert(reminders);
+
+  // A few sample interactions on the first handful of contacts
+  const sampleInteractions = contacts.slice(0, 6).map((c, i) => {
+    const daysAgo = [3, 10, 21, 5, 45, 14][i];
+    const occurred = new Date(Date.now() - daysAgo * 86400000).toISOString();
+    const kinds = ["meeting", "email", "call", "text", "note", "intro"];
+    return {
+      user_id: userId,
+      contact_id: c.id,
+      kind: kinds[i],
+      note: rows[i].notes ?? `Caught up with ${rows[i].first_name}.`,
+      occurred_at: occurred,
+    };
+  });
+  await supabase.from("interactions").insert(sampleInteractions);
 }
