@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Calendar, Users, ArrowRight, CircleCheck, PlayCircle, Github, Linkedin, Globe } from "lucide-react";
+import { Bell, Calendar, Users, ArrowRight, CircleCheck, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { startDemo } from "@/lib/startDemo";
 import { useState } from "react";
@@ -62,7 +62,42 @@ const Landing = () => {
         </div>
       </section>
 
-      <section id="features" className="container py-20 grid md:grid-cols-3 gap-6">
+      {/* Product preview */}
+      <section className="container pb-8 md:pb-16 -mt-6 md:-mt-10">
+        <DashboardPreview />
+        <p className="text-center text-xs text-muted-foreground mt-4">
+          A glimpse of the dashboard. Explore the live version with seeded sample data.
+        </p>
+      </section>
+
+      {/* How it works */}
+      <section className="container py-20">
+        <div className="text-center max-w-2xl mx-auto">
+          <p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold">How it works</p>
+          <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight mt-3">
+            Three steps to a warmer network.
+          </h2>
+        </div>
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          {[
+            { icon: UserPlus, num: "01", title: "Add people", desc: "Capture the contacts who matter — recruiters, alumni, investors, classmates, mentors." },
+            { icon: NotebookPen, num: "02", title: "Capture context", desc: "Notes, groups, priorities, birthdays, and why each relationship matters." },
+            { icon: Send, num: "03", title: "Follow up at the right time", desc: "Reminders and cooling alerts surface who needs attention today." },
+          ].map((s) => (
+            <div key={s.title} className="surface-card p-7 relative">
+              <span className="text-[10px] font-mono tracking-widest text-primary/70">{s.num}</span>
+              <div className="h-10 w-10 rounded-xl bg-accent grid place-items-center mt-3 mb-4">
+                <s.icon className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <h3 className="font-semibold text-lg">{s.title}</h3>
+              <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Original feature highlights */}
+      <section id="features" className="container py-12 grid md:grid-cols-3 gap-6">
         {[
           { icon: Users, title: "Your people, organized", desc: "Group contacts by context — investors, friends, recruiters, classmates." },
           { icon: Bell, title: "Never go cold", desc: "Cooling alerts surface relationships drifting out of touch." },
@@ -78,15 +113,43 @@ const Landing = () => {
         ))}
       </section>
 
-      <section className="container pb-24">
-        <div className="surface-card p-10 md:p-16 text-center gradient-soft">
-          <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight">Built for network-heavy people</h2>
-          <ul className="mt-6 grid sm:grid-cols-2 gap-3 max-w-xl mx-auto text-left">
-            {["Search by name, company, city, notes", "Interaction history per contact", "Today's reach-outs on your dashboard", "Demo mode with seeded data"].map((t) => (
-              <li key={t} className="flex items-center gap-2 text-sm"><CircleCheck className="h-4 w-4 text-primary" />{t}</li>
+      {/* Built for network-heavy people */}
+      <section className="container py-20">
+        <div className="surface-card p-10 md:p-16 gradient-soft">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight">Built for network-heavy people</h2>
+            <p className="text-muted-foreground mt-3">
+              Designed for the people whose work depends on relationships staying warm.
+            </p>
+          </div>
+          <div className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+            {[
+              { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities." },
+              { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles." },
+              { t: "Students", d: "Managing classmates, alumni, and mentors as you build a long-term network." },
+              { t: "Operators", d: "Managing cross-functional partners and external relationships across teams." },
+            ].map((u) => (
+              <div key={u.t} className="rounded-xl border border-border bg-card p-5">
+                <p className="font-semibold text-foreground">{u.t}</p>
+                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{u.d}</p>
+              </div>
             ))}
-          </ul>
-          <Button size="lg" asChild className="mt-8 gradient-primary"><Link to="/auth?mode=signup">Create your account</Link></Button>
+          </div>
+          <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-3">
+            <Button size="lg" onClick={handleStartDemo} disabled={loadingDemo} className="gradient-primary">
+              <PlayCircle className="mr-2 h-4 w-4" />{loadingDemo ? "Loading demo…" : "Start Demo"}
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/auth?mode=signup">Sign Up</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Portfolio disclaimer */}
+      <section className="container pb-16">
+        <div className="rounded-2xl border border-border bg-card/60 p-6 text-center max-w-3xl mx-auto">
+          <p className="text-sm text-muted-foreground italic leading-relaxed">{PORTFOLIO_DISCLAIMER}</p>
         </div>
       </section>
 
