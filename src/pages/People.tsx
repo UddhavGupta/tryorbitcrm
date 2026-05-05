@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { differenceInDays, parseISO } from "date-fns";
-import { Plus, Search, UserPlus, Loader2, AlertCircle, X, SlidersHorizontal } from "lucide-react";
+import { Plus, Search, UserPlus, X, SlidersHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { ContactDialog } from "@/components/ContactDialog";
+import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 
 type LastRange = "all" | "7" | "30" | "90" | "never" | "cooling";
 type FollowUp = "all" | "overdue" | "today" | "week" | "month" | "none";
@@ -237,22 +238,9 @@ const People = () => {
         </div>
       )}
 
-      {isLoading && (
-        <div className="surface-card p-10 flex flex-col items-center justify-center text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin mb-2" />
-          <p className="text-sm">Loading contacts…</p>
-        </div>
-      )}
+      {isLoading && <CardListSkeleton />}
 
-      {error && (
-        <div className="surface-card p-6 border border-destructive/30 bg-destructive/5 text-destructive flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-medium">Couldn't load contacts</p>
-            <p className="text-sm opacity-80">{(error as Error).message}</p>
-          </div>
-        </div>
-      )}
+      {error && <ErrorState title="Couldn't load contacts" message={(error as Error).message} />}
 
       {!isLoading && !error && (contacts?.length ?? 0) === 0 && (
         <div className="surface-card p-12 text-center">
@@ -279,7 +267,11 @@ const People = () => {
       {!isLoading && !error && filtered.length > 0 && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((c: any) => (
-            <Link key={c.id} to={`/app/people/${c.id}`} className="surface-card p-5 hover:shadow-lg transition-shadow">
+            <Link
+              key={c.id}
+              to={`/app/people/${c.id}`}
+              className="surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30"
+            >
               <div className="flex items-center gap-3">
                 <div className="h-11 w-11 rounded-full gradient-primary text-primary-foreground grid place-items-center font-semibold">
                   {c.name.charAt(0)}

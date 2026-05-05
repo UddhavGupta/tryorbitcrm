@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { format, parseISO, isPast, isToday } from "date-fns";
-import { Plus, Pencil, Trash2, Loader2, AlertCircle, CheckCircle2, Bell } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { RowListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { toast } from "sonner";
 
 const Reminders = () => {
@@ -71,18 +72,9 @@ const Reminders = () => {
         </TabsList>
       </Tabs>
 
-      {isLoading && (
-        <div className="surface-card p-10 flex flex-col items-center text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin mb-2" /><p className="text-sm">Loading reminders…</p>
-        </div>
-      )}
+      {isLoading && <RowListSkeleton />}
 
-      {error && (
-        <div className="surface-card p-6 border border-destructive/30 bg-destructive/5 text-destructive flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-          <div><p className="font-medium">Couldn't load reminders</p><p className="text-sm opacity-80">{(error as Error).message}</p></div>
-        </div>
-      )}
+      {error && <ErrorState title="Couldn't load reminders" message={(error as Error).message} />}
 
       {!isLoading && !error && list.length === 0 && (
         <div className="surface-card p-12 text-center">
