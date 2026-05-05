@@ -14,6 +14,7 @@ import Groups from "./pages/Groups";
 import Dates from "./pages/Dates";
 import Reminders from "./pages/Reminders";
 import NotFound from "./pages/NotFound.tsx";
+import ProjectNotes from "./pages/ProjectNotes";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/project-notes" element={<ProjectNotes />} />
             <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
             <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
