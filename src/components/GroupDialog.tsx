@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ export const GROUP_COLORS = ["#a78bfa", "#34d399", "#fb923c", "#60a5fa", "#f472b
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(60),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Pick a color"),
+  description: z.string().trim().max(500).optional().or(z.literal("")),
 });
 
 type Props = {
