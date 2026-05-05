@@ -236,17 +236,17 @@ const FooterRoute = ({ to, children }: { to: string; children: React.ReactNode }
 );
 
 const TODAYS = [
-  { name: "Priya Shah", ctx: "Recruiter · Stripe", tag: "Follow up on referral", priority: "high" as const },
-  { name: "Marcus Lee", ctx: "Investor · Foundry", tag: "Send updated deck", priority: "med" as const },
-  { name: "Aisha Okonkwo", ctx: "Alumni · INSEAD", tag: "Coffee chat reply", priority: "low" as const },
+  { name: "Maya Ellis", ctx: "Product Strategy · Aster Vale Labs", tag: "Follow up on referral", priority: "high" as const },
+  { name: "Noah Raman", ctx: "Founder · Copperline Studio", tag: "Send updated deck", priority: "high" as const },
+  { name: "Leah Morrison", ctx: "Investor · Harborpoint Ventures", tag: "Coffee chat reply", priority: "med" as const },
 ];
 const BIRTHDAYS = [
-  { name: "Daniel Cho", when: "Today", role: "Mentor" },
-  { name: "Lina Roth", when: "in 3 days", role: "Classmate" },
+  { name: "Sofia Park", when: "Today", role: "UX Researcher" },
+  { name: "Ethan Brooks", when: "in 3 days", role: "Growth Manager" },
 ];
 const COOLING = [
-  { name: "Jordan Reyes", days: 47, role: "Operator · Notion" },
-  { name: "Hana Park", days: 62, role: "Founder · Loom" },
+  { name: "Arjun Vale", days: 47, role: "Chief of Staff · Northbridge Systems" },
+  { name: "Priya Mehta", days: 62, role: "PM · Waypoint Cloud" },
 ];
 
 const priorityDot: Record<"high" | "med" | "low", string> = {
