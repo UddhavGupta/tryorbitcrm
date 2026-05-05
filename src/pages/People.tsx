@@ -102,7 +102,7 @@ const People = () => {
     }
     if (openReminder !== "all") {
       list = list.filter((c: any) => {
-        const has = openReminders?.has(c.id) ?? false;
+        const has = openReminders?.set.has(c.id) ?? false;
         return openReminder === "yes" ? has : !has;
       });
     }
