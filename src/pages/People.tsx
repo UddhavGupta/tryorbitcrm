@@ -133,6 +133,7 @@ const People = () => {
         }
         return true;
       });
+    }
     if (statusFilter !== "all") {
       list = list.filter((c: any) => getRelationshipStatus(c.last_contacted_at) === statusFilter);
     }
