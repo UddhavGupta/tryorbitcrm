@@ -1,9 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Bell, Calendar, LayoutDashboard, LogOut, Search, Sparkles, Users, UsersRound } from "lucide-react";
+import { Bell, Calendar, LayoutDashboard, LogOut, Search, Users, UsersRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
 import { DemoBadge } from "@/components/DemoBadge";
+import logo from "@/assets/orbitcrm-logo.png";
 
 const links = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -23,11 +24,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
       <DemoBadge />
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center justify-between gap-6">
-          <button onClick={() => navigate("/app")} className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-xl gradient-primary grid place-items-center">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold tracking-tight">OrbitCRM</span>
+          <button onClick={() => navigate("/app")} className="flex items-center" aria-label="OrbitCRM home">
+            <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
           </button>
           <nav className="hidden md:flex items-center gap-1">
             {links.map((l) => (
