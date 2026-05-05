@@ -6,10 +6,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export type DocKey = "privacy" | "terms" | "help" | null;
 
 export const PORTFOLIO_DISCLAIMER =
-  "OrbitCRM is a portfolio project, not a real company or commercialized product. Demo content is fictional and for illustrative purposes only.";
+  "OrbitCRM is a portfolio project, not a real company or commercialized product. Demo data is fully fictional and for illustrative purposes only.";
 
 const DISCLAIMER =
-  "OrbitCRM is a portfolio project. It is not a real company or commercialized product. All demo content is for illustrative purposes only.";
+  "OrbitCRM is a portfolio project. It is not a real company or commercialized product. Demo data is fully fictional and for illustrative purposes only.";
 
 const PRIVACY = (
   <>
