@@ -12,11 +12,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Label } from "@/components/ui/label";
 import { ContactDialog } from "@/components/ContactDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
+import {
+  getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
+  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, type RelationshipStatus, type SuggestedAction,
+} from "@/lib/relationshipIntel";
 
 type LastRange = "all" | "7" | "30" | "90" | "never" | "cooling60" | "cooling";
 type FollowUp = "all" | "overdue" | "today" | "week" | "month" | "none";
 type OpenReminder = "all" | "yes" | "no";
 type SortBy = "name" | "recent" | "stale" | "follow" | "priority";
+type StatusFilter = "all" | RelationshipStatus;
+type ActionFilter = "all" | SuggestedAction;
 
 const People = () => {
   const [q, setQ] = useState("");
@@ -33,6 +39,8 @@ const People = () => {
   const [lastRange, setLastRange] = useState<LastRange>("all");
   const [followUp, setFollowUp] = useState<FollowUp>("all");
   const [openReminder, setOpenReminder] = useState<OpenReminder>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [actionFilter, setActionFilter] = useState<ActionFilter>("all");
   const [sortBy, setSortBy] = useState<SortBy>("name");
   const qc = useQueryClient();
 
@@ -56,10 +64,19 @@ const People = () => {
   const { data: openReminders } = useQuery({
     queryKey: ["open-reminders-by-contact"],
     queryFn: async () => {
-      const { data } = await supabase.from("reminders").select("contact_id").eq("completed", false);
+      const { data } = await supabase
+        .from("reminders")
+        .select("contact_id, due_date")
+        .eq("completed", false)
+        .order("due_date");
       const set = new Set<string>();
-      (data ?? []).forEach((r: any) => r.contact_id && set.add(r.contact_id));
-      return set;
+      const earliest = new Map<string, string>();
+      (data ?? []).forEach((r: any) => {
+        if (!r.contact_id) return;
+        set.add(r.contact_id);
+        if (!earliest.has(r.contact_id)) earliest.set(r.contact_id, r.due_date);
+      });
+      return { set, earliest };
     },
   });
 
@@ -85,7 +102,7 @@ const People = () => {
     }
     if (openReminder !== "all") {
       list = list.filter((c: any) => {
-        const has = openReminders?.has(c.id) ?? false;
+        const has = openReminders?.set.has(c.id) ?? false;
         return openReminder === "yes" ? has : !has;
       });
     }
@@ -116,6 +133,17 @@ const People = () => {
         }
         return true;
       });
+    }
+    if (statusFilter !== "all") {
+      list = list.filter((c: any) => getRelationshipStatus(c.last_contacted_at) === statusFilter);
+    }
+    if (actionFilter !== "all") {
+      list = list.filter((c: any) => getSuggestedAction({
+        priority: c.priority,
+        last_contacted_at: c.last_contacted_at,
+        birthday: c.birthday,
+        nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
+      }) === actionFilter);
     }
     if (q) {
       const t = q.toLowerCase();
@@ -149,7 +177,7 @@ const People = () => {
       return 0;
     });
     return sorted;
-  }, [contacts, q, groupFilter, priority, companyFilter, lastRange, followUp, openReminder, openReminders, sortBy]);
+  }, [contacts, q, groupFilter, priority, companyFilter, lastRange, followUp, openReminder, openReminders, statusFilter, actionFilter, sortBy]);
 
   const fullName = (c: any) => [c.name, c.last_name].filter(Boolean).join(" ");
   const activeGroupName = allGroups?.find((g: any) => g.id === groupFilter)?.name;
@@ -160,7 +188,9 @@ const People = () => {
     (companyFilter !== "all" ? 1 : 0) +
     (lastRange !== "all" ? 1 : 0) +
     (followUp !== "all" ? 1 : 0) +
-    (openReminder !== "all" ? 1 : 0);
+    (openReminder !== "all" ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (actionFilter !== "all" ? 1 : 0);
 
   const clearAll = () => {
     setQ("");
@@ -170,6 +200,8 @@ const People = () => {
     setLastRange("all");
     setFollowUp("all");
     setOpenReminder("all");
+    setStatusFilter("all");
+    setActionFilter("all");
   };
 
   const lastContactedLabel = (c: any) => {
@@ -297,6 +329,35 @@ const People = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Relationship status</Label>
+              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any status</SelectItem>
+                  <SelectItem value="active">Active (≤30d)</SelectItem>
+                  <SelectItem value="warming">Warming (31–60d)</SelectItem>
+                  <SelectItem value="cooling">Cooling (61–90d)</SelectItem>
+                  <SelectItem value="cold">Cold (90+d)</SelectItem>
+                  <SelectItem value="unknown">No history</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Suggested action</Label>
+              <Select value={actionFilter} onValueChange={(v) => setActionFilter(v as ActionFilter)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any action</SelectItem>
+                  <SelectItem value="overdue_follow_up">Overdue follow-up</SelectItem>
+                  <SelectItem value="follow_up_today">Follow up today</SelectItem>
+                  <SelectItem value="reconnect_soon">Reconnect soon</SelectItem>
+                  <SelectItem value="send_birthday_note">Send birthday note</SelectItem>
+                  <SelectItem value="no_action">No action needed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed pt-1 border-t border-border">{INTEL_DISCLAIMER}</p>
             {activeFilterCount > 0 && (
               <Button variant="ghost" size="sm" className="w-full" onClick={clearAll}>
                 <X className="h-4 w-4 mr-1" />Clear all filters
@@ -350,8 +411,15 @@ const People = () => {
           {filtered.map((c: any) => {
             const days = c.last_contacted_at ? differenceInDays(new Date(), parseISO(c.last_contacted_at)) : null;
             const isCooling = days !== null && days >= (c.cooling_days ?? 30);
-            const hasOpenReminder = openReminders?.has(c.id);
+            const hasOpenReminder = openReminders?.set.has(c.id);
             const priorityVal = c.priority ?? "medium";
+            const status = getRelationshipStatus(c.last_contacted_at);
+            const action = getSuggestedAction({
+              priority: c.priority,
+              last_contacted_at: c.last_contacted_at,
+              birthday: c.birthday,
+              nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
+            });
 
             return (
               <Link
@@ -373,6 +441,13 @@ const People = () => {
                     }`}>
                       {priorityVal}
                     </span>
+                  )}
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${STATUS_CLASSES[status]}`}>{STATUS_LABEL[status]}</span>
+                  {action !== "no_action" && (
+                    <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${ACTION_CLASSES[action]}`}>{ACTION_LABEL[action]}</span>
                   )}
                 </div>
 

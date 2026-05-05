@@ -15,6 +15,10 @@ import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import {
+  getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
+  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
+} from "@/lib/relationshipIntel";
 
 const ContactDetail = () => {
   const { id } = useParams();
@@ -90,6 +94,14 @@ const ContactDetail = () => {
 
   const days = contact.last_contacted_at ? differenceInDays(new Date(), parseISO(contact.last_contacted_at)) : null;
   const groupIds = new Set(contact.contact_groups?.map((cg: any) => cg.group_id) ?? []);
+  const status = getRelationshipStatus(contact.last_contacted_at);
+  const earliestOpenReminder = (reminders ?? []).find((r: any) => !r.completed)?.due_date ?? null;
+  const action = getSuggestedAction({
+    priority: contact.priority,
+    last_contacted_at: contact.last_contacted_at,
+    birthday: contact.birthday,
+    nextOpenReminderDue: earliestOpenReminder,
+  });
 
   return (
     <AppLayout>
@@ -108,6 +120,11 @@ const ContactDetail = () => {
                 {contact.priority} priority
               </span>
             )}
+            <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+              <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${STATUS_CLASSES[status]}`}>{STATUS_LABEL[status]}</span>
+              <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${ACTION_CLASSES[action]}`}>{ACTION_LABEL[action]}</span>
+            </div>
+            <p className="mt-2 text-[10px] text-muted-foreground italic px-2 leading-relaxed">{INTEL_DISCLAIMER}</p>
             <div className="mt-4 flex justify-center gap-2">
               <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil className="h-3.5 w-3.5 mr-1" />Edit</Button>
               <AlertDialog>
