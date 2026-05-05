@@ -1,8 +1,27 @@
-import { Link } from "react-router-dom";
-import { Bell, Calendar, Sparkles, Users, ArrowRight, CircleCheck } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Bell, Calendar, Sparkles, Users, ArrowRight, CircleCheck, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { startDemo } from "@/lib/startDemo";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const Landing = () => {
+  const navigate = useNavigate();
+  const [loadingDemo, setLoadingDemo] = useState(false);
+
+  const handleStartDemo = async () => {
+    setLoadingDemo(true);
+    toast.loading("Spinning up demo…", { id: "demo" });
+    try {
+      await startDemo();
+      toast.success("Demo ready", { id: "demo" });
+      navigate("/app");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not start demo", { id: "demo" });
+      setLoadingDemo(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">

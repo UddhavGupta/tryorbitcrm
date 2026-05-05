@@ -3,6 +3,7 @@ import { Bell, Calendar, LayoutDashboard, LogOut, Search, Sparkles, Users, Users
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
+import { DemoBadge } from "@/components/DemoBadge";
 
 const links = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true },
