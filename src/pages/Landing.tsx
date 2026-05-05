@@ -100,7 +100,7 @@ const Landing = () => {
             <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
               <li>Built by Uddhav Gupta</li>
               <li>Portfolio project · 2026</li>
-              <li>Product demo · AI-assisted build</li>
+              <li>Product demo</li>
             </ul>
           </div>
 
