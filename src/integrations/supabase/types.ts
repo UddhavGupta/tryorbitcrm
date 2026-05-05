@@ -208,30 +208,36 @@ export type Database = {
       reminders: {
         Row: {
           completed: boolean
+          completed_at: string | null
           contact_id: string | null
           created_at: string
           due_date: string
           id: string
+          notes: string | null
           priority: string
           title: string
           user_id: string
         }
         Insert: {
           completed?: boolean
+          completed_at?: string | null
           contact_id?: string | null
           created_at?: string
           due_date: string
           id?: string
+          notes?: string | null
           priority?: string
           title: string
           user_id: string
         }
         Update: {
           completed?: boolean
+          completed_at?: string | null
           contact_id?: string | null
           created_at?: string
           due_date?: string
           id?: string
+          notes?: string | null
           priority?: string
           title?: string
           user_id?: string
