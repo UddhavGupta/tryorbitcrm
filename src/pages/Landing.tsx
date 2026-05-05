@@ -45,9 +45,9 @@ const Landing = () => {
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Personal CRM, reimagined
           </span>
-          <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight">
+          <h1 className="font-display mt-6 text-5xl md:text-7xl font-medium tracking-tight leading-[1.05]">
             Remember everyone <br />
-            <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">in your orbit.</span>
+            <span className="italic text-primary">in your orbit.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto">
             A lightweight CRM for students, founders, operators, and job seekers. Track who you know, what matters, and when to reach out next.
@@ -80,7 +80,7 @@ const Landing = () => {
 
       <section className="container pb-24">
         <div className="surface-card p-10 md:p-16 text-center gradient-soft">
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Built for network-heavy people</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight">Built for network-heavy people</h2>
           <ul className="mt-6 grid sm:grid-cols-2 gap-3 max-w-xl mx-auto text-left">
             {["Search by name, company, city, notes", "Interaction history per contact", "Today's reach-outs on your dashboard", "Demo mode with seeded data"].map((t) => (
               <li key={t} className="flex items-center gap-2 text-sm"><CircleCheck className="h-4 w-4 text-primary" />{t}</li>
