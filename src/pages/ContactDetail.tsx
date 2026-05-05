@@ -160,6 +160,13 @@ const ContactDetail = () => {
             </div>
           </div>
 
+          {contact.why_matters && (
+            <div className="surface-card p-6">
+              <h3 className="font-semibold mb-2">Why they matter</h3>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{contact.why_matters}</p>
+            </div>
+          )}
+
           {contact.notes && (
             <div className="surface-card p-6">
               <h3 className="font-semibold mb-2">Notes</h3>

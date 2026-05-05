@@ -69,6 +69,7 @@ export type Database = {
           title: string | null
           updated_at: string
           user_id: string
+          why_matters: string | null
         }
         Insert: {
           anniversary?: string | null
@@ -91,6 +92,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id: string
+          why_matters?: string | null
         }
         Update: {
           anniversary?: string | null
@@ -113,6 +115,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id?: string
+          why_matters?: string | null
         }
         Relationships: []
       }
