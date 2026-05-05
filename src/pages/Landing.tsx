@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Calendar, Sparkles, Users, ArrowRight, CircleCheck, PlayCircle } from "lucide-react";
+import { Bell, Calendar, Sparkles, Users, ArrowRight, CircleCheck, PlayCircle, Mail, MapPin, Github, Twitter, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { startDemo } from "@/lib/startDemo";
 import { useState } from "react";
@@ -88,8 +88,70 @@ const Landing = () => {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} OrbitCRM
+      <footer className="border-t border-border bg-card/40">
+        <div className="container py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
+          <div className="col-span-2 md:col-span-1">
+            <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
+            <p className="mt-4 text-sm text-muted-foreground max-w-xs">
+              Everything in your circle, always in motion.
+            </p>
+            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> hello@orbitcrm.app</li>
+              <li className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Remote · Worldwide</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">Product</h4>
+            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+              <li><button onClick={handleStartDemo} className="hover:text-foreground transition-colors">Live demo</button></li>
+              <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">Sign up</Link></li>
+              <li><Link to="/auth" className="hover:text-foreground transition-colors">Sign in</Link></li>
+              <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">Use cases</h4>
+            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+              <li>Founders</li>
+              <li>Job seekers</li>
+              <li>Students</li>
+              <li>Operators</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">Resources</h4>
+            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+              <li>Getting started</li>
+              <li>Demo data guide</li>
+              <li>Keyboard shortcuts</li>
+              <li>Changelog</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">Legal</h4>
+            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+              <li>Privacy</li>
+              <li>Terms</li>
+              <li>Cookies</li>
+              <li>Security</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-border">
+          <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+            <p>© {new Date().getFullYear()} OrbitCRM. A portfolio project.</p>
+            <div className="flex items-center gap-4">
+              <a href="#" aria-label="Twitter" className="hover:text-foreground transition-colors"><Twitter className="h-4 w-4" /></a>
+              <a href="#" aria-label="LinkedIn" className="hover:text-foreground transition-colors"><Linkedin className="h-4 w-4" /></a>
+              <a href="#" aria-label="GitHub" className="hover:text-foreground transition-colors"><Github className="h-4 w-4" /></a>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
