@@ -26,18 +26,19 @@ export const DemoBadge = () => {
 
   return (
     <div className="border-b border-primary/30 bg-primary/10">
-      <div className="container flex flex-wrap items-center justify-between gap-3 py-2 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-2.5 py-0.5 font-semibold uppercase tracking-wide text-primary">
-            <Sparkles className="h-3 w-3" /> Demo Data
+      <div className="container flex flex-wrap items-center justify-between gap-2 py-1.5 md:py-2 text-xs">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-2 py-0.5 font-semibold uppercase tracking-wide text-primary shrink-0">
+            <Sparkles className="h-3 w-3" /> Demo
           </span>
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground truncate hidden sm:inline">
             You're exploring sample contacts. Changes save to a temporary demo account and are cleared when you exit.
           </span>
+          <span className="text-muted-foreground sm:hidden truncate">Sample data — cleared on exit.</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Button asChild size="sm" variant="ghost"><Link to="/auth?mode=signup">Sign up</Link></Button>
-          <Button size="sm" variant="outline" onClick={handleExit}>Exit demo</Button>
+        <div className="flex items-center gap-1 shrink-0">
+          <Button asChild size="sm" variant="ghost" className="h-7 px-2 text-xs"><Link to="/auth?mode=signup">Sign up</Link></Button>
+          <Button size="sm" variant="outline" onClick={handleExit} className="h-7 px-2 text-xs">Exit</Button>
         </div>
       </div>
     </div>
