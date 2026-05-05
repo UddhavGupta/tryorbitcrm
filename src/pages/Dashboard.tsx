@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { format, differenceInDays, parseISO, isToday, isFuture, addDays, isWithinInterval, setYear } from "date-fns";
-import { Bell, Cake, Snowflake, Sparkles, ArrowRight, Plus } from "lucide-react";
+import { format, differenceInDays, parseISO, addDays, isWithinInterval, setYear } from "date-fns";
+import { Bell, Cake, Snowflake, Sparkles, Plus, Users, AlertTriangle, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
@@ -20,21 +20,34 @@ function nextOccurrence(dateStr: string) {
   return next;
 }
 
+const priorityRank = (p?: string) => (p === "high" ? 0 : p === "medium" ? 1 : 2);
+
 const Dashboard = () => {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const todayStr = new Date().toISOString().slice(0, 10);
 
   const { data: reminders } = useQuery({
     queryKey: ["reminders-today"],
     queryFn: async () => {
-      const today = new Date().toISOString().slice(0, 10);
       const { data } = await supabase
         .from("reminders")
-        .select("*, contacts(id, name, last_name)")
+        .select("*, contacts(id, name, last_name, priority)")
         .eq("completed", false)
-        .lte("due_date", today)
+        .lte("due_date", todayStr)
         .order("due_date");
       return data ?? [];
+    },
+  });
+
+  const { data: openReminders } = useQuery({
+    queryKey: ["reminders-open-count"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("reminders")
+        .select("id", { count: "exact", head: true })
+        .eq("completed", false);
+      return count ?? 0;
     },
   });
 
@@ -45,6 +58,36 @@ const Dashboard = () => {
       return data ?? [];
     },
   });
+
+  // Reach-outs: reminders + contacts with next_follow_up_date today/overdue
+  const reachOuts = (() => {
+    const fromReminders = (reminders ?? []).map((r: any) => ({
+      kind: "reminder" as const,
+      id: r.id,
+      title: r.title,
+      contact: r.contacts ? { id: r.contacts.id, name: [r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ") } : null,
+      date: r.due_date,
+      overdue: r.due_date < todayStr,
+      priority: r.priority ?? r.contacts?.priority ?? "medium",
+    }));
+    const fromContacts = (contacts ?? [])
+      .filter((c: any) => c.next_follow_up_date && c.next_follow_up_date <= todayStr)
+      .map((c: any) => ({
+        kind: "contact" as const,
+        id: c.id,
+        title: "Follow up",
+        contact: { id: c.id, name: [c.name, c.last_name].filter(Boolean).join(" ") },
+        date: c.next_follow_up_date,
+        overdue: c.next_follow_up_date < todayStr,
+        priority: c.priority ?? "medium",
+      }));
+    return [...fromReminders, ...fromContacts].sort((a, b) => {
+      if (a.overdue !== b.overdue) return a.overdue ? -1 : 1;
+      const p = priorityRank(a.priority) - priorityRank(b.priority);
+      if (p !== 0) return p;
+      return a.date.localeCompare(b.date);
+    });
+  })();
 
   const upcomingDates = (contacts ?? [])
     .flatMap((c: any) => {
@@ -59,13 +102,23 @@ const Dashboard = () => {
   const cooling = (contacts ?? [])
     .filter((c: any) => c.last_contacted_at)
     .map((c: any) => ({ c, days: differenceInDays(new Date(), parseISO(c.last_contacted_at)) }))
-    .filter((x) => x.days >= x.c.cooling_days)
-    .sort((a, b) => b.days - a.days)
-    .slice(0, 6);
+    .filter((x) => x.days > 60)
+    .sort((a, b) => {
+      const p = priorityRank(a.c.priority) - priorityRank(b.c.priority);
+      if (p !== 0) return p;
+      return b.days - a.days;
+    })
+    .slice(0, 8);
+
+  // Stats
+  const totalContacts = contacts?.length ?? 0;
+  const overdueRemindersCount = (reminders ?? []).filter((r: any) => r.due_date < todayStr).length;
+  const highPriorityCount = (contacts ?? []).filter((c: any) => c.priority === "high").length;
 
   const completeReminder = async (id: string) => {
     await supabase.from("reminders").update({ completed: true }).eq("id", id);
     qc.invalidateQueries({ queryKey: ["reminders-today"] });
+    qc.invalidateQueries({ queryKey: ["reminders-open-count"] });
     qc.invalidateQueries({ queryKey: ["reminders"] });
     toast.success("Reminder completed");
   };
@@ -90,7 +143,7 @@ const Dashboard = () => {
     toast.success("Demo data removed", { id: "seed" });
   };
 
-  const isEmpty = (contacts?.length ?? 0) === 0;
+  const isEmpty = totalContacts === 0;
 
   return (
     <AppLayout>
@@ -116,33 +169,39 @@ const Dashboard = () => {
         </div>
       )}
 
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatCard label="Total contacts" value={totalContacts} icon={Users} to="/app/people" />
+        <StatCard label="Open reminders" value={openReminders ?? 0} icon={Bell} to="/app/reminders" />
+        <StatCard label="Overdue reminders" value={overdueRemindersCount} icon={AlertTriangle} to="/app/reminders" tone="destructive" />
+        <StatCard label="High-priority contacts" value={highPriorityCount} icon={Star} to="/app/people?priority=high" tone="primary" />
+      </div>
+
       <div className="grid lg:grid-cols-3 gap-6">
-        <Section title="Today's reach-outs" icon={Bell} count={reminders?.length ?? 0}>
-          {(reminders ?? []).length === 0 ? (
+        <Section title="Today's reach-outs" icon={Bell} count={reachOuts.length}>
+          {reachOuts.length === 0 ? (
             <Empty text="Nothing due today. Take a breath." />
           ) : (
             <ul className="divide-y divide-border">
-              {reminders!.map((r: any) => {
-                const due = parseISO(r.due_date);
-                const todayStr = new Date().toISOString().slice(0, 10);
-                const overdue = r.due_date < todayStr;
-                return (
-                  <li key={r.id} className="py-3 flex items-start gap-3">
+              {reachOuts.slice(0, 8).map((r) => (
+                <li key={`${r.kind}-${r.id}`} className="py-3 flex items-start gap-3">
+                  {r.kind === "reminder" ? (
                     <Checkbox onCheckedChange={() => completeReminder(r.id)} className="mt-1" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{r.title}</p>
-                      {r.contacts?.name && (
-                        <Link to={`/app/people/${r.contacts.id}`} className="text-sm text-muted-foreground hover:text-primary">
-                          {[r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ")}
-                        </Link>
-                      )}
-                    </div>
-                    <span className={`text-xs whitespace-nowrap ${overdue ? "text-destructive font-medium" : "text-primary font-medium"}`}>
-                      {overdue ? "Overdue · " : "Today · "}{format(due, "MMM d")}
-                    </span>
-                  </li>
-                );
-              })}
+                  ) : (
+                    <span className="mt-1 h-4 w-4 rounded-full border border-border inline-block" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{r.title}</p>
+                    {r.contact && (
+                      <Link to={`/app/people/${r.contact.id}`} className="text-sm text-muted-foreground hover:text-primary">
+                        {r.contact.name}
+                      </Link>
+                    )}
+                  </div>
+                  <span className={`text-xs whitespace-nowrap font-medium ${r.overdue ? "text-destructive" : "text-primary"}`}>
+                    {r.overdue ? "Overdue · " : "Today · "}{format(parseISO(r.date), "MMM d")}
+                  </span>
+                </li>
+              ))}
             </ul>
           )}
         </Section>
@@ -152,15 +211,18 @@ const Dashboard = () => {
             <Empty text="No upcoming dates in the next 30 days." />
           ) : (
             <ul className="divide-y divide-border">
-              {upcomingDates.slice(0, 6).map((e, i) => (
-                <li key={i} className="py-3 flex items-center gap-3">
-                  <div className="flex-1">
-                    <Link to={`/app/people/${e.contact.id}`} className="font-medium hover:text-primary">{e.contact.name}</Link>
-                    <p className="text-sm text-muted-foreground">{e.type} · {format(e.date, "MMM d")}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">in {differenceInDays(e.date, new Date())}d</span>
-                </li>
-              ))}
+              {upcomingDates.slice(0, 6).map((e, i) => {
+                const days = differenceInDays(e.date, new Date());
+                return (
+                  <li key={i} className="py-3 flex items-center gap-3">
+                    <div className="flex-1">
+                      <Link to={`/app/people/${e.contact.id}`} className="font-medium hover:text-primary">{e.contact.name}</Link>
+                      <p className="text-sm text-muted-foreground">{e.type} · {format(e.date, "MMM d")}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{days <= 0 ? "today" : `in ${days}d`}</span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </Section>
@@ -172,11 +234,14 @@ const Dashboard = () => {
             <ul className="divide-y divide-border">
               {cooling.map(({ c, days }) => (
                 <li key={c.id} className="py-3 flex items-center gap-3">
-                  <div className="flex-1">
-                    <Link to={`/app/people/${c.id}`} className="font-medium hover:text-primary">{c.name}</Link>
-                    <p className="text-sm text-muted-foreground">{c.title || c.company || "—"}</p>
+                  <div className="flex-1 min-w-0">
+                    <Link to={`/app/people/${c.id}`} className="font-medium hover:text-primary truncate block">
+                      {[c.name, c.last_name].filter(Boolean).join(" ")}
+                    </Link>
+                    <p className="text-sm text-muted-foreground truncate">{c.title || c.company || "—"}</p>
                   </div>
-                  <span className="text-xs text-warning font-medium">{days}d cold</span>
+                  {c.priority === "high" && <span className="text-[10px] uppercase tracking-wide text-destructive font-semibold">High</span>}
+                  <span className="text-xs text-warning font-medium whitespace-nowrap">{days}d cold</span>
                 </li>
               ))}
             </ul>
@@ -186,6 +251,16 @@ const Dashboard = () => {
     </AppLayout>
   );
 };
+
+const StatCard = ({ label, value, icon: Icon, to, tone }: any) => (
+  <Link to={to} className="surface-card p-4 hover:border-primary/40 transition-colors">
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <Icon className={`h-4 w-4 ${tone === "destructive" ? "text-destructive" : tone === "primary" ? "text-primary" : "text-muted-foreground"}`} />
+    </div>
+    <p className={`text-2xl font-semibold mt-2 ${tone === "destructive" ? "text-destructive" : ""}`}>{value}</p>
+  </Link>
+);
 
 const Section = ({ title, icon: Icon, count, children }: any) => (
   <div className="surface-card p-6">
