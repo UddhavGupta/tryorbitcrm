@@ -144,6 +144,7 @@ const People = () => {
         nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
       }) === actionFilter);
     }
+    if (q) {
       const t = q.toLowerCase();
       list = list.filter((c: any) =>
         [c.name, c.last_name, c.title, c.company, c.city, c.email, c.notes,
@@ -175,7 +176,7 @@ const People = () => {
       return 0;
     });
     return sorted;
-  }, [contacts, q, groupFilter, priority, companyFilter, lastRange, followUp, openReminder, openReminders, sortBy]);
+  }, [contacts, q, groupFilter, priority, companyFilter, lastRange, followUp, openReminder, openReminders, statusFilter, actionFilter, sortBy]);
 
   const fullName = (c: any) => [c.name, c.last_name].filter(Boolean).join(" ");
   const activeGroupName = allGroups?.find((g: any) => g.id === groupFilter)?.name;
@@ -186,7 +187,9 @@ const People = () => {
     (companyFilter !== "all" ? 1 : 0) +
     (lastRange !== "all" ? 1 : 0) +
     (followUp !== "all" ? 1 : 0) +
-    (openReminder !== "all" ? 1 : 0);
+    (openReminder !== "all" ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (actionFilter !== "all" ? 1 : 0);
 
   const clearAll = () => {
     setQ("");
@@ -196,6 +199,8 @@ const People = () => {
     setLastRange("all");
     setFollowUp("all");
     setOpenReminder("all");
+    setStatusFilter("all");
+    setActionFilter("all");
   };
 
   const lastContactedLabel = (c: any) => {
