@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { PlayCircle, ArrowLeft } from "lucide-react";
+import logo from "@/assets/orbitcrm-logo.png";
 import { startDemo } from "@/lib/startDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
