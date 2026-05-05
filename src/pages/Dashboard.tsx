@@ -240,20 +240,37 @@ const Dashboard = () => {
           {cooling.length === 0 ? (
             <Empty text="All your relationships are warm." />
           ) : (
-            <ul className="divide-y divide-border">
-              {cooling.map(({ c, days }) => (
-                <li key={c.id} className="py-3 flex items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <Link to={`/app/people/${c.id}`} className="font-medium hover:text-primary truncate block">
-                      {[c.name, c.last_name].filter(Boolean).join(" ")}
-                    </Link>
-                    <p className="text-sm text-muted-foreground truncate">{c.title || c.company || "—"}</p>
-                  </div>
-                  {c.priority === "high" && <span className="text-[10px] uppercase tracking-wide text-destructive font-semibold">High</span>}
-                  <span className="text-xs text-warning font-medium whitespace-nowrap">{days}d cold</span>
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="divide-y divide-border">
+                {cooling.map(({ c, days }) => {
+                  const status = getRelationshipStatus(c.last_contacted_at);
+                  const action = getSuggestedAction({
+                    priority: c.priority,
+                    last_contacted_at: c.last_contacted_at,
+                    birthday: c.birthday,
+                    nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
+                  });
+                  return (
+                    <li key={c.id} className="py-3 flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <Link to={`/app/people/${c.id}`} className="font-medium hover:text-primary truncate block">
+                          {[c.name, c.last_name].filter(Boolean).join(" ")}
+                        </Link>
+                        <p className="text-sm text-muted-foreground truncate">{c.title || c.company || "—"}</p>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          <span className={`text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded-full border ${STATUS_CLASSES[status]}`}>{STATUS_LABEL[status]}</span>
+                          {action !== "no_action" && (
+                            <span className={`text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded-full border ${ACTION_CLASSES[action]}`}>{ACTION_LABEL[action]}</span>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">{days}d</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="mt-4 pt-3 border-t border-border text-[11px] text-muted-foreground italic leading-relaxed">{INTEL_DISCLAIMER}</p>
+            </>
           )}
         </Section>
       </div>
