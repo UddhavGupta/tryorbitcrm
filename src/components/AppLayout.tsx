@@ -48,7 +48,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
           </nav>
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-ink text-ink-foreground grid place-items-center text-sm font-medium">{initial}</div>
-            <Button variant="ghost" size="icon" onClick={() => signOut()} aria-label="Sign out">
+            <Button variant="ghost" size="icon" onClick={async () => { await signOut(); navigate("/"); }} aria-label="Sign out">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
