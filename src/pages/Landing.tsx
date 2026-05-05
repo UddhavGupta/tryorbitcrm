@@ -121,7 +121,7 @@ const Landing = () => {
           <FooterCol title="Resources">
             <FooterButton onClick={() => setDoc("help")}>Getting Started</FooterButton>
             <FooterButton onClick={() => setDoc("help")}>Demo Data Guide</FooterButton>
-            <FooterButton onClick={() => setDoc("help")}>Changelog</FooterButton>
+            <FooterRoute to="/changelog">Changelog</FooterRoute>
             <FooterRoute to="/project-notes">Project Notes</FooterRoute>
           </FooterCol>
 
