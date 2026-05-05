@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -26,19 +27,21 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/project-notes" element={<ProjectNotes />} />
-            <Route path="/changelog" element={<Changelog />} />
-            <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
-            <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
-            <Route path="/app/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
-            <Route path="/app/dates" element={<ProtectedRoute><Dates /></ProtectedRoute>} />
-            <Route path="/app/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/project-notes" element={<ProjectNotes />} />
+              <Route path="/changelog" element={<Changelog />} />
+              <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
+              <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
+              <Route path="/app/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
+              <Route path="/app/dates" element={<ProtectedRoute><Dates /></ProtectedRoute>} />
+              <Route path="/app/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

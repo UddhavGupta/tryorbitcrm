@@ -253,6 +253,13 @@ export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOn
             </div>
           </Section>
 
+          <Section title="Important dates">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Birthday"><Input type="date" value={form.birthday} onChange={(e) => set("birthday", e.target.value)} /></Field>
+              <Field label="Anniversary" hint="Work anniversary, friendship anniversary, etc."><Input type="date" value={form.anniversary} onChange={(e) => set("anniversary", e.target.value)} /></Field>
+            </div>
+          </Section>
+
           <Section title="Follow-up">
             <div className="grid grid-cols-2 gap-3">
               <Field label="Last contacted"><Input type="date" value={form.last_contacted_at} onChange={(e) => set("last_contacted_at", e.target.value)} /></Field>
