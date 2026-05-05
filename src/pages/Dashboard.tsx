@@ -47,11 +47,16 @@ const Dashboard = () => {
   const { data: openReminders } = useQuery({
     queryKey: ["reminders-open-count"],
     queryFn: async () => {
-      const { count } = await supabase
+      const { data, count } = await supabase
         .from("reminders")
-        .select("id", { count: "exact", head: true })
-        .eq("completed", false);
-      return count ?? 0;
+        .select("contact_id, due_date", { count: "exact" })
+        .eq("completed", false)
+        .order("due_date");
+      const earliest = new Map<string, string>();
+      (data ?? []).forEach((r: any) => {
+        if (r.contact_id && !earliest.has(r.contact_id)) earliest.set(r.contact_id, r.due_date);
+      });
+      return { count: count ?? 0, earliest };
     },
   });
 
