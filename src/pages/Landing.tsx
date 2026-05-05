@@ -1,14 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Calendar, Sparkles, Users, ArrowRight, CircleCheck, PlayCircle, Mail, MapPin, Github, Twitter, Linkedin } from "lucide-react";
+import { Bell, Calendar, Users, ArrowRight, CircleCheck, PlayCircle, Github, Linkedin, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { startDemo } from "@/lib/startDemo";
 import { useState } from "react";
 import { toast } from "sonner";
 import logo from "@/assets/orbitcrm-logo.png";
+import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 
 const Landing = () => {
   const navigate = useNavigate();
   const [loadingDemo, setLoadingDemo] = useState(false);
+  const [doc, setDoc] = useState<DocKey>(null);
 
   const handleStartDemo = async () => {
     setLoadingDemo(true);
@@ -60,7 +62,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="container py-20 grid md:grid-cols-3 gap-6">
+      <section id="features" className="container py-20 grid md:grid-cols-3 gap-6">
         {[
           { icon: Users, title: "Your people, organized", desc: "Group contacts by context — investors, friends, recruiters, classmates." },
           { icon: Bell, title: "Never go cold", desc: "Cooling alerts surface relationships drifting out of touch." },
@@ -95,66 +97,80 @@ const Landing = () => {
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">
               Everything in your circle, always in motion.
             </p>
-            <ul className="mt-6 space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> hello@orbitcrm.app</li>
-              <li className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Remote · Worldwide</li>
+            <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
+              <li>Built by Uddhav Gupta</li>
+              <li>Portfolio project · 2026</li>
+              <li>Product demo · AI-assisted build</li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">Product</h4>
-            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li><button onClick={handleStartDemo} className="hover:text-foreground transition-colors">Live demo</button></li>
-              <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">Sign up</Link></li>
-              <li><Link to="/auth" className="hover:text-foreground transition-colors">Sign in</Link></li>
-              <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
-            </ul>
-          </div>
+          <FooterCol title="Product">
+            <FooterButton onClick={handleStartDemo}>Live Demo</FooterButton>
+            <FooterAnchor href="#features">Features</FooterAnchor>
+            <FooterRoute to="/auth?mode=signup">Sign Up</FooterRoute>
+            <FooterRoute to="/auth">Sign In</FooterRoute>
+          </FooterCol>
 
-          <div>
-            <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">Use cases</h4>
-            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li>Founders</li>
-              <li>Job seekers</li>
-              <li>Students</li>
-              <li>Operators</li>
-            </ul>
-          </div>
+          <FooterCol title="Use cases">
+            <FooterAnchor href="#features">Job Seekers</FooterAnchor>
+            <FooterAnchor href="#features">Students</FooterAnchor>
+            <FooterAnchor href="#features">Founders</FooterAnchor>
+            <FooterAnchor href="#features">Operators</FooterAnchor>
+          </FooterCol>
 
-          <div>
-            <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">Resources</h4>
-            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li>Getting started</li>
-              <li>Demo data guide</li>
-              <li>Keyboard shortcuts</li>
-              <li>Changelog</li>
-            </ul>
-          </div>
+          <FooterCol title="Resources">
+            <FooterButton onClick={() => setDoc("help")}>Getting Started</FooterButton>
+            <FooterButton onClick={() => setDoc("help")}>Demo Data Guide</FooterButton>
+            <FooterButton onClick={() => setDoc("help")}>Changelog</FooterButton>
+            <FooterButton onClick={() => setDoc("help")}>Project Notes</FooterButton>
+          </FooterCol>
 
-          <div>
-            <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">Legal</h4>
-            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li>Privacy</li>
-              <li>Terms</li>
-              <li>Cookies</li>
-              <li>Security</li>
-            </ul>
+          <FooterCol title="Legal">
+            <FooterButton onClick={() => setDoc("privacy")}>Privacy</FooterButton>
+            <FooterButton onClick={() => setDoc("terms")}>Terms</FooterButton>
+            <FooterButton onClick={() => setDoc("help")}>Help</FooterButton>
+            <FooterButton onClick={() => setDoc("terms")}>Portfolio Disclaimer</FooterButton>
+          </FooterCol>
+        </div>
+
+        <div className="border-t border-border">
+          <div className="container py-5">
+            <p className="text-xs text-muted-foreground max-w-3xl">{PORTFOLIO_DISCLAIMER}</p>
           </div>
         </div>
 
         <div className="border-t border-border">
           <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} OrbitCRM. A portfolio project.</p>
+            <p>© 2026 OrbitCRM. A portfolio project.</p>
             <div className="flex items-center gap-4">
-              <a href="#" aria-label="Twitter" className="hover:text-foreground transition-colors"><Twitter className="h-4 w-4" /></a>
-              <a href="#" aria-label="LinkedIn" className="hover:text-foreground transition-colors"><Linkedin className="h-4 w-4" /></a>
-              <a href="#" aria-label="GitHub" className="hover:text-foreground transition-colors"><Github className="h-4 w-4" /></a>
+              <a href="https://www.linkedin.com/in/uddhavgupta/" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="hover:text-primary transition-colors"><Linkedin className="h-4 w-4" /></a>
+              <a href="https://github.com/uddhavgupta" target="_blank" rel="noreferrer" aria-label="GitHub" className="hover:text-primary transition-colors"><Github className="h-4 w-4" /></a>
+              <a href="https://uddhavgupta.com" target="_blank" rel="noreferrer" aria-label="Portfolio" className="hover:text-primary transition-colors"><Globe className="h-4 w-4" /></a>
             </div>
           </div>
         </div>
       </footer>
+
+      <DocModal open={doc} onClose={() => setDoc(null)} />
     </div>
   );
 };
+
+const FooterCol = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div>
+    <h4 className="text-xs font-semibold tracking-widest text-foreground uppercase">{title}</h4>
+    <ul className="mt-4 space-y-3 text-sm">{children}</ul>
+  </div>
+);
+const linkBase = "text-muted-foreground hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm transition-colors text-left";
+const FooterButton = ({ onClick, children }: { onClick: () => void; children: React.ReactNode }) => (
+  <li><button onClick={onClick} className={linkBase}>{children}</button></li>
+);
+const FooterAnchor = ({ href, children }: { href: string; children: React.ReactNode }) => (
+  <li><a href={href} className={linkBase}>{children}</a></li>
+);
+const FooterRoute = ({ to, children }: { to: string; children: React.ReactNode }) => (
+  <li><Link to={to} className={linkBase}>{children}</Link></li>
+);
 
 export default Landing;

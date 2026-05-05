@@ -2,7 +2,10 @@ import { useState, ReactNode } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-type DocKey = "privacy" | "terms" | "help" | null;
+export type DocKey = "privacy" | "terms" | "help" | null;
+
+export const PORTFOLIO_DISCLAIMER =
+  "OrbitCRM is a portfolio project, not a real company or commercialized product. Demo content is fictional and for illustrative purposes only.";
 
 const DISCLAIMER =
   "OrbitCRM is a portfolio project. It is not a real company or commercialized product. All demo content is for illustrative purposes only.";
@@ -274,3 +277,24 @@ export const AppFooter = () => {
     </>
   );
 };
+
+export const DocModal = ({ open, onClose }: { open: DocKey; onClose: () => void }) => (
+  <Dialog open={open !== null} onOpenChange={(v) => !v && onClose()}>
+    <DialogContent className="max-w-2xl rounded-2xl p-0 overflow-hidden">
+      {open && (
+        <>
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+            <DialogTitle className="text-lg">{TITLES[open]}</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[70vh]">
+            <div className="px-6 py-5 space-y-6">
+              {open === "privacy" && PRIVACY}
+              {open === "terms" && TERMS}
+              {open === "help" && HELP}
+            </div>
+          </ScrollArea>
+        </>
+      )}
+    </DialogContent>
+  </Dialog>
+);
