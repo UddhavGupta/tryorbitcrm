@@ -57,14 +57,16 @@ const ContactDetail = () => {
   if (isLoading) return <AppLayout><div className="surface-card p-10 flex flex-col items-center text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin mb-2" /><p className="text-sm">Loading contact…</p></div></AppLayout>;
   if (error || !contact) return <AppLayout><div className="surface-card p-6 border border-destructive/30 bg-destructive/5 text-destructive flex items-start gap-3"><AlertCircle className="h-5 w-5 shrink-0 mt-0.5" /><div><p className="font-medium">Couldn't load contact</p><p className="text-sm opacity-80">{(error as Error)?.message ?? "Not found"}</p></div></div></AppLayout>;
 
-  const addInteraction = async () => {
-    if (!note.trim() || !user) return;
-    await supabase.from("interactions").insert({ user_id: user.id, contact_id: id!, kind: "note", note });
-    await supabase.from("contacts").update({ last_contacted_at: new Date().toISOString() }).eq("id", id!);
-    setNote("");
+  const refreshInteractions = () => {
     qc.invalidateQueries({ queryKey: ["interactions", id] });
     qc.invalidateQueries({ queryKey: ["contact", id] });
-    toast.success("Logged");
+  };
+
+  const deleteInteraction = async (iid: string) => {
+    const { error } = await supabase.from("interactions").delete().eq("id", iid);
+    if (error) return toast.error(error.message);
+    refreshInteractions();
+    toast.success("Interaction deleted");
   };
 
   const addReminder = async () => {
