@@ -154,7 +154,7 @@ const Landing = () => {
       </section>
 
       <footer className="border-t border-border bg-card/40">
-        <div className="container py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
+        <div className="container py-12 md:py-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 md:gap-10">
           <div className="col-span-2 md:col-span-1">
             <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">
