@@ -32,9 +32,9 @@ export const DemoBadge = () => {
             <Sparkles className="h-3 w-3" /> Demo
           </span>
           <span className="text-muted-foreground truncate hidden sm:inline">
-            You're exploring sample contacts. Changes save to a temporary demo account and are cleared when you exit.
+            Demo data is fully fictional and for illustrative purposes only. Changes save to a temporary demo account and are cleared when you exit.
           </span>
-          <span className="text-muted-foreground sm:hidden truncate">Sample data — cleared on exit.</span>
+          <span className="text-muted-foreground sm:hidden truncate">Fully fictional demo data — cleared on exit.</span>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <Button asChild size="sm" variant="ghost" className="h-7 px-2 text-xs"><Link to="/auth?mode=signup">Sign up</Link></Button>
