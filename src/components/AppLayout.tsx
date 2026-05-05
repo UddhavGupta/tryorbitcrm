@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ReactNode } from "react";
 import { DemoBadge } from "@/components/DemoBadge";
+import { AppFooter } from "@/components/AppFooter";
 import logo from "@/assets/orbitcrm-logo.png";
 
 const links = [
@@ -20,7 +21,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
   const initial = (user?.email ?? "?").charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-card-muted">
+    <div className="min-h-screen flex flex-col bg-card-muted">
       <DemoBadge />
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center justify-between gap-6">
@@ -71,7 +72,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
           </div>
         </nav>
       </header>
-      <main className="container py-8">{children}</main>
+      <main className="container py-8 flex-1">{children}</main>
+      <AppFooter />
     </div>
   );
 };
