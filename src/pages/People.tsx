@@ -12,6 +12,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Label } from "@/components/ui/label";
 import { ContactDialog } from "@/components/ContactDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
+import {
+  getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
+  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, type RelationshipStatus, type SuggestedAction,
+} from "@/lib/relationshipIntel";
 
 type LastRange = "all" | "7" | "30" | "90" | "never" | "cooling60" | "cooling";
 type FollowUp = "all" | "overdue" | "today" | "week" | "month" | "none";
