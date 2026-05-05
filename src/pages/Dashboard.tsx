@@ -122,16 +122,27 @@ const Dashboard = () => {
             <Empty text="Nothing due today. Take a breath." />
           ) : (
             <ul className="divide-y divide-border">
-              {reminders!.map((r: any) => (
-                <li key={r.id} className="py-3 flex items-start gap-3">
-                  <Checkbox onCheckedChange={() => completeReminder(r.id)} className="mt-1" />
-                  <div className="flex-1">
-                    <p className="font-medium">{r.title}</p>
-                    {r.contacts?.name && <p className="text-sm text-muted-foreground">{r.contacts.name}</p>}
-                  </div>
-                  <span className="text-xs text-muted-foreground">{format(parseISO(r.due_date), "MMM d")}</span>
-                </li>
-              ))}
+              {reminders!.map((r: any) => {
+                const due = parseISO(r.due_date);
+                const todayStr = new Date().toISOString().slice(0, 10);
+                const overdue = r.due_date < todayStr;
+                return (
+                  <li key={r.id} className="py-3 flex items-start gap-3">
+                    <Checkbox onCheckedChange={() => completeReminder(r.id)} className="mt-1" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{r.title}</p>
+                      {r.contacts?.name && (
+                        <Link to={`/app/people/${r.contacts.id}`} className="text-sm text-muted-foreground hover:text-primary">
+                          {[r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ")}
+                        </Link>
+                      )}
+                    </div>
+                    <span className={`text-xs whitespace-nowrap ${overdue ? "text-destructive font-medium" : "text-primary font-medium"}`}>
+                      {overdue ? "Overdue · " : "Today · "}{format(due, "MMM d")}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </Section>
