@@ -346,11 +346,49 @@ const Dashboard = () => {
           </Section>
         </div>
       </div>
+
+      {weeklyDigest.length > 0 && (
+        <div className="mt-6 animate-fade-up-delay-2">
+          <Section
+            title="This week"
+            icon={Sparkles}
+            count={weeklyDigest.length}
+          >
+            <p className="text-xs text-muted-foreground mb-3">Relationships worth a nudge in the next few days.</p>
+            <ul className="divide-y divide-border -mx-1">
+              {weeklyDigest.map(({ c, action }: any) => {
+                const fullName = [c.name, c.last_name].filter(Boolean).join(" ");
+                return (
+                  <li key={c.id} className="px-1 py-3 flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/app/people/${c.id}`} className="font-medium hover:text-primary transition-colors truncate block">{fullName}</Link>
+                      <p className="text-sm text-muted-foreground leading-snug">{intelRationale({ priority: c.priority, last_contacted_at: c.last_contacted_at, birthday: c.birthday, nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null })}</p>
+                      <span className={`mt-1.5 inline-block text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded-full border ${ACTION_CLASSES[action as keyof typeof ACTION_CLASSES]}`}>{ACTION_LABEL[action as keyof typeof ACTION_LABEL]}</span>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => openReachOut(c, action)}>Reach out</Button>
+                  </li>
+                );
+              })}
+            </ul>
+          </Section>
+        </div>
+      )}
+
+      <ReminderDialog
+        open={reminderOpen}
+        onOpenChange={(o) => { setReminderOpen(o); if (!o) setReminderPrefill(null); }}
+        reminder={reminderPrefill}
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ["reminders"] });
+          qc.invalidateQueries({ queryKey: ["reminders-today"] });
+          qc.invalidateQueries({ queryKey: ["reminders-open-count"] });
+        }}
+      />
     </AppLayout>
   );
 };
 
-const StatCard = ({ label, value, icon: Icon, to, tone }: any) => {
+const StatCard = ({ label, value, icon: Icon, to, tone, hint, progress, progressLabel }: any) => {
   const iconWrap =
     tone === "destructive"
       ? "bg-[hsl(var(--destructive-soft))] text-destructive"
@@ -366,6 +404,15 @@ const StatCard = ({ label, value, icon: Icon, to, tone }: any) => {
         </span>
       </div>
       <p className={`text-3xl font-semibold mt-3 num-tabular ${tone === "destructive" ? "text-destructive" : ""}`}>{value}</p>
+      {hint && <p className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">{hint}</p>}
+      {typeof progress === "number" && progress > 0 && (
+        <div className="mt-2">
+          <div className="h-1 rounded-full bg-secondary overflow-hidden">
+            <div className="h-full bg-destructive/70" style={{ width: `${Math.round(progress * 100)}%` }} />
+          </div>
+          {progressLabel && <p className="mt-1 text-[10px] text-muted-foreground">{progressLabel}</p>}
+        </div>
+      )}
     </Link>
   );
 };
