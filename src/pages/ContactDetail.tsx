@@ -279,13 +279,13 @@ const ContactDetail = () => {
 
           <div className="surface-card p-6">
             <h3 className="font-semibold mb-2">Notes</h3>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm">
               <InlineField
                 value={contact.notes}
                 schema={longText}
                 multiline
-                placeholder="General notes…"
-                emptyLabel="Add notes"
+                placeholder="e.g. partner's name, pet's name, university, likes/dislikes, favorite restaurant or wine…"
+                emptyLabel="e.g. partner's name, pet's name, university, likes/dislikes, favorite restaurant or wine…"
                 onSave={(v) => saveField("notes", v)}
                 renderDisplay={(v) => <span className="whitespace-pre-wrap text-foreground">{v}</span>}
               />
