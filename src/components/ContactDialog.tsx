@@ -164,6 +164,7 @@ export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOn
     }
 
     setSaving(false);
+    qc.invalidateQueries({ queryKey: ["all-tags"] });
     toast.success(contact ? "Contact updated" : "Contact added");
     onSaved();
     onOpenChange(false);
