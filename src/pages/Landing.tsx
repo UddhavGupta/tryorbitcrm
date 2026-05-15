@@ -1,25 +1,13 @@
 import { Link } from "react-router-dom";
-import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Link2, Zap, Lock, Sparkles, Check, Minus } from "lucide-react";
+import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Zap, Lock, Sparkles, Check, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { toast } from "sonner";
 import logo from "@/assets/orbitcrm-logo.png";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
 
-const DEMO_URL = "https://orbitcrm.guptau.com/demo";
-
 const Landing = () => {
   const [doc, setDoc] = useState<DocKey>(null);
-
-  const copyDemoLink = async () => {
-    try {
-      await navigator.clipboard.writeText(DEMO_URL);
-      toast.success("Demo link copied — share it with anyone");
-    } catch {
-      toast.error("Couldn't copy link");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
