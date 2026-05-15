@@ -20,12 +20,27 @@ const Auth = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => { if (user) navigate("/app"); }, [user, navigate]);
+  const isAnon = (u: any) => !!u && (u.is_anonymous === true || (u.app_metadata as any)?.provider === "anonymous");
+
+  // If an anonymous demo session is active, sign it out so the user can log in.
+  // Only auto-redirect to /app for real (non-anonymous) users.
+  useEffect(() => {
+    if (!user) return;
+    if (isAnon(user)) {
+      supabase.auth.signOut();
+    } else {
+      navigate("/app");
+    }
+  }, [user, navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      // Ensure no lingering anonymous demo session before authenticating.
+      if (isAnon(user)) {
+        await supabase.auth.signOut();
+      }
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email, password,
