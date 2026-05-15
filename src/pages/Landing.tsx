@@ -1,25 +1,13 @@
 import { Link } from "react-router-dom";
-import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Link2, Zap, Lock, Sparkles, Check, Minus } from "lucide-react";
+import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Zap, Lock, Sparkles, Check, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { toast } from "sonner";
 import logo from "@/assets/orbitcrm-logo.png";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
 
-const DEMO_URL = "https://orbitcrm.guptau.com/demo";
-
 const Landing = () => {
   const [doc, setDoc] = useState<DocKey>(null);
-
-  const copyDemoLink = async () => {
-    try {
-      await navigator.clipboard.writeText(DEMO_URL);
-      toast.success("Demo link copied — share it with anyone");
-    } catch {
-      toast.error("Couldn't copy link");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,14 +58,7 @@ const Landing = () => {
               <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
-          <button
-            type="button"
-            onClick={copyDemoLink}
-            className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-          >
-            <Link2 className="h-3 w-3" /> Copy shareable demo link
-          </button>
-          <p className="mt-2 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
+          <p className="mt-4 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
           <p className="mt-6 text-sm text-muted-foreground/80 italic">Built for the people whose careers compound on relationships.</p>
         </div>
       </section>
