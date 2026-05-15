@@ -1,62 +1,43 @@
-# Track 1 Continued — Bulk Actions + Inline Edit
+## 1. Explicit "Favorite" toggle on contact cards
 
-Make People feel like a real CRM workbench: select many, change fields without opening a dialog.
+**Where**: top-right corner of each card on `src/pages/People.tsx` (inside the existing card link, absolutely positioned at `top-3 right-3`).
 
-## Bulk actions on People
+**Control**: a star icon button (lucide `Star`).
+- Filled gold when the contact is a favorite, outlined gray when not.
+- Always visible (not hover-only) so it's discoverable.
+- `e.preventDefault() + e.stopPropagation()` so clicking it doesn't navigate into the contact.
+- Tooltip: "Mark as favorite" / "Remove favorite".
 
-- **Selection model**
-  - Checkbox in the top-left corner of each contact card (visible on hover, persistent when selected)
-  - Header-level "Select all visible" / "Clear" once any item is selected
-  - Selection survives filter changes but is cleared on search-text change to avoid surprises
-- **Bulk action bar** (sticky at the bottom of the viewport when ≥1 selected)
-  - Count: "3 selected"
-  - Actions:
-    - **Add to group** — popover with group list + "New group…"
-    - **Add tag** — small text input that creates/uses tags
-    - **Set priority** — High / Medium / Low
-    - **Mark contacted today** — bulk update `last_contacted_at`
-    - **Delete** — AlertDialog confirm, deletes all selected
-  - "Clear selection" button on the right
-- **Implementation notes**
-  - All updates batched via a single `.in("id", ids)` Supabase call per action
-  - For "Add to group": insert N rows into `contact_groups` (skip duplicates client-side using existing memberships)
-  - Optimistic UI not required — invalidate `["contacts"]` after success and toast result
+**Data model**: reuse the existing `contacts.priority` field — `priority === "high"` = favorite. No schema change needed. Toggling the star calls the existing `quickUpdate(c.id, { priority: isFav ? "medium" : "high" })` helper that's already in People.tsx.
+- Keeps the existing "High / Medium / Low" priority dropdown working unchanged.
+- The existing tiny "high" pill in the card header becomes redundant, so the star replaces it visually (we'll hide the pill when `priority === "high"` since the star already communicates it; the "low" pill stays).
 
-## Inline edit on contact cards (lightweight)
+**Mirror on detail page**: `src/pages/ContactDetail.tsx` header — add the same star button next to the Edit/Delete row (top-right of the profile card) so the affordance is consistent.
 
-- **Quick edit menu** on each card: kebab (⋯) button next to the existing "Mark contacted" button
-  - Set priority (High/Med/Low) — instant update
-  - Snooze cooling threshold (+15 / +30 / +60 days) — bumps `cooling_days`
-  - "Edit details…" → opens existing ContactDialog
-- Keeps the card a Link; menu uses `data-stop` pattern to avoid navigation
+## 2. Notes always visible + helpful empty-state hint
 
-## Inline edit on Contact Detail page
+**Where**: the existing "Notes" card on `src/pages/ContactDetail.tsx` (lines 263–276) and the "Why they matter" card right above it.
 
-- **Click-to-edit** on these fields (no full dialog):
-  - Title, Company, City, Email, Phone, LinkedIn URL, Why this person matters
-  - UI: text shows as plain by default; click → input with Save/Cancel; Enter saves, Esc cancels
-  - Validates with Zod: email format, URL format, max lengths (255 for short fields, 2000 for `why_matters`)
-- **Tags**: existing TagInput becomes always-on (already inline in dialog; mirror it on detail)
-- Each save calls `.update({...}).eq("id", id)` and invalidates `["contact", id]`
+**Behavior changes**:
+- Notes are already rendered via `InlineField` with `multiline`. We'll keep that, but:
+  - Replace the current empty-state label ("Add notes") with a multi-line light-gray example block:
+    > _e.g. partner's name, pet's name, university, likes/dislikes, favorite restaurant or wine…_
+  - Use `text-muted-foreground/70 italic` for the placeholder so it reads as a hint, not a value.
+  - Clicking the placeholder opens the editor (already the InlineField behavior); the textarea's own `placeholder` attr will mirror the same examples so the user sees them while typing the first time.
+- Make sure the full notes value renders with `whitespace-pre-wrap` (already true) so multi-line notes are fully visible — no truncation, no "show more". This satisfies "see all notes."
 
-## Out of scope this pass
+**Small InlineField tweak**: `src/components/InlineField.tsx` already supports `emptyLabel` and `placeholder`. We'll pass:
+- `emptyLabel`: the example sentence.
+- `placeholder` (textarea): same examples.
+- Add an optional `emptyClassName` prop (or just style via existing classes) so the empty-state text renders italic + lighter gray. If the component doesn't expose styling for the empty label, we'll add a small `emptyClassName?: string` prop and thread it through — purely additive, no behavior change for other call sites.
 
-- Drag-to-reorder, multi-row table view, CSV export of selection, undo for bulk delete (we'll rely on the AlertDialog confirm).
-- Inline edit of `name`/`last_name` on the detail page header (riskier identity field — keep dialog-only for now).
+## Out of scope
+- No new database column (favorite reuses `priority`).
+- No changes to the Priority filter, sort, or bulk actions — they keep working off `priority`.
+- No redesign of the card layout beyond moving/swapping the corner badge.
+- No changes to "Why they matter" copy (already has its own prompt).
 
-## Technical notes
-
-- New file `src/components/BulkActionBar.tsx` — sticky bottom bar, takes `selectedIds`, `contacts`, `groups`, callbacks
-- New hook `src/hooks/useSelection.ts` — `Set<string>` state with `toggle`, `selectAll`, `clear`, `has`
-- New file `src/components/InlineField.tsx` — generic click-to-edit text/textarea with Zod schema prop
-- People.tsx wires checkboxes + the kebab menu (uses existing `DropdownMenu`)
-- ContactDetail.tsx swaps static field renders for `<InlineField>`
-- All inputs validated with Zod, server protected by existing RLS
-
-## Rollout order
-
-1. `useSelection` hook + checkbox UI on People cards
-2. `BulkActionBar` with all 5 actions
-3. Card-level kebab quick edits (priority, cooling)
-4. `InlineField` component + ContactDetail rewiring
-5. QA pass: keyboard shortcuts still work; empty/loading states unaffected
+## Files touched
+- `src/pages/People.tsx` — add star button top-right of card; hide redundant "high" pill.
+- `src/pages/ContactDetail.tsx` — add star button in profile header; update Notes `emptyLabel` + placeholder with examples; apply muted/italic styling.
+- `src/components/InlineField.tsx` — add optional `emptyClassName` prop (only if needed to style the empty-state text).
