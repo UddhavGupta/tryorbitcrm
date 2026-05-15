@@ -495,7 +495,7 @@ const People = () => {
               <Link
                 key={c.id}
                 to={`/app/people/${c.id}`}
-                className="surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30 flex flex-col"
+                className="group surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30 flex flex-col"
               >
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 rounded-full gradient-primary text-primary-foreground grid place-items-center font-semibold shrink-0">
