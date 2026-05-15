@@ -15,6 +15,7 @@ import { ImportCsvDialog } from "@/components/ImportCsvDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
 import { SampleDataButton } from "@/components/SampleDataButton";
+import { tagClasses } from "@/lib/tags";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, type RelationshipStatus, type SuggestedAction,
@@ -46,6 +47,7 @@ const People = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [actionFilter, setActionFilter] = useState<ActionFilter>("all");
   const [sortBy, setSortBy] = useState<SortBy>("name");
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
   const qc = useQueryClient();
 
   const { data: allGroups } = useQuery({
