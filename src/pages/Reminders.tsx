@@ -16,6 +16,7 @@ import { RowListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
 import { SampleDataButton } from "@/components/SampleDataButton";
 import { toast } from "sonner";
+import { todayLocalISO, dateToLocalISO } from "@/lib/dates";
 
 type DueFilter = "all" | "today" | "overdue" | "week";
 type SortBy = "due" | "priority" | "name";
@@ -55,9 +56,9 @@ const Reminders = () => {
   const filteredAndSorted = useMemo(() => {
     let list = tab === "open" ? open : done;
     const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10);
-    const wkStart = startOfWeek(today, { weekStartsOn: 1 }).toISOString().slice(0, 10);
-    const wkEnd = endOfWeek(today, { weekStartsOn: 1 }).toISOString().slice(0, 10);
+    const todayStr = todayLocalISO();
+    const wkStart = dateToLocalISO(startOfWeek(today, { weekStartsOn: 1 }));
+    const wkEnd = dateToLocalISO(endOfWeek(today, { weekStartsOn: 1 }));
 
     if (dueFilter === "today") list = list.filter((r: any) => r.due_date === todayStr);
     else if (dueFilter === "overdue") list = list.filter((r: any) => r.due_date < todayStr);

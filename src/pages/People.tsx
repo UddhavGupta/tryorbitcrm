@@ -16,6 +16,7 @@ import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
 import { SampleDataButton } from "@/components/SampleDataButton";
 import { tagClasses } from "@/lib/tags";
+import { todayLocalISO, dateToLocalISO } from "@/lib/dates";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, type RelationshipStatus, type SuggestedAction,
@@ -101,7 +102,7 @@ const People = () => {
   const filtered = useMemo(() => {
     let list = contacts ?? [];
     const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10);
+    const todayStr = todayLocalISO();
 
     if (groupFilter !== "all") {
       list = list.filter((c: any) => c.contact_groups?.some((cg: any) => cg.group_id === groupFilter));
@@ -137,11 +138,11 @@ const People = () => {
         if (followUp === "today") return d === todayStr;
         if (followUp === "week") {
           const weekOut = new Date(today); weekOut.setDate(today.getDate() + 7);
-          return d >= todayStr && d <= weekOut.toISOString().slice(0, 10);
+          return d >= todayStr && d <= dateToLocalISO(weekOut);
         }
         if (followUp === "month") {
           const monthOut = new Date(today); monthOut.setDate(today.getDate() + 30);
-          return d >= todayStr && d <= monthOut.toISOString().slice(0, 10);
+          return d >= todayStr && d <= dateToLocalISO(monthOut);
         }
         return true;
       });

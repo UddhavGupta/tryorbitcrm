@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { InlineEmpty } from "@/components/EmptyState";
 import { seedDemo } from "@/lib/demo";
 import { toast } from "sonner";
+import { todayLocalISO } from "@/lib/dates";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
@@ -31,7 +32,7 @@ const priorityRank = (p?: string) => (p === "high" ? 0 : p === "medium" ? 1 : 2)
 const Dashboard = () => {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = todayLocalISO();
 
   const { data: reminders } = useQuery({
     queryKey: ["reminders-today"],

@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
+import { todayLocalISO, dateOnlyToISO } from "@/lib/dates";
 
 export const INTERACTION_TYPES = ["meeting", "email", "call", "text", "intro", "note"] as const;
 export type InteractionType = typeof INTERACTION_TYPES[number];
@@ -37,7 +38,7 @@ export const InteractionDialog = ({ open, onOpenChange, onSaved, contactId, inte
   const { user } = useAuth();
   const [form, setForm] = useState<any>({
     kind: "note",
-    occurred_at: new Date().toISOString().slice(0, 10),
+    occurred_at: todayLocalISO(),
     note: "",
     next_steps: "",
     update_last_contacted: true,
@@ -50,7 +51,7 @@ export const InteractionDialog = ({ open, onOpenChange, onSaved, contactId, inte
     if (interaction) {
       setForm({
         kind: interaction.kind ?? "note",
-        occurred_at: interaction.occurred_at ? interaction.occurred_at.slice(0, 10) : new Date().toISOString().slice(0, 10),
+        occurred_at: interaction.occurred_at ? interaction.occurred_at.slice(0, 10) : todayLocalISO(),
         note: interaction.note ?? "",
         next_steps: interaction.next_steps ?? "",
         update_last_contacted: false,
@@ -58,7 +59,7 @@ export const InteractionDialog = ({ open, onOpenChange, onSaved, contactId, inte
     } else {
       setForm({
         kind: "note",
-        occurred_at: new Date().toISOString().slice(0, 10),
+        occurred_at: todayLocalISO(),
         note: "",
         next_steps: "",
         update_last_contacted: true,
@@ -79,7 +80,7 @@ export const InteractionDialog = ({ open, onOpenChange, onSaved, contactId, inte
     }
     setSaving(true);
     setErrorMsg(null);
-    const occurredISO = new Date(form.occurred_at + "T12:00:00").toISOString();
+    const occurredISO = dateOnlyToISO(form.occurred_at) ?? new Date().toISOString();
     const payload = {
       kind: form.kind,
       occurred_at: occurredISO,
