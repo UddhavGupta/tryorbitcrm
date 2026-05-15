@@ -52,6 +52,7 @@ const empty = {
 export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOnCreate = true }: Props) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [form, setForm] = useState<any>(empty);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
