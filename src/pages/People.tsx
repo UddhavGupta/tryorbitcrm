@@ -381,6 +381,31 @@ const People = () => {
                 </SelectContent>
               </Select>
             </div>
+            {allTags.length > 0 && (
+              <div className="space-y-1.5">
+                <Label className="text-xs">Tags</Label>
+                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+                  {allTags.map((t) => {
+                    const active = tagFilter.includes(t);
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() =>
+                          setTagFilter((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
+                        }
+                        className={`text-xs px-2 py-0.5 rounded-full border transition-opacity ${tagClasses(t)} ${active ? "" : "opacity-50 hover:opacity-100"}`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+                {tagFilter.length > 0 && (
+                  <p className="text-[11px] text-muted-foreground">Match all selected tags</p>
+                )}
+              </div>
+            )}
             <p className="text-[11px] text-muted-foreground leading-relaxed pt-1 border-t border-border">{INTEL_DISCLAIMER}</p>
             {activeFilterCount > 0 && (
               <Button variant="ghost" size="sm" className="w-full" onClick={clearAll}>
@@ -401,6 +426,9 @@ const People = () => {
           {openReminder !== "all" && <Chip onClear={() => setOpenReminder("all")}>{openReminder === "yes" ? "Has open reminder" : "No open reminder"}</Chip>}
           {lastRange !== "all" && <Chip onClear={() => setLastRange("all")}>Last contacted: {lastLabel(lastRange)}</Chip>}
           {followUp !== "all" && <Chip onClear={() => setFollowUp("all")}>Follow-up: {followLabel(followUp)}</Chip>}
+          {tagFilter.map((t) => (
+            <Chip key={t} onClear={() => setTagFilter((prev) => prev.filter((x) => x !== t))}>Tag: {t}</Chip>
+          ))}
         </div>
       )}
 
