@@ -124,25 +124,37 @@ const Auth = () => {
             {mode === "signup" ? "Start tracking your orbit in seconds." : "Sign in to continue."}
           </p>
 
-          <form onSubmit={submit} className="mt-8 space-y-4">
-            {mode === "signup" && (
+          {checkEmail ? (
+            <div className="mt-8 surface-card p-5">
+              <h2 className="font-semibold">Check your email</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                We sent a confirmation link to <span className="text-foreground font-medium">{email}</span>. Open it to finish creating your account.
+              </p>
+              <Button variant="outline" className="mt-4 w-full" onClick={() => { setCheckEmail(false); setMode("signin"); }}>
+                Back to sign in
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={submit} className="mt-8 space-y-4">
+              {mode === "signup" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="name">Full name</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                </div>
+              )}
               <div className="space-y-1.5">
-                <Label htmlFor="name">Full name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
-            )}
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
-            </div>
-            <Button type="submit" className="w-full gradient-primary" disabled={loading}>
-              {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
-            </Button>
-          </form>
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
+              </div>
+              <Button type="submit" className="w-full gradient-primary" disabled={loading}>
+                {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
+              </Button>
+            </form>
+          )}
 
           <div className="mt-6 flex flex-col gap-3 text-sm">
             <button
