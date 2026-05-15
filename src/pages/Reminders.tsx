@@ -1,14 +1,17 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { format, parseISO, isPast, isToday, differenceInDays, startOfWeek, endOfWeek } from "date-fns";
-import { Plus, Pencil, Trash2, CheckCircle2, Bell, SlidersHorizontal, X, ArrowUpDown, Circle, Check } from "lucide-react";
+import { format, parseISO, isPast, isToday, differenceInDays, startOfWeek, endOfWeek, addDays } from "date-fns";
+import { Plus, Pencil, Trash2, CheckCircle2, Bell, SlidersHorizontal, X, ArrowUpDown, Circle, Check, Clock, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -17,6 +20,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { SampleDataButton } from "@/components/SampleDataButton";
 import { toast } from "sonner";
 import { todayLocalISO, dateToLocalISO } from "@/lib/dates";
+import { parseQuickReminder } from "@/lib/parseQuickReminder";
 
 type DueFilter = "all" | "today" | "overdue" | "week";
 type SortBy = "due" | "priority" | "name";
