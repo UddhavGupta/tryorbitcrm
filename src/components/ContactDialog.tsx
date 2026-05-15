@@ -10,12 +10,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
 import { TagInput } from "@/components/TagInput";
 import { dateOnlyToISO } from "@/lib/dates";
-import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   open: boolean;
