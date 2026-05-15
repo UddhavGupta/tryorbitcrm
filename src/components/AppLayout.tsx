@@ -34,7 +34,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
                 className={({ isActive }) =>
                   `relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     isActive
-                      ? "text-primary bg-primary-soft/60"
+                      ? "text-primary bg-[hsl(var(--primary-soft)/0.6)]"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`
                 }
@@ -63,7 +63,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs whitespace-nowrap transition-colors ${
                     isActive
-                      ? "bg-primary-soft text-primary border border-primary-soft-border"
+                      ? "bg-[hsl(var(--primary-soft))] text-primary border border-[hsl(var(--primary-soft-border))]"
                       : "text-muted-foreground hover:text-foreground border border-transparent"
                   }`
                 }
