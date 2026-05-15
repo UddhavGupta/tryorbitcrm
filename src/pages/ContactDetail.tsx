@@ -125,6 +125,13 @@ const ContactDetail = () => {
               <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${STATUS_CLASSES[status]}`}>{STATUS_LABEL[status]}</span>
               <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${ACTION_CLASSES[action]}`}>{ACTION_LABEL[action]}</span>
             </div>
+            {(contact.tags?.length ?? 0) > 0 && (
+              <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+                {(contact.tags as string[]).map((t) => (
+                  <span key={t} className={`text-xs px-2 py-0.5 rounded-full ${tagClasses(t)}`}>{t}</span>
+                ))}
+              </div>
+            )}
             <p className="mt-2 text-[10px] text-muted-foreground italic px-2 leading-relaxed">{INTEL_DISCLAIMER}</p>
             <div className="mt-4 flex justify-center gap-2">
               <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil className="h-3.5 w-3.5 mr-1" />Edit</Button>
