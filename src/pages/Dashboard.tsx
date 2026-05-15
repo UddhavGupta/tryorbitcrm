@@ -136,6 +136,41 @@ const Dashboard = () => {
     })
     .slice(0, 8), [contacts]);
 
+  // Weekly digest: contacts whose suggested action is reconnect_soon or send_birthday_note,
+  // excluding ones already surfaced in today's reach-outs.
+  const reachOutContactIds = useMemo(() => new Set(reachOuts.map((r) => r.contact?.id).filter(Boolean) as string[]), [reachOuts]);
+  const weeklyDigest = useMemo(() => {
+    return (contacts ?? [])
+      .map((c: any) => {
+        const action = getSuggestedAction({
+          priority: c.priority,
+          last_contacted_at: c.last_contacted_at,
+          birthday: c.birthday,
+          nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
+        });
+        return { c, action };
+      })
+      .filter(({ c, action }: any) =>
+        !reachOutContactIds.has(c.id) &&
+        (action === "reconnect_soon" || action === "send_birthday_note")
+      )
+      .sort((a: any, b: any) => priorityRank(a.c.priority) - priorityRank(b.c.priority))
+      .slice(0, 5);
+  }, [contacts, openReminders, reachOutContactIds]);
+
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [reminderPrefill, setReminderPrefill] = useState<any>(null);
+  const openReachOut = (c: any, action: string) => {
+    const due = action === "send_birthday_note" ? todayStr : format(addDays(new Date(), 3), "yyyy-MM-dd");
+    setReminderPrefill({
+      title: action === "send_birthday_note" ? "Send birthday note" : "Reconnect",
+      due_date: due,
+      priority: c.priority ?? "medium",
+      contact_id: c.id,
+    });
+    setReminderOpen(true);
+  };
+
   // Stats
   const totalContacts = contacts?.length ?? 0;
   const overdueRemindersCount = (reminders ?? []).filter((r: any) => r.due_date < todayStr).length;
