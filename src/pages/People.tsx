@@ -507,12 +507,19 @@ const People = () => {
               nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
             });
 
+            const isSelected = selection.has(c.id);
             return (
               <Link
                 key={c.id}
                 to={`/app/people/${c.id}`}
-                className="group surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30 flex flex-col"
+                className={`group surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30 flex flex-col relative ${isSelected ? "ring-2 ring-primary border-primary/40" : ""}`}
               >
+                <div
+                  className={`absolute top-3 left-3 z-10 transition-opacity ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); selection.toggle(c.id); }}
+                >
+                  <Checkbox checked={isSelected} className="bg-background" aria-label={`Select ${fullName(c)}`} />
+                </div>
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 rounded-full gradient-primary text-primary-foreground grid place-items-center font-semibold shrink-0">
                     {c.name.charAt(0)}
