@@ -209,7 +209,7 @@ const ContactDetail = () => {
             onLogInteraction={() => { setEditingInteraction(null); setInteractionOpen(true); }}
             onNewReminder={() => { setEditingReminder(null); setReminderOpen(true); }}
             onEditInteraction={(i) => { setEditingInteraction(i); setInteractionOpen(true); }}
-            onDeleteInteraction={deleteInteraction}
+            onDeleteInteraction={async (iid) => { await deleteInteraction(iid); }}
             onEditReminder={(r) => { setEditingReminder(r); setReminderOpen(true); }}
             onToggleReminder={async (r) => {
               await supabase.from("reminders").update({ completed: !r.completed }).eq("id", r.id);
