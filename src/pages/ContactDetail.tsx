@@ -327,8 +327,8 @@ const ContactDetail = () => {
   );
 };
 
-const Row = ({ icon: Icon, children }: any) => (
-  <div className="flex items-center gap-2 text-muted-foreground"><Icon className="h-4 w-4" /><span className="text-foreground">{children}</span></div>
+const FieldRow = ({ icon: Icon, children }: any) => (
+  <div className="flex items-start gap-2 text-muted-foreground"><Icon className="h-4 w-4 mt-1.5 shrink-0" /><div className="flex-1 min-w-0 text-foreground">{children}</div></div>
 );
 
 export default ContactDetail;
