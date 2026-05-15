@@ -1,28 +1,23 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Bell, Calendar, Users, ArrowRight, CircleCheck, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { startDemo } from "@/lib/startDemo";
 import { useState } from "react";
 import { toast } from "sonner";
 import logo from "@/assets/orbitcrm-logo.png";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
 
+const DEMO_URL = "https://orbitcrm.guptau.com/demo";
+
 const Landing = () => {
-  const navigate = useNavigate();
-  const [loadingDemo, setLoadingDemo] = useState(false);
   const [doc, setDoc] = useState<DocKey>(null);
 
-  const handleStartDemo = async () => {
-    setLoadingDemo(true);
-    toast.loading("Spinning up demo…", { id: "demo" });
+  const copyDemoLink = async () => {
     try {
-      await startDemo();
-      toast.success("Demo ready", { id: "demo" });
-      navigate("/app");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Could not start demo", { id: "demo" });
-      setLoadingDemo(false);
+      await navigator.clipboard.writeText(DEMO_URL);
+      toast.success("Demo link copied — share it with anyone");
+    } catch {
+      toast.error("Couldn't copy link");
     }
   };
 
