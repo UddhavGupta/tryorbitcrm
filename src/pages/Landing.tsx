@@ -70,14 +70,7 @@ const Landing = () => {
               <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
-          <button
-            type="button"
-            onClick={copyDemoLink}
-            className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-          >
-            <Link2 className="h-3 w-3" /> Copy shareable demo link
-          </button>
-          <p className="mt-2 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
+          <p className="mt-4 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
           <p className="mt-6 text-sm text-muted-foreground/80 italic">Built for the people whose careers compound on relationships.</p>
         </div>
       </section>
