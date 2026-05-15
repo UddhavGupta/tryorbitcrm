@@ -62,6 +62,24 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [shouldStartTour, setShouldStartTour] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [reminderOpen, setReminderOpen] = useState(false);
+
+  useHotkeys({
+    "?": () => setHelpOpen(true),
+    n: () => setContactOpen(true),
+    r: () => setReminderOpen(true),
+    "/": () => {
+      const el = document.querySelector<HTMLInputElement>("[data-hotkey-search]");
+      if (el) { el.focus(); el.select(); }
+    },
+    "g d": () => navigate("/app"),
+    "g p": () => navigate("/app/people"),
+    "g r": () => navigate("/app/reminders"),
+    "g g": () => navigate("/app/groups"),
+    "g t": () => navigate("/app/dates"),
+  });
 
   const isAnon = !!user && ((user as any).is_anonymous === true || (user as any).app_metadata?.provider === "anonymous");
 
