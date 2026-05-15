@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import logo from "@/assets/orbitcrm-logo.png";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
+import { SEO } from "@/components/SEO";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -27,6 +28,20 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="OrbitCRM — Personal CRM for your warmest network"
+        description="A calm, opinionated personal CRM for students, founders, operators, and job seekers. Track who you know, what matters, and when to reach out next."
+        path="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "OrbitCRM",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          description: "Personal CRM for tracking contacts, follow-ups, and important dates.",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        }}
+      />
       <header className="border-b border-border">
         <div className="container flex h-14 sm:h-16 items-center justify-between gap-2">
           <div className="flex items-center min-w-0">
@@ -124,15 +139,18 @@ const Landing = () => {
         </div>
         <div className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
           {[
-            { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities." },
-            { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles." },
-            { t: "Students", d: "Managing classmates, alumni, and mentors as you build a long-term network." },
-            { t: "Operators", d: "Managing cross-functional partners and external relationships across teams." },
+            { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities.", to: "/for/job-seekers" },
+            { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles.", to: "/for/founders" },
+            { t: "Students", d: "Managing classmates, alumni, and mentors as you build a long-term network.", to: "/for/students" },
+            { t: "Operators", d: "Managing cross-functional partners and external relationships across teams.", to: "/for/job-seekers" },
           ].map((u) => (
-            <div key={u.t} className="surface-card p-5 lift">
-              <p className="font-semibold text-foreground">{u.t}</p>
+            <Link key={u.t} to={u.to} className="surface-card p-5 lift block group">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-foreground">{u.t}</p>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition" />
+              </div>
               <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{u.d}</p>
-            </div>
+            </Link>
           ))}
         </div>
         <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-3">
