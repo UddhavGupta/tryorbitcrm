@@ -33,10 +33,11 @@ export const BulkActionBar = ({ selectedIds, contacts, groups, onClear }: Props)
     qc.invalidateQueries({ queryKey: ["all-tags"] });
   };
 
-  const wrap = async (label: string, fn: () => Promise<any>) => {
+  const wrap = async (label: string, fn: () => Promise<{ error: any } | void>) => {
     setBusy(true);
     try {
-      const { error } = await fn() ?? {};
+      const res = await fn();
+      const error = (res as any)?.error;
       if (error) throw error;
       invalidate();
       toast.success(`${label} · ${count} contact${count === 1 ? "" : "s"}`);
@@ -48,17 +49,17 @@ export const BulkActionBar = ({ selectedIds, contacts, groups, onClear }: Props)
   };
 
   const setPriority = (priority: "high" | "medium" | "low") =>
-    wrap(`Priority: ${priority}`, () =>
-      supabase.from("contacts").update({ priority }).in("id", selectedIds)
+    wrap(`Priority: ${priority}`, async () =>
+      await supabase.from("contacts").update({ priority }).in("id", selectedIds)
     );
 
   const markContacted = () =>
-    wrap("Marked contacted today", () =>
-      supabase.from("contacts").update({ last_contacted_at: new Date().toISOString() }).in("id", selectedIds)
+    wrap("Marked contacted today", async () =>
+      await supabase.from("contacts").update({ last_contacted_at: new Date().toISOString() }).in("id", selectedIds)
     );
 
   const removeAll = () =>
-    wrap("Deleted", () => supabase.from("contacts").delete().in("id", selectedIds))
+    wrap("Deleted", async () => await supabase.from("contacts").delete().in("id", selectedIds))
       .then(onClear);
 
   const addToGroup = async (gid: string) => {
