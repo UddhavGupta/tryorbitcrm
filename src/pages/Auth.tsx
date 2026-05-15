@@ -83,8 +83,8 @@ const Auth = () => {
           <p className="mt-3 text-muted-foreground max-w-md">
             Reviewers can skip sign-up and explore with seeded sample contacts.
           </p>
-          <Button onClick={handleStartDemo} disabled={loading} variant="outline" className="mt-5">
-            <PlayCircle className="mr-2 h-4 w-4" />Start Demo instead
+          <Button asChild variant="outline" className="mt-5">
+            <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
           </Button>
         </div>
         <div className="text-xs text-muted-foreground">© {new Date().getFullYear()} OrbitCRM · A portfolio project by Uddhav Gupta</div>
@@ -131,8 +131,8 @@ const Auth = () => {
             >
               {mode === "signup" ? "Already have an account? Sign in" : "New here? Create an account"}
             </button>
-            <Button onClick={handleStartDemo} disabled={loading} variant="outline" size="sm" className="lg:hidden">
-              <PlayCircle className="mr-2 h-4 w-4" />Or try the demo (no signup)
+            <Button asChild variant="outline" size="sm" className="lg:hidden">
+              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Or try the demo (no signup)</Link>
             </Button>
           </div>
 
