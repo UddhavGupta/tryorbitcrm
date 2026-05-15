@@ -17,6 +17,9 @@ import Reminders from "./pages/Reminders";
 import NotFound from "./pages/NotFound.tsx";
 import ProjectNotes from "./pages/ProjectNotes";
 import Changelog from "./pages/Changelog";
+import About from "./pages/About";
+import UseCase from "./pages/UseCase";
+import Press from "./pages/Press";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,9 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/project-notes" element={<ProjectNotes />} />
               <Route path="/changelog" element={<Changelog />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/for/:slug" element={<UseCase />} />
+              <Route path="/press" element={<Press />} />
               <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
               <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
