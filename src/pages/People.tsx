@@ -529,12 +529,15 @@ const People = () => {
                   )}
                 </div>
 
-                {c.contact_groups?.length > 0 && (
+                {(c.contact_groups?.length > 0 || (c.tags?.length ?? 0) > 0) && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {c.contact_groups.map((cg: any) => (
+                    {c.contact_groups?.map((cg: any) => (
                       <span key={cg.group_id} className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: (cg.groups?.color ?? "#a78bfa") + "22", color: cg.groups?.color ?? "#a78bfa" }}>
                         {cg.groups?.name}
                       </span>
+                    ))}
+                    {(c.tags ?? []).map((t: string) => (
+                      <span key={t} className={`text-xs px-2 py-0.5 rounded-full ${tagClasses(t)}`}>{t}</span>
                     ))}
                   </div>
                 )}
