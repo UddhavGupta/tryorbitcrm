@@ -191,13 +191,35 @@ const ContactDetail = () => {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-            <div className="mt-6 space-y-2 text-sm text-left">
-              {contact.email && <Row icon={Mail}>{contact.email}</Row>}
-              {contact.phone && <Row icon={Phone}>{contact.phone}</Row>}
-              {contact.city && <Row icon={MapPin}>{contact.city}</Row>}
-              {contact.linkedin_url && <Row icon={Linkedin}><a href={contact.linkedin_url} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate inline-block max-w-[200px] align-bottom">LinkedIn</a></Row>}
-              {contact.birthday && <Row icon={Cake}>{format(parseISO(contact.birthday), "MMMM d")}</Row>}
-              {contact.next_follow_up_date && <Row icon={CalendarClock}>Follow up {format(parseISO(contact.next_follow_up_date), "MMM d, yyyy")}</Row>}
+            <div className="mt-6 space-y-1.5 text-sm text-left">
+              <FieldRow icon={Briefcase}>
+                <InlineField value={contact.title} schema={shortText} placeholder="Title" emptyLabel="Add title" onSave={(v) => saveField("title", v)} />
+              </FieldRow>
+              <FieldRow icon={Building2}>
+                <InlineField value={contact.company} schema={shortText} placeholder="Company" emptyLabel="Add company" onSave={(v) => saveField("company", v)} />
+              </FieldRow>
+              <FieldRow icon={Mail}>
+                <InlineField value={contact.email} schema={emailSchema} type="email" placeholder="email@example.com" emptyLabel="Add email" onSave={(v) => saveField("email", v)} />
+              </FieldRow>
+              <FieldRow icon={Phone}>
+                <InlineField value={contact.phone} schema={shortText} type="tel" placeholder="Phone" emptyLabel="Add phone" onSave={(v) => saveField("phone", v)} />
+              </FieldRow>
+              <FieldRow icon={MapPin}>
+                <InlineField value={contact.city} schema={shortText} placeholder="City" emptyLabel="Add city" onSave={(v) => saveField("city", v)} />
+              </FieldRow>
+              <FieldRow icon={Linkedin}>
+                <InlineField
+                  value={contact.linkedin_url}
+                  schema={urlSchema}
+                  type="url"
+                  placeholder="https://linkedin.com/in/…"
+                  emptyLabel="Add LinkedIn URL"
+                  onSave={(v) => saveField("linkedin_url", v)}
+                  renderDisplay={(v) => <a href={v} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate inline-block max-w-[200px] align-bottom" onClick={(e) => e.stopPropagation()}>LinkedIn</a>}
+                />
+              </FieldRow>
+              {contact.birthday && <FieldRow icon={Cake}><span className="text-foreground">{format(parseISO(contact.birthday), "MMMM d")}</span></FieldRow>}
+              {contact.next_follow_up_date && <FieldRow icon={CalendarClock}><span className="text-foreground">Follow up {format(parseISO(contact.next_follow_up_date), "MMM d, yyyy")}</span></FieldRow>}
               {days !== null && (
                 <div className="pt-2 text-xs text-muted-foreground">
                   Last contact: {days} day{days === 1 ? "" : "s"} ago {days >= contact.cooling_days && <span className="text-warning font-medium">· cooling</span>}
@@ -223,19 +245,35 @@ const ContactDetail = () => {
             </div>
           </div>
 
-          {contact.why_matters && (
-            <div className="surface-card p-6">
-              <h3 className="font-semibold mb-2">Why they matter</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{contact.why_matters}</p>
+          <div className="surface-card p-6">
+            <h3 className="font-semibold mb-2">Why they matter</h3>
+            <div className="text-sm text-muted-foreground">
+              <InlineField
+                value={contact.why_matters}
+                schema={longText}
+                multiline
+                placeholder="What makes this person important to you?"
+                emptyLabel="Add a short note about why this person matters"
+                onSave={(v) => saveField("why_matters", v)}
+                renderDisplay={(v) => <span className="whitespace-pre-wrap text-foreground">{v}</span>}
+              />
             </div>
-          )}
+          </div>
 
-          {contact.notes && (
-            <div className="surface-card p-6">
-              <h3 className="font-semibold mb-2">Notes</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{contact.notes}</p>
+          <div className="surface-card p-6">
+            <h3 className="font-semibold mb-2">Notes</h3>
+            <div className="text-sm text-muted-foreground">
+              <InlineField
+                value={contact.notes}
+                schema={longText}
+                multiline
+                placeholder="General notes…"
+                emptyLabel="Add notes"
+                onSave={(v) => saveField("notes", v)}
+                renderDisplay={(v) => <span className="whitespace-pre-wrap text-foreground">{v}</span>}
+              />
             </div>
-          )}
+          </div>
         </div>
 
         <div className="lg:col-span-2 space-y-6">
