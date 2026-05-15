@@ -240,7 +240,9 @@ const Dashboard = () => {
         <div className="animate-fade-up-delay-1">
           <Section title="Birthdays & anniversaries" icon={Cake} count={upcomingDates.length}>
             {upcomingDates.length === 0 ? (
-              <InlineEmpty text="No upcoming dates in the next 30 days." />
+              <InlineEmpty text="No upcoming dates in the next 30 days." action={
+                <Button variant="outline" size="sm" asChild><Link to="/app/dates">Open dates</Link></Button>
+              } />
             ) : (
               <ul className="divide-y divide-border -mx-1">
                 {upcomingDates.slice(0, 6).map((e, i) => {
