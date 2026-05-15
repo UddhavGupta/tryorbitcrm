@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Zap, Lock, Sparkles, Check, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import logo from "@/assets/orbitcrm-logo.png";
+import { Logo } from "@/components/Logo";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
 
@@ -28,7 +28,7 @@ const Landing = () => {
       <header className="border-b border-border">
         <div className="container flex h-14 sm:h-16 items-center justify-between gap-2">
           <div className="flex items-center min-w-0">
-            <img src={logo} alt="OrbitCRM" className="h-7 sm:h-8 w-auto object-contain" />
+            <Logo className="text-xl sm:text-2xl" />
           </div>
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <Button variant="ghost" asChild size="sm" className="sm:size-default"><Link to="/auth">Sign in</Link></Button>
@@ -219,7 +219,7 @@ const Landing = () => {
       <footer className="border-t border-border bg-card/40">
         <div className="container py-12 md:py-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 md:gap-10">
           <div className="col-span-1 sm:col-span-2 md:col-span-1">
-            <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
+            <Logo className="text-2xl" />
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">
               Everything in your circle, always in motion.
             </p>

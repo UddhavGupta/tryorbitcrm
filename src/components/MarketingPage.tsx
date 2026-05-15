@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Linkedin, Twitter, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import logo from "@/assets/orbitcrm-logo.png";
+import { Logo } from "@/components/Logo";
 import { SEO } from "@/components/SEO";
 
 export interface MarketingPageProps {
@@ -35,7 +35,7 @@ export const MarketingPage = ({ seo, eyebrow, title, subtitle, children, showSha
           <div className="container flex h-14 sm:h-16 items-center justify-between">
             <Link to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4" />
-              <img src={logo} alt="OrbitCRM" className="h-7 w-auto object-contain" />
+              <Logo className="text-xl" />
             </Link>
             <div className="flex items-center gap-2">
               <Button variant="ghost" asChild size="sm"><Link to="/auth">Sign in</Link></Button>

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Sparkles, ArrowLeft } from "lucide-react";
 import { startDemo } from "@/lib/startDemo";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/orbitcrm-logo.png";
+import { Logo } from "@/components/Logo";
 import { SEO } from "@/components/SEO";
 
 const Demo = () => {
@@ -34,7 +34,7 @@ const Demo = () => {
         <div className="w-full max-w-md text-center">
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-10">
             <ArrowLeft className="h-4 w-4" />
-            <img src={logo} alt="OrbitCRM" className="h-7 w-auto object-contain" />
+            <Logo className="text-xl" />
           </Link>
 
           {error ? (

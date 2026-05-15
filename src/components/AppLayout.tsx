@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { loadSampleDataForCurrentUser } from "@/lib/sampleData";
 import { useToast } from "@/hooks/use-toast";
-import logo from "@/assets/orbitcrm-logo.png";
+import { Logo } from "@/components/Logo";
 
 const links = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true, tour: "dashboard", prefetch: ["reminders-today", "dashboard-contacts"] },
@@ -126,7 +126,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
         <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
           <div className="container flex h-14 md:h-16 items-center justify-between gap-2 md:gap-6">
             <button onClick={() => navigate("/app")} className="flex items-center shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="OrbitCRM home">
-              <img src={logo} alt="OrbitCRM" className="h-7 md:h-8 w-auto object-contain" />
+              <Logo className="text-xl md:text-2xl" />
             </button>
             <nav className="hidden md:flex items-center gap-0.5">
               {links.map((l) => (

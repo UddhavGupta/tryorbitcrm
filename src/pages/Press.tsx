@@ -1,5 +1,5 @@
 import { MarketingPage } from "@/components/MarketingPage";
-import logo from "@/assets/orbitcrm-logo.png";
+import { Logo } from "@/components/Logo";
 
 const Press = () => (
   <MarketingPage
@@ -36,7 +36,7 @@ const Press = () => (
 
     <h2>Brand assets</h2>
     <div className="not-prose flex items-center gap-6 p-6 rounded-xl border border-border bg-card/60">
-      <img src={logo} alt="OrbitCRM" className="h-10 w-auto" />
+      <Logo className="text-3xl" />
       <div className="text-sm">
         <p className="font-medium text-foreground">OrbitCRM logo</p>
         <p className="text-muted-foreground text-xs mt-0.5">Right-click to save · PNG</p>
