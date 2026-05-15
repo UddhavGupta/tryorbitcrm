@@ -53,6 +53,7 @@ const prefetchFor = (qc: QueryClient, keys?: string[]) => {
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
