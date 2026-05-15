@@ -520,7 +520,20 @@ const People = () => {
                 >
                   <Checkbox checked={isSelected} className="bg-background" aria-label={`Select ${fullName(c)}`} />
                 </div>
-                <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const isFav = priorityVal === "high";
+                    quickUpdate(c.id, { priority: isFav ? "medium" : "high" }, isFav ? "Removed from favorites" : "Marked as favorite");
+                  }}
+                  title={priorityVal === "high" ? "Remove favorite" : "Mark as favorite"}
+                  aria-label={priorityVal === "high" ? "Remove favorite" : "Mark as favorite"}
+                  className="absolute top-3 right-3 z-10 h-7 w-7 grid place-items-center rounded-md hover:bg-secondary transition-colors"
+                >
+                  <Star className={`h-4 w-4 transition-colors ${priorityVal === "high" ? "fill-amber-400 text-amber-400" : "text-muted-foreground/60 hover:text-amber-400"}`} />
+                </button>
+                <div className="flex items-center gap-3 pr-8">
                   <div className="h-11 w-11 rounded-full gradient-primary text-primary-foreground grid place-items-center font-semibold shrink-0">
                     {c.name.charAt(0)}
                   </div>
@@ -528,11 +541,9 @@ const People = () => {
                     <p className="font-semibold truncate">{fullName(c)}</p>
                     <p className="text-sm text-muted-foreground truncate">{[c.title, c.company].filter(Boolean).join(" · ") || "—"}</p>
                   </div>
-                  {priorityVal !== "medium" && (
-                    <span className={`text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full shrink-0 ${
-                      priorityVal === "high" ? "text-primary bg-primary/10" : "text-muted-foreground bg-secondary"
-                    }`}>
-                      {priorityVal}
+                  {priorityVal === "low" && (
+                    <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full shrink-0 text-muted-foreground bg-secondary">
+                      low
                     </span>
                   )}
                 </div>
