@@ -104,8 +104,50 @@ export const ImportCsvDialog = ({ open, onOpenChange, onImported }: Props) => {
     if (valid.length === 0) { toast.error("No valid rows to import"); return; }
     setImporting(true);
     try {
+      // Optionally skip duplicates by email (existing in DB or repeated in CSV)
+      let candidates = valid.slice();
+      let dupSkipped = 0;
+      if (skipDupes) {
+        // De-dupe within the CSV first (case-insensitive email)
+        const seen = new Set<string>();
+        candidates = candidates.filter(({ row }) => {
+          const e = row.email?.trim().toLowerCase();
+          if (!e) return true;
+          if (seen.has(e)) { dupSkipped++; return false; }
+          seen.add(e);
+          return true;
+        });
+
+        // Then check existing contacts by email
+        const emails = Array.from(new Set(
+          candidates.map(c => c.row.email?.trim().toLowerCase()).filter(Boolean) as string[]
+        ));
+        if (emails.length > 0) {
+          const existingEmails = new Set<string>();
+          // chunk the IN clause too
+          for (let i = 0; i < emails.length; i += CHUNK_SIZE) {
+            const slice = emails.slice(i, i + CHUNK_SIZE);
+            const { data, error } = await supabase
+              .from("contacts").select("email").in("email", slice);
+            if (error) throw error;
+            data?.forEach(d => d.email && existingEmails.add(d.email.toLowerCase()));
+          }
+          candidates = candidates.filter(({ row }) => {
+            const e = row.email?.trim().toLowerCase();
+            if (e && existingEmails.has(e)) { dupSkipped++; return false; }
+            return true;
+          });
+        }
+      }
+
+      if (candidates.length === 0) {
+        toast.warning(`Nothing to import — ${dupSkipped} duplicate${dupSkipped === 1 ? "" : "s"} skipped`);
+        setImporting(false);
+        return;
+      }
+
       // Resolve / create groups
-      const groupNames = Array.from(new Set(valid.map(v => v.row.group?.trim()).filter(Boolean) as string[]));
+      const groupNames = Array.from(new Set(candidates.map(v => v.row.group?.trim()).filter(Boolean) as string[]));
       const groupIdByName = new Map<string, string>();
       if (groupNames.length > 0) {
         const { data: existing } = await supabase.from("groups").select("id, name").in("name", groupNames);
@@ -121,8 +163,8 @@ export const ImportCsvDialog = ({ open, onOpenChange, onImported }: Props) => {
         }
       }
 
-      // Insert contacts
-      const payload = valid.map(({ row }) => ({
+      // Build full payload
+      const payload = candidates.map(({ row }) => ({
         user_id: user.id,
         name: row.first_name,
         last_name: row.last_name || null,
@@ -138,19 +180,45 @@ export const ImportCsvDialog = ({ open, onOpenChange, onImported }: Props) => {
         next_follow_up_date: row.next_follow_up_at || null,
         notes: row.notes || null,
       }));
-      const { data: inserted, error: insertErr } = await supabase.from("contacts").insert(payload).select("id");
-      if (insertErr) throw insertErr;
 
-      // Link groups
+      // Insert in chunks; collect inserted ids in order
+      const insertedIds: string[] = [];
+      const failures: { chunk: number; message: string }[] = [];
+      for (let i = 0; i < payload.length; i += CHUNK_SIZE) {
+        const slice = payload.slice(i, i + CHUNK_SIZE);
+        const { data, error } = await supabase.from("contacts").insert(slice).select("id");
+        if (error) {
+          failures.push({ chunk: Math.floor(i / CHUNK_SIZE) + 1, message: error.message });
+          // push placeholders so index alignment for groups stays correct
+          slice.forEach(() => insertedIds.push(""));
+        } else {
+          data?.forEach(d => insertedIds.push(d.id));
+        }
+      }
+
+      // Link groups (skip rows that failed)
       const links: { contact_id: string; group_id: string; user_id: string }[] = [];
-      inserted?.forEach((c, i) => {
-        const gname = valid[i].row.group?.trim();
+      insertedIds.forEach((cid, i) => {
+        if (!cid) return;
+        const gname = candidates[i].row.group?.trim();
         const gid = gname ? groupIdByName.get(gname) : undefined;
-        if (gid) links.push({ contact_id: c.id, group_id: gid, user_id: user.id });
+        if (gid) links.push({ contact_id: cid, group_id: gid, user_id: user.id });
       });
-      if (links.length > 0) await supabase.from("contact_groups").insert(links);
+      if (links.length > 0) {
+        for (let i = 0; i < links.length; i += CHUNK_SIZE) {
+          const slice = links.slice(i, i + CHUNK_SIZE);
+          await supabase.from("contact_groups").insert(slice);
+        }
+      }
 
-      toast.success(`Imported ${inserted?.length ?? 0} contacts${invalid.length ? ` · ${invalid.length} skipped` : ""}`);
+      const okCount = insertedIds.filter(Boolean).length;
+      const parts = [`Imported ${okCount} contact${okCount === 1 ? "" : "s"}`];
+      if (dupSkipped) parts.push(`${dupSkipped} duplicate${dupSkipped === 1 ? "" : "s"} skipped`);
+      if (invalid.length) parts.push(`${invalid.length} invalid skipped`);
+      if (failures.length) parts.push(`${failures.length} chunk${failures.length === 1 ? "" : "s"} failed`);
+      if (failures.length) toast.error(parts.join(" · "));
+      else toast.success(parts.join(" · "));
+
       onImported?.();
       reset();
       onOpenChange(false);
@@ -158,6 +226,7 @@ export const ImportCsvDialog = ({ open, onOpenChange, onImported }: Props) => {
       toast.error(e?.message ?? "Import failed");
     } finally {
       setImporting(false);
+
     }
   };
 
