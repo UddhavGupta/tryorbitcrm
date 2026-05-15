@@ -15,6 +15,7 @@ import { ImportCsvDialog } from "@/components/ImportCsvDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
 import { SampleDataButton } from "@/components/SampleDataButton";
+import { tagClasses } from "@/lib/tags";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, type RelationshipStatus, type SuggestedAction,
@@ -46,6 +47,7 @@ const People = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [actionFilter, setActionFilter] = useState<ActionFilter>("all");
   const [sortBy, setSortBy] = useState<SortBy>("name");
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
   const qc = useQueryClient();
 
   const { data: allGroups } = useQuery({
@@ -88,6 +90,12 @@ const People = () => {
     const set = new Set<string>();
     (contacts ?? []).forEach((c: any) => { if (c.company) set.add(c.company); });
     return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [contacts]);
+
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    (contacts ?? []).forEach((c: any) => (c.tags ?? []).forEach((t: string) => set.add(t)));
+    return Array.from(set).sort();
   }, [contacts]);
 
   const filtered = useMemo(() => {
@@ -149,11 +157,18 @@ const People = () => {
         nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
       }) === actionFilter);
     }
+    if (tagFilter.length > 0) {
+      list = list.filter((c: any) => {
+        const tags: string[] = (c.tags ?? []).map((t: string) => t.toLowerCase());
+        return tagFilter.every((t) => tags.includes(t.toLowerCase()));
+      });
+    }
     if (q) {
       const t = q.toLowerCase();
       list = list.filter((c: any) =>
         [c.name, c.last_name, c.title, c.company, c.city, c.email, c.notes,
-         ...(c.contact_groups?.map((cg: any) => cg.groups?.name) ?? [])]
+         ...(c.contact_groups?.map((cg: any) => cg.groups?.name) ?? []),
+         ...((c.tags ?? []) as string[])]
           .filter(Boolean).join(" ").toLowerCase().includes(t)
       );
     }
@@ -181,7 +196,7 @@ const People = () => {
       return 0;
     });
     return sorted;
-  }, [contacts, q, groupFilter, priority, companyFilter, lastRange, followUp, openReminder, openReminders, statusFilter, actionFilter, sortBy]);
+  }, [contacts, q, groupFilter, priority, companyFilter, lastRange, followUp, openReminder, openReminders, statusFilter, actionFilter, sortBy, tagFilter]);
 
   const fullName = (c: any) => [c.name, c.last_name].filter(Boolean).join(" ");
   const activeGroupName = allGroups?.find((g: any) => g.id === groupFilter)?.name;
@@ -194,7 +209,8 @@ const People = () => {
     (followUp !== "all" ? 1 : 0) +
     (openReminder !== "all" ? 1 : 0) +
     (statusFilter !== "all" ? 1 : 0) +
-    (actionFilter !== "all" ? 1 : 0);
+    (actionFilter !== "all" ? 1 : 0) +
+    (tagFilter.length > 0 ? 1 : 0);
 
   const clearAll = () => {
     setQ("");
@@ -206,6 +222,7 @@ const People = () => {
     setOpenReminder("all");
     setStatusFilter("all");
     setActionFilter("all");
+    setTagFilter([]);
   };
 
   const lastContactedLabel = (c: any) => {
@@ -364,6 +381,31 @@ const People = () => {
                 </SelectContent>
               </Select>
             </div>
+            {allTags.length > 0 && (
+              <div className="space-y-1.5">
+                <Label className="text-xs">Tags</Label>
+                <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+                  {allTags.map((t) => {
+                    const active = tagFilter.includes(t);
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() =>
+                          setTagFilter((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
+                        }
+                        className={`text-xs px-2 py-0.5 rounded-full border transition-opacity ${tagClasses(t)} ${active ? "" : "opacity-50 hover:opacity-100"}`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+                {tagFilter.length > 0 && (
+                  <p className="text-[11px] text-muted-foreground">Match all selected tags</p>
+                )}
+              </div>
+            )}
             <p className="text-[11px] text-muted-foreground leading-relaxed pt-1 border-t border-border">{INTEL_DISCLAIMER}</p>
             {activeFilterCount > 0 && (
               <Button variant="ghost" size="sm" className="w-full" onClick={clearAll}>
@@ -384,6 +426,9 @@ const People = () => {
           {openReminder !== "all" && <Chip onClear={() => setOpenReminder("all")}>{openReminder === "yes" ? "Has open reminder" : "No open reminder"}</Chip>}
           {lastRange !== "all" && <Chip onClear={() => setLastRange("all")}>Last contacted: {lastLabel(lastRange)}</Chip>}
           {followUp !== "all" && <Chip onClear={() => setFollowUp("all")}>Follow-up: {followLabel(followUp)}</Chip>}
+          {tagFilter.map((t) => (
+            <Chip key={t} onClear={() => setTagFilter((prev) => prev.filter((x) => x !== t))}>Tag: {t}</Chip>
+          ))}
         </div>
       )}
 
@@ -484,12 +529,15 @@ const People = () => {
                   )}
                 </div>
 
-                {c.contact_groups?.length > 0 && (
+                {(c.contact_groups?.length > 0 || (c.tags?.length ?? 0) > 0) && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {c.contact_groups.map((cg: any) => (
+                    {c.contact_groups?.map((cg: any) => (
                       <span key={cg.group_id} className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: (cg.groups?.color ?? "#a78bfa") + "22", color: cg.groups?.color ?? "#a78bfa" }}>
                         {cg.groups?.name}
                       </span>
+                    ))}
+                    {(c.tags ?? []).map((t: string) => (
+                      <span key={t} className={`text-xs px-2 py-0.5 rounded-full ${tagClasses(t)}`}>{t}</span>
                     ))}
                   </div>
                 )}

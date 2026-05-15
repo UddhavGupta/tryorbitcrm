@@ -66,6 +66,7 @@ export type Database = {
           notes: string | null
           phone: string | null
           priority: string
+          tags: string[]
           title: string | null
           updated_at: string
           user_id: string
@@ -89,6 +90,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           priority?: string
+          tags?: string[]
           title?: string | null
           updated_at?: string
           user_id: string
@@ -112,6 +114,7 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           priority?: string
+          tags?: string[]
           title?: string | null
           updated_at?: string
           user_id?: string

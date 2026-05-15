@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, parseISO, differenceInDays } from "date-fns";
-import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock } from "lucide-react";
+import { format, parseISO, differenceInDays, addDays, isAfter, isBefore } from "date-fns";
+import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock, Bell, CheckCircle2, UserPlus, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
@@ -15,6 +15,8 @@ import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { tagClasses } from "@/lib/tags";
+import { Timeline } from "@/components/Timeline";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
@@ -124,6 +126,13 @@ const ContactDetail = () => {
               <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${STATUS_CLASSES[status]}`}>{STATUS_LABEL[status]}</span>
               <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${ACTION_CLASSES[action]}`}>{ACTION_LABEL[action]}</span>
             </div>
+            {(contact.tags?.length ?? 0) > 0 && (
+              <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+                {(contact.tags as string[]).map((t) => (
+                  <span key={t} className={`text-xs px-2 py-0.5 rounded-full ${tagClasses(t)}`}>{t}</span>
+                ))}
+              </div>
+            )}
             <p className="mt-2 text-[10px] text-muted-foreground italic px-2 leading-relaxed">{INTEL_DISCLAIMER}</p>
             <div className="mt-4 flex justify-center gap-2">
               <Button size="sm" variant="outline" onClick={() => setEditing(true)}><Pencil className="h-3.5 w-3.5 mr-1" />Edit</Button>
@@ -193,120 +202,29 @@ const ContactDetail = () => {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
-          <div className="surface-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">Interaction history</h3>
-              <Button size="sm" onClick={() => { setEditingInteraction(null); setInteractionOpen(true); }} className="gradient-primary">
-                <Plus className="h-4 w-4 mr-1" />Log interaction
-              </Button>
-            </div>
-            {(interactions ?? []).length === 0 ? (
-              <div className="py-10 text-center text-sm text-muted-foreground">
-                <p>No interactions yet.</p>
-                <p className="mt-1">Log your first conversation, meeting, or intro to start a timeline.</p>
-              </div>
-            ) : (
-              <ol className="space-y-5 border-l border-border ml-1.5">
-                {interactions!.map((i: any) => (
-                  <li key={i.id} className="relative pl-5">
-                    <div className="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full bg-primary ring-4 ring-background" />
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] uppercase tracking-wide font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{interactionTypeLabel(i.kind)}</span>
-                          <span className="text-xs text-muted-foreground">{format(parseISO(i.occurred_at), "MMM d, yyyy")}</span>
-                        </div>
-                        {i.note && <p className="text-sm mt-2 whitespace-pre-wrap">{i.note}</p>}
-                        {i.next_steps && (
-                          <div className="mt-2 rounded-md bg-secondary px-3 py-2 text-xs">
-                            <span className="font-semibold text-foreground">Next steps: </span>
-                            <span className="text-muted-foreground whitespace-pre-wrap">{i.next_steps}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditingInteraction(i); setInteractionOpen(true); }}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="icon" variant="ghost" className="h-7 w-7"><Trash2 className="h-3.5 w-3.5" /></Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete this interaction?</AlertDialogTitle>
-                              <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteInteraction(i.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
-
-          <div className="surface-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">Reminders</h3>
-              <Button size="sm" onClick={() => { setEditingReminder(null); setReminderOpen(true); }} className="gradient-primary">
-                <Plus className="h-4 w-4 mr-1" />New
-              </Button>
-            </div>
-            {(reminders ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">No reminders for this contact.</p>
-            ) : (
-              <ul className="divide-y divide-border">
-                {reminders!.map((r: any) => (
-                  <li key={r.id} className="py-2.5 flex items-center gap-3">
-                    <Checkbox checked={r.completed} onCheckedChange={async () => {
-                      await supabase.from("reminders").update({ completed: !r.completed }).eq("id", r.id);
-                      qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
-                      qc.invalidateQueries({ queryKey: ["reminders"] });
-                      qc.invalidateQueries({ queryKey: ["reminders-today"] });
-                    }} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-sm truncate ${r.completed ? "line-through text-muted-foreground" : ""}`}>{r.title}</span>
-                        <span className={`text-[10px] uppercase tracking-wide font-semibold px-1.5 py-0.5 rounded-full ${priorityClasses(r.priority)}`}>{r.priority}</span>
-                      </div>
-                    </div>
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">{format(parseISO(r.due_date), "MMM d")}</span>
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditingReminder(r); setReminderOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="icon" variant="ghost" className="h-7 w-7"><Trash2 className="h-3.5 w-3.5" /></Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete this reminder?</AlertDialogTitle>
-                          <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            onClick={async () => {
-                              await supabase.from("reminders").delete().eq("id", r.id);
-                              qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
-                              qc.invalidateQueries({ queryKey: ["reminders"] });
-                              qc.invalidateQueries({ queryKey: ["reminders-today"] });
-                              toast.success("Reminder deleted");
-                            }}
-                          >Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <Timeline
+            contact={contact}
+            interactions={interactions ?? []}
+            reminders={reminders ?? []}
+            onLogInteraction={() => { setEditingInteraction(null); setInteractionOpen(true); }}
+            onNewReminder={() => { setEditingReminder(null); setReminderOpen(true); }}
+            onEditInteraction={(i) => { setEditingInteraction(i); setInteractionOpen(true); }}
+            onDeleteInteraction={async (iid) => { await deleteInteraction(iid); }}
+            onEditReminder={(r) => { setEditingReminder(r); setReminderOpen(true); }}
+            onToggleReminder={async (r) => {
+              await supabase.from("reminders").update({ completed: !r.completed }).eq("id", r.id);
+              qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
+              qc.invalidateQueries({ queryKey: ["reminders"] });
+              qc.invalidateQueries({ queryKey: ["reminders-today"] });
+            }}
+            onDeleteReminder={async (r) => {
+              await supabase.from("reminders").delete().eq("id", r.id);
+              qc.invalidateQueries({ queryKey: ["contact-reminders", id] });
+              qc.invalidateQueries({ queryKey: ["reminders"] });
+              qc.invalidateQueries({ queryKey: ["reminders-today"] });
+              toast.success("Reminder deleted");
+            }}
+          />
         </div>
       </div>
 

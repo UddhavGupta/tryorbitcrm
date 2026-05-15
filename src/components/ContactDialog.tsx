@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
+import { TagInput } from "@/components/TagInput";
 
 type Props = {
   open: boolean;
@@ -44,6 +45,7 @@ const empty = {
   priority: "medium", cooling_days: 30,
   last_contacted_at: "", next_follow_up_date: "",
   reminder_title: "",
+  tags: [] as string[],
 };
 
 export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOnCreate = true }: Props) => {
@@ -76,6 +78,7 @@ export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOn
         next_follow_up_date: contact.next_follow_up_date ?? "",
         last_contacted_at: contact.last_contacted_at ? contact.last_contacted_at.slice(0, 10) : "",
         reminder_title: "",
+        tags: Array.isArray(contact.tags) ? contact.tags : [],
       });
       setSelectedGroups(new Set((contact.contact_groups ?? []).map((cg: any) => cg.group_id)));
     } else {
@@ -120,6 +123,7 @@ export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOn
       cooling_days: Number(form.cooling_days) || 30,
       next_follow_up_date: form.next_follow_up_date || null,
       last_contacted_at: form.last_contacted_at ? new Date(form.last_contacted_at).toISOString() : null,
+      tags: Array.isArray(form.tags) ? form.tags.filter((t: string) => t && t.trim().length > 0) : [],
       user_id: user.id,
     };
 
@@ -244,6 +248,9 @@ export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOn
                   </div>
                 </Field>
               )}
+              <Field label="Tags" className="col-span-2" hint="Free-form labels — e.g. mentor, alum, design.">
+                <TagInput value={form.tags ?? []} onChange={(next) => set("tags", next)} />
+              </Field>
               <Field label="Why this person matters" className="col-span-2" hint="One line you'll remember in 6 months.">
                 <Textarea rows={2} value={form.why_matters} onChange={(e) => set("why_matters", e.target.value)} placeholder="Mentor from first job — opened doors in product design." />
               </Field>
