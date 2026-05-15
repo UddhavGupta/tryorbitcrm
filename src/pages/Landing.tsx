@@ -191,17 +191,17 @@ const Landing = () => {
           </FooterCol>
 
           <FooterCol title="Use cases">
-            <FooterAnchor href="#features">Job Seekers</FooterAnchor>
-            <FooterAnchor href="#features">Students</FooterAnchor>
-            <FooterAnchor href="#features">Founders</FooterAnchor>
+            <FooterRoute to="/for/job-seekers">Job Seekers</FooterRoute>
+            <FooterRoute to="/for/students">Students</FooterRoute>
+            <FooterRoute to="/for/founders">Founders</FooterRoute>
             <FooterAnchor href="#features">Operators</FooterAnchor>
           </FooterCol>
 
           <FooterCol title="Resources">
-            <FooterButton onClick={() => setDoc("help")}>Getting Started</FooterButton>
-            <FooterButton onClick={() => setDoc("help")}>Demo Data Guide</FooterButton>
+            <FooterRoute to="/about">About</FooterRoute>
             <FooterRoute to="/changelog">Changelog</FooterRoute>
             <FooterRoute to="/project-notes">Project Notes</FooterRoute>
+            <FooterRoute to="/press">Press Kit</FooterRoute>
           </FooterCol>
 
           <FooterCol title="Legal">
