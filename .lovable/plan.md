@@ -1,36 +1,69 @@
-# Phase 5 — Onboarding tour
+# More CRM features
 
-A tiny in-house tour overlay that runs once for newly signed-up users, with a replay link in the user menu and inline "load sample data" CTAs on empty pages. No new dependencies.
+Four additions, each independently shippable. Only DB change is a `tags` column on `contacts` and a settings field for birthday lead-time.
 
-## Scope
+## 1. Tags (free-form labels)
 
-1. **`profiles.onboarded_at` column** (migration). Set when the user finishes or skips the tour.
-2. **`<TourOverlay />` + `useTour()` hook** (~150 LOC, no deps). Renders a fixed dim layer with a spotlight cutout around the target element, a popover card with title/body/Skip/Next/Done, and dot pagination. Targets selected by `data-tour="..."` attributes already added to existing nav/buttons.
-3. **5 steps**:
-   1. Welcome — Dashboard intro (anchor: nav `Dashboard` link)
-   2. Add your first contact (anchor: People nav + the "Add contact" button on `/app/people`)
-   3. Set a reminder (anchor: Reminders nav)
-   4. Cooling alerts (anchor: a Dashboard cooling card)
-   5. You're set — CTA to "Load sample data" or "Start fresh"
-4. **Trigger logic**: in `AppLayout`, on mount, if user is real (not anonymous demo) and `profiles.onboarded_at IS NULL`, start tour. Persist completion/skip by writing `onboarded_at = now()`.
-5. **Replay**: add "Replay tour" item in `UserMenu` dropdown (real users only) that resets local state and starts the tour without clearing `onboarded_at`.
-6. **Empty-state CTAs**: on People / Reminders / Groups empty states, add a secondary "Load sample data" button that calls existing `seedDemo()` adapted for the real user's `user_id` (insert sample contacts/reminders/groups). Confirm dialog before insert.
+Per-contact, in addition to groups. Lighter weight — no separate page, just colored chips on the card.
+
+- **Schema**: `contacts.tags TEXT[] NOT NULL DEFAULT '{}'`. GIN index for filtering.
+- **Edit**: in `ContactDialog`, a tag input with comma/Enter to add, Backspace to remove last. Suggests existing tags from the user's other contacts.
+- **Display**: small pill row on contact cards (People page) and contact detail header. Color derived deterministically from tag string.
+- **Filter**: tag picker in the People filters popover. Multi-select; matches contacts that have ALL selected tags.
+
+## 2. Contact timeline
+
+Unified chronological view on the contact detail page, replacing the two stacked "Interaction history" + "Reminders" lists.
+
+- New `Timeline` section with merged events sorted by date desc:
+  - Interactions (from `interactions`)
+  - Reminders (due / completed events from `reminders`)
+  - Lifecycle: contact created, last_contacted_at changes (from contact metadata, no new table)
+  - Upcoming: birthday / anniversary entries shown at their dates within ±90 days
+- Each row has icon, label, relative date, and inline actions (edit/delete) where applicable.
+- Keep the existing add buttons ("Log interaction", "New reminder") above the timeline.
+- Old separate sections collapse into one. No DB changes.
+
+## 3. Birthday & anniversary auto-reminders
+
+A daily background job that creates reminders N days before each contact's birthday or anniversary, deduped so it never creates twice.
+
+- **Settings**: extend `profiles` with `birthday_lead_days INT DEFAULT 7` and `birthday_reminders_enabled BOOL DEFAULT true`. Tiny settings card on Dashboard or new `/app/settings` page (pick one — recommend Dashboard collapsible).
+- **Edge function** `birthday-reminders`: for each user with the flag on, find contacts whose `birthday` or `anniversary` (month/day) lands within the next `lead_days`. Insert a reminder with title `"🎂 {name}'s birthday on {date}"` if no open reminder with that title already exists.
+- **Schedule**: pg_cron job runs the function once a day at 8am UTC.
+- **Manual trigger**: a "Generate now" button in settings for testing.
+
+## 4. Custom fields
+
+Per-user-defined fields applied to all contacts. Stored as JSONB to avoid a schema migration per field.
+
+- **Schema**:
+  - `contacts.custom JSONB NOT NULL DEFAULT '{}'`
+  - New table `custom_field_defs (id, user_id, key, label, type, position)` where type ∈ `text | longtext | url | date | number`. RLS on user_id.
+- **Settings UI** (new `/app/settings` route, or modal from UserMenu): list/add/reorder/delete custom field definitions. Max 12 fields per user.
+- **Contact dialog**: render dynamic inputs after the standard fields, grouped under "Custom".
+- **Contact detail**: render filled custom fields as a labeled definition list in the sidebar.
+- **Filtering / search**: out of scope for v1.
 
 ## Out of scope
 
-- Coach marks beyond the 5 steps
-- Video/animated walkthroughs
-- Tour analytics
-- Public profiles (Phase 6)
-
-## Technical notes
-
-- New files: `src/components/Tour.tsx` (overlay + steps + hook), `supabase/migrations/*` for `alter table profiles add column onboarded_at timestamptz`.
-- Edits: `AppLayout.tsx` (mount tour), `UserMenu.tsx` (replay item), `People.tsx` / `Reminders.tsx` / `Groups.tsx` (sample-data CTA in EmptyState), and `data-tour` attrs on nav links + a couple of buttons.
-- Spotlight: compute target `getBoundingClientRect()`, render via portal; recompute on resize/scroll. Tab-trap inside popover. Esc = skip.
-- Anonymous demo sessions skip the tour entirely (they already have seeded data and a different intent).
-- Sample data helper lives in `src/lib/seedDemo.ts` (rename of existing demo seeder if needed) and reuses current insert logic with the real `user_id`.
+- LinkedIn enrichment (needs API key + adds external dependency — separate ask)
+- Tag colors editable per tag (auto-generated only)
+- Custom field validation rules beyond type
+- Per-tag pages
 
 ## Rollout order
 
-Migration → Tour component + hook → AppLayout wiring + data-tour attrs → UserMenu replay → empty-state sample-data CTAs.
+1. Tags (small, high value, single migration)
+2. Timeline (no DB changes, pure refactor of contact detail)
+3. Birthday auto-reminders (settings + edge function + cron — needs user to confirm cron schedule)
+4. Custom fields (new table + settings page — biggest scope)
+
+Ship 1+2 first, then 3, then 4. I'll start with #1 once approved.
+
+## Technical notes
+
+- Tag color: hash tag string → pick from a fixed 8-color palette in design tokens.
+- Timeline events: build in a `useMemo` from existing queries; no extra query.
+- Edge function uses service role key (already configured) and iterates over users with reminders enabled.
+- Custom field keys are slugified (`a-z0-9_`) and unique per user.
