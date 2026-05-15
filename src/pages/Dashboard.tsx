@@ -7,9 +7,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PageHeader } from "@/components/PageHeader";
+import { InlineEmpty } from "@/components/EmptyState";
 import { seedDemo } from "@/lib/demo";
 import { toast } from "sonner";
 import {
+  getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
+  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
+} from "@/lib/relationshipIntel";
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
 } from "@/lib/relationshipIntel";
