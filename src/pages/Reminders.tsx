@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RowListSkeleton, ErrorState } from "@/components/LoadingStates";
+import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
 
 type DueFilter = "all" | "today" | "overdue" | "week";
@@ -132,15 +133,15 @@ const Reminders = () => {
 
   return (
     <AppLayout>
-      <div className="flex items-end justify-between flex-wrap gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Reminders</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">Stay on top of follow-ups across your orbit.</p>
-        </div>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gradient-primary w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />New reminder
-        </Button>
-      </div>
+      <PageHeader
+        title="Reminders"
+        description="Stay on top of follow-ups across your orbit."
+        actions={
+          <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gradient-primary w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />New reminder
+          </Button>
+        }
+      />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="mb-4">
         <TabsList>

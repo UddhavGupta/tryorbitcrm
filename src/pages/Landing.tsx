@@ -41,18 +41,18 @@ const Landing = () => {
 
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 gradient-soft pointer-events-none" />
-        <div className="container relative py-16 sm:py-24 md:py-32 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+        <div className="container relative pt-16 sm:pt-24 md:pt-32 pb-10 md:pb-16 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground animate-fade-up">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Personal CRM, reimagined
           </span>
-          <h1 className="font-display mt-6 text-4xl sm:text-5xl md:text-7xl font-medium tracking-tight leading-[1.05]">
+          <h1 className="display-xl mt-6 md:text-7xl tracking-tight animate-fade-up">
             Remember everyone <br />
             <span className="italic text-primary">in your orbit.</span>
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2">
+          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2 animate-fade-up-delay-1">
             A lightweight CRM for students, founders, operators, and job seekers. Track who you know, what matters, and when to reach out next.
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none">
+          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none animate-fade-up-delay-1">
             <Button size="lg" variant="outline" onClick={handleStartDemo} disabled={loadingDemo} className="w-full sm:w-auto">
               <PlayCircle className="mr-2 h-4 w-4" />{loadingDemo ? "Loading demo…" : "Start Demo"}
             </Button>
@@ -63,7 +63,7 @@ const Landing = () => {
       </section>
 
       {/* Product preview */}
-      <section className="container pb-8 md:pb-16 -mt-6 md:-mt-10">
+      <section className="container pb-12 md:pb-20 animate-fade-up-delay-2">
         <DashboardPreview />
         <p className="text-center text-xs text-muted-foreground mt-4">
           A glimpse of the dashboard. Explore the live version with seeded sample data.
@@ -73,8 +73,8 @@ const Landing = () => {
       {/* How it works */}
       <section className="container py-20">
         <div className="text-center max-w-2xl mx-auto">
-          <p className="text-xs uppercase tracking-[0.18em] text-primary font-semibold">How it works</p>
-          <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight mt-3">
+          <p className="eyebrow-primary">How it works</p>
+          <h2 className="display-lg mt-3">
             Three steps to a warmer network.
           </h2>
         </div>
@@ -84,10 +84,10 @@ const Landing = () => {
             { icon: NotebookPen, num: "02", title: "Capture context", desc: "Notes, groups, priorities, birthdays, and why each relationship matters." },
             { icon: Send, num: "03", title: "Follow up at the right time", desc: "Reminders and cooling alerts surface who needs attention today." },
           ].map((s) => (
-            <div key={s.title} className="surface-card p-7 relative">
-              <span className="text-[10px] font-mono tracking-widest text-primary/70">{s.num}</span>
-              <div className="h-10 w-10 rounded-xl bg-accent grid place-items-center mt-3 mb-4">
-                <s.icon className="h-5 w-5 text-accent-foreground" />
+            <div key={s.title} className="surface-card p-7 lift relative">
+              <span className="text-[10px] font-mono tracking-widest text-primary/70 num-tabular">{s.num}</span>
+              <div className="h-10 w-10 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center mt-3 mb-4">
+                <s.icon className="h-5 w-5 text-primary" />
               </div>
               <h3 className="font-semibold text-lg">{s.title}</h3>
               <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.desc}</p>
@@ -103,9 +103,9 @@ const Landing = () => {
           { icon: Bell, title: "Never go cold", desc: "Cooling alerts surface relationships drifting out of touch." },
           { icon: Calendar, title: "Birthdays & dates", desc: "Always be the one who remembers." },
         ].map((f) => (
-          <div key={f.title} className="surface-card p-6">
-            <div className="h-10 w-10 rounded-xl bg-accent grid place-items-center mb-4">
-              <f.icon className="h-5 w-5 text-accent-foreground" />
+          <div key={f.title} className="surface-card p-6 lift">
+            <div className="h-10 w-10 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center mb-4">
+              <f.icon className="h-5 w-5 text-primary" />
             </div>
             <h3 className="font-semibold text-lg">{f.title}</h3>
             <p className="text-muted-foreground mt-1">{f.desc}</p>
@@ -115,34 +115,33 @@ const Landing = () => {
 
       {/* Built for network-heavy people */}
       <section className="container py-20">
-        <div className="surface-card p-10 md:p-16 gradient-soft">
-          <div className="text-center max-w-2xl mx-auto">
-            <h2 className="font-display text-3xl md:text-4xl font-medium tracking-tight">Built for network-heavy people</h2>
-            <p className="text-muted-foreground mt-3">
-              Designed for the people whose work depends on relationships staying warm.
-            </p>
-          </div>
-          <div className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
-            {[
-              { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities." },
-              { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles." },
-              { t: "Students", d: "Managing classmates, alumni, and mentors as you build a long-term network." },
-              { t: "Operators", d: "Managing cross-functional partners and external relationships across teams." },
-            ].map((u) => (
-              <div key={u.t} className="rounded-xl border border-border bg-card p-5">
-                <p className="font-semibold text-foreground">{u.t}</p>
-                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{u.d}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" onClick={handleStartDemo} disabled={loadingDemo} className="gradient-primary">
-              <PlayCircle className="mr-2 h-4 w-4" />{loadingDemo ? "Loading demo…" : "Start Demo"}
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link to="/auth?mode=signup">Sign Up</Link>
-            </Button>
-          </div>
+        <div className="text-center max-w-2xl mx-auto">
+          <p className="eyebrow-primary">Who it's for</p>
+          <h2 className="display-lg mt-3">Built for network-heavy people</h2>
+          <p className="text-muted-foreground mt-3">
+            Designed for the people whose work depends on relationships staying warm.
+          </p>
+        </div>
+        <div className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+          {[
+            { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities." },
+            { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles." },
+            { t: "Students", d: "Managing classmates, alumni, and mentors as you build a long-term network." },
+            { t: "Operators", d: "Managing cross-functional partners and external relationships across teams." },
+          ].map((u) => (
+            <div key={u.t} className="surface-card p-5 lift">
+              <p className="font-semibold text-foreground">{u.t}</p>
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{u.d}</p>
+            </div>
+          ))}
+        </div>
+        <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Button size="lg" onClick={handleStartDemo} disabled={loadingDemo} className="gradient-primary">
+            <PlayCircle className="mr-2 h-4 w-4" />{loadingDemo ? "Loading demo…" : "Start Demo"}
+          </Button>
+          <Button size="lg" variant="outline" asChild>
+            <Link to="/auth?mode=signup">Sign Up</Link>
+          </Button>
         </div>
       </section>
 

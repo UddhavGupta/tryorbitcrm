@@ -80,6 +80,13 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        display: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        lift: "0 12px 28px -16px hsl(24 30% 12% / 0.18)",
+      },
       keyframes: {
         "accordion-down": {
           from: {

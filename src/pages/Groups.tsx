@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { GroupDialog } from "@/components/GroupDialog";
 import { GroupDetailDialog } from "@/components/GroupDetailDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
+import { PageHeader } from "@/components/PageHeader";
 
 const Groups = () => {
   const qc = useQueryClient();
@@ -47,15 +48,15 @@ const Groups = () => {
 
   return (
     <AppLayout>
-      <div className="flex items-end justify-between flex-wrap gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Groups</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">Organize your orbit by context — investors, friends, recruiters, founders.</p>
-        </div>
-        <Button onClick={() => { setEditing(null); setEditorOpen(true); }} className="gradient-primary w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />New group
-        </Button>
-      </div>
+      <PageHeader
+        title="Groups"
+        description="Organize your orbit by context — investors, friends, recruiters, founders."
+        actions={
+          <Button onClick={() => { setEditing(null); setEditorOpen(true); }} className="gradient-primary w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" />New group
+          </Button>
+        }
+      />
 
       {isLoading && <CardListSkeleton count={3} />}
       {error && <ErrorState title="Couldn't load groups" message={(error as Error).message} />}
