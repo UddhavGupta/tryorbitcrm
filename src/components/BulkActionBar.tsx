@@ -109,7 +109,7 @@ export const BulkActionBar = ({ selectedIds, contacts, groups, onClear }: Props)
       const firstErr = results.find((r: any) => r.error);
       if (firstErr) throw firstErr.error;
       invalidate();
-      toast.success(`Tagged "${tag}" · ${updates.length} contact${updates.length === 1 ? "" : "s"}`);
+      toast.success(`Tagged "${tag}" · ${targets.length} contact${targets.length === 1 ? "" : "s"}`);
       setTagDraft("");
     } catch (e: any) {
       toast.error(e?.message ?? "Couldn't tag");
