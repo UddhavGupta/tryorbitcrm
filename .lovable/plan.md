@@ -1,43 +1,72 @@
-## 1. Explicit "Favorite" toggle on contact cards
+Three remaining tracks. Scoped to be shippable in one pass without bloating the codebase.
 
-**Where**: top-right corner of each card on `src/pages/People.tsx` (inside the existing card link, absolutely positioned at `top-3 right-3`).
+## Track A — Smarter Relationship Intel
 
-**Control**: a star icon button (lucide `Star`).
-- Filled gold when the contact is a favorite, outlined gray when not.
-- Always visible (not hover-only) so it's discoverable.
-- `e.preventDefault() + e.stopPropagation()` so clicking it doesn't navigate into the contact.
-- Tooltip: "Mark as favorite" / "Remove favorite".
+The intel rules in `src/lib/relationshipIntel.ts` are already solid; the gap is **surfacing them** and **acting on them faster**.
 
-**Data model**: reuse the existing `contacts.priority` field — `priority === "high"` = favorite. No schema change needed. Toggling the star calls the existing `quickUpdate(c.id, { priority: isFav ? "medium" : "high" })` helper that's already in People.tsx.
-- Keeps the existing "High / Medium / Low" priority dropdown working unchanged.
-- The existing tiny "high" pill in the card header becomes redundant, so the star replaces it visually (we'll hide the pill when `priority === "high"` since the star already communicates it; the "low" pill stays).
+1. **Weekly Digest section on the Dashboard** (no new page).
+   - New "This week" card alongside Today's reach-outs: top 5 contacts where `getSuggestedAction` ≠ `no_action` and the suggestion is `reconnect_soon` or `send_birthday_note` (i.e. not already in "Today's reach-outs").
+   - Each row: name, why it surfaced (the action label), and a "Reach out" button that opens the existing `ReminderDialog` prefilled with that contact and a sensible due date (today for birthdays, +3 days for reconnect).
+   - Header: "This week" with a refresh-on-Monday note in muted text.
 
-**Mirror on detail page**: `src/pages/ContactDetail.tsx` header — add the same star button next to the Edit/Delete row (top-right of the profile card) so the affordance is consistent.
+2. **Contact-level intel card** on `ContactDetail.tsx`:
+   - New compact "Relationship intel" card (above Groups). Renders:
+     - Status pill (active/warming/cooling/cold) + the human days-since-last-contact
+     - Suggested action with a one-line rationale ("High priority and you haven't talked in 73 days")
+     - One CTA — "Draft a reach-out" — that opens the existing `InteractionDialog` with a prefilled note template (no AI call; just a 2-line scaffold like "Quick check-in — last connected {date}. Talking points: …").
+   - Reuses existing helpers; no new lib code beyond a small `intelRationale(c)` function in `relationshipIntel.ts`.
 
-## 2. Notes always visible + helpful empty-state hint
+3. **Cooling tier upgrade** — already 4 tiers; just add the missing **"Warming"** classification chip in the People filter dropdown (it's defined but not selectable). No data changes.
 
-**Where**: the existing "Notes" card on `src/pages/ContactDetail.tsx` (lines 263–276) and the "Why they matter" card right above it.
+**Out of scope:** AI-generated drafts (would need an edge function + token spend); a full `/digest` page; email sending.
 
-**Behavior changes**:
-- Notes are already rendered via `InlineField` with `multiline`. We'll keep that, but:
-  - Replace the current empty-state label ("Add notes") with a multi-line light-gray example block:
-    > _e.g. partner's name, pet's name, university, likes/dislikes, favorite restaurant or wine…_
-  - Use `text-muted-foreground/70 italic` for the placeholder so it reads as a hint, not a value.
-  - Clicking the placeholder opens the editor (already the InlineField behavior); the textarea's own `placeholder` attr will mirror the same examples so the user sees them while typing the first time.
-- Make sure the full notes value renders with `whitespace-pre-wrap` (already true) so multi-line notes are fully visible — no truncation, no "show more". This satisfies "see all notes."
+## Track B — Landing & Marketing
 
-**Small InlineField tweak**: `src/components/InlineField.tsx` already supports `emptyLabel` and `placeholder`. We'll pass:
-- `emptyLabel`: the example sentence.
-- `placeholder` (textarea): same examples.
-- Add an optional `emptyClassName` prop (or just style via existing classes) so the empty-state text renders italic + lighter gray. If the component doesn't expose styling for the empty label, we'll add a small `emptyClassName?: string` prop and thread it through — purely additive, no behavior change for other call sites.
+Tighten the page so it converts. Keep the structure; sharpen the storytelling.
 
-## Out of scope
-- No new database column (favorite reuses `priority`).
-- No changes to the Priority filter, sort, or bulk actions — they keep working off `priority`.
-- No redesign of the card layout beyond moving/swapping the corner badge.
-- No changes to "Why they matter" copy (already has its own prompt).
+1. **Hero refresh** (`Landing.tsx` lines 52-82):
+   - Add a one-line social-proof strip under the CTAs: "Built for the people whose careers compound on relationships." (text only, no fake logos).
+   - Replace "Sign Up" button label with "Start free — no credit card" (we have no payment, but reinforces commitment-low signal).
+   - Add subtle product KPIs row above "How it works": three stats — "0 setup", "100% private to you", "Demo in 5 seconds". Static, no fetching.
 
-## Files touched
-- `src/pages/People.tsx` — add star button top-right of card; hide redundant "high" pill.
-- `src/pages/ContactDetail.tsx` — add star button in profile header; update Notes `emptyLabel` + placeholder with examples; apply muted/italic styling.
-- `src/components/InlineField.tsx` — add optional `emptyClassName` prop (only if needed to style the empty-state text).
+2. **New "Why OrbitCRM is different" section** (between How-it-works and Built-for):
+   - Three-up comparison: "Spreadsheets" / "Big CRMs" / "OrbitCRM" — each a small card with 3 bullets. Frames the product clearly without trashing competitors.
+
+3. **Testimonial-shaped quotes section** (clearly labeled "What the project is for", not fake reviews — keeps it honest as a portfolio piece):
+   - 3 quotes phrased as use-cases ("As a job seeker, …", etc.) with the persona, not a real name. Avoids fake-testimonial smell.
+
+4. **Footer cleanup**: the "Operators" footer link wrongly points at `#features` — route it to a real `/for/operators` page (mirror `/for/founders`) OR drop it. We'll route it to `/for/job-seekers` (closest match) and rename the link to "Operators" → still sends to a relevant use-case page. *(Light touch: no new route.)*
+
+**Out of scope:** Real testimonials (none exist); animated screen recordings; pricing page.
+
+## Track C — Visual Polish Pass
+
+Targeted polish, no redesign.
+
+1. **Dashboard StatCards**: tighten — give each card a small trend indicator (e.g. "↑ 2 new this week" for Total contacts using `created_at` filter). For Open/Overdue, show a relative bar (overdue count / total open) as a thin progress strip. Pure presentation; queries already in place.
+
+2. **People page card hover**: the current `hover:-translate-y-0.5` is good but the shadow snap is harsh — switch to a softer 250ms cubic-bezier transition and add a subtle border-color pulse on the favorite star when toggling on (existing animations already in `tailwind.config`).
+
+3. **ContactDetail header**: avatar is a flat gradient. Add a subtle inner ring + ring shadow, and align the priority/status pills horizontally instead of vertically stacked — looks more compact and editorial.
+
+4. **Empty states audit**: standardize illustration spacing — a few pages use `p-10`, others `p-6 text-center`. Pick `p-10` consistently for primary empty states and update mismatched ones (`Groups`, `Reminders`, `Dates`).
+
+5. **Toasts**: shorten our toast copy across the app where I find verbose ones (e.g. "Cooling +30 days (now 60)" → "Cooling: 60 days"). Quick pass.
+
+**Out of scope:** Theme tokens overhaul; new icons; animation library swap.
+
+## Order & rollout
+
+A → B → C in one session. Each track is self-contained, so we can ship sequentially without merge concerns.
+
+## Files touched (planned)
+
+- `src/lib/relationshipIntel.ts` — add `intelRationale(c)`.
+- `src/pages/Dashboard.tsx` — "This week" card + StatCard tweaks.
+- `src/pages/ContactDetail.tsx` — Relationship intel card; visual polish on header.
+- `src/pages/People.tsx` — add "Warming" filter option; hover transition tweak.
+- `src/pages/Landing.tsx` — hero copy, comparison section, quotes section, footer link fix.
+- `src/pages/Reminders.tsx`, `src/pages/Groups.tsx`, `src/pages/Dates.tsx` — empty-state spacing pass.
+- Misc: toast copy trim across pages I touch.
+
+No DB migrations. No new dependencies. No new routes.
