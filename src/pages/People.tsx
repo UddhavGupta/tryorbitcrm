@@ -580,7 +580,7 @@ const People = () => {
                   </div>
                 )}
 
-                <div className="mt-auto pt-3 flex items-center justify-end opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                <div className="mt-auto pt-3 flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => markContactedToday(e, c)}
                     className="text-xs inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
@@ -589,6 +589,44 @@ const People = () => {
                     <CheckCheck className="h-3.5 w-3.5" />
                     Mark contacted
                   </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        className="h-7 w-7 grid place-items-center rounded-md border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                        title="More"
+                      >
+                        <MoreVertical className="h-3.5 w-3.5" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                      <DropdownMenuLabel className="text-xs">Priority</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { priority: "high" }, "Set to high priority")}>
+                        <Flag className="h-3.5 w-3.5 mr-2" />High {priorityVal === "high" && "·"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { priority: "medium" }, "Set to medium priority")}>
+                        <Flag className="h-3.5 w-3.5 mr-2" />Medium {priorityVal === "medium" && "·"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { priority: "low" }, "Set to low priority")}>
+                        <Flag className="h-3.5 w-3.5 mr-2" />Low {priorityVal === "low" && "·"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="text-xs">Cooling threshold</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { cooling_days: (c.cooling_days ?? 30) + 15 }, `Cooling +15 days (now ${(c.cooling_days ?? 30) + 15})`)}>
+                        <Snowflake className="h-3.5 w-3.5 mr-2" />+15 days
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { cooling_days: (c.cooling_days ?? 30) + 30 }, `Cooling +30 days (now ${(c.cooling_days ?? 30) + 30})`)}>
+                        <Snowflake className="h-3.5 w-3.5 mr-2" />+30 days
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { cooling_days: (c.cooling_days ?? 30) + 60 }, `Cooling +60 days (now ${(c.cooling_days ?? 30) + 60})`)}>
+                        <Snowflake className="h-3.5 w-3.5 mr-2" />+60 days
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setEditingContact(c)}>
+                        <Pencil className="h-3.5 w-3.5 mr-2" />Edit details…
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </Link>
             );
