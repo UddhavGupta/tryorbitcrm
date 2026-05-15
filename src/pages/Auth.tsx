@@ -192,6 +192,7 @@ const Auth = () => {
                 {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
               </Button>
             </form>
+            </>
           )}
 
           <div className="mt-6 flex flex-col gap-3 text-sm">
