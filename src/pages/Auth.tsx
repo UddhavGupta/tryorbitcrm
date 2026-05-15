@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { PlayCircle, ArrowLeft } from "lucide-react";
-import logo from "@/assets/orbitcrm-logo.png";
+import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/contexts/AuthContext";
@@ -109,7 +109,7 @@ const Auth = () => {
       />
       <div className="hidden lg:flex relative gradient-soft p-12 flex-col justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
+          <Logo className="text-2xl" />
         </Link>
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -134,7 +134,7 @@ const Auth = () => {
             <Link to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4" /> Home
             </Link>
-            <img src={logo} alt="OrbitCRM" className="h-7 w-auto object-contain" />
+            <Logo className="text-xl" />
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-medium tracking-tight">{mode === "signup" ? "Create your account" : "Welcome back"}</h1>
           <p className="text-sm text-muted-foreground mt-1">

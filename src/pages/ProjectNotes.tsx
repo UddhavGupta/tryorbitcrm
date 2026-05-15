@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, PlayCircle, Github, Linkedin, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/orbitcrm-logo.png";
+import { Logo } from "@/components/Logo";
 import { PORTFOLIO_DISCLAIMER } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
 
@@ -55,9 +55,8 @@ const ProjectNotes = () => {
       {/* Top nav */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container py-4 flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <img src={logo} alt="OrbitCRM" className="h-7 w-7" />
-            <span className="font-semibold tracking-tight">OrbitCRM</span>
+          <Link to="/" className="flex items-center">
+            <Logo className="text-xl" />
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild>
