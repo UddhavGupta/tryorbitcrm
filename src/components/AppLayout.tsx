@@ -159,7 +159,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
             </div>
           </nav>
         </header>
-        <main className="container py-6 md:py-10 flex-1">{children}</main>
+        <main key={location.pathname} className="container py-6 md:py-10 flex-1 animate-fade-in">{children}</main>
         <AppFooter />
       </div>
     </TourProvider>
