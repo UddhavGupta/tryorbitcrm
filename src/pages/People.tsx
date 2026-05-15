@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { differenceInDays, parseISO, format } from "date-fns";
-import { Plus, Search, UserPlus, X, SlidersHorizontal, MapPin, CalendarClock, Clock, Bell, ArrowUpDown, Upload } from "lucide-react";
+import { Plus, Search, UserPlus, X, SlidersHorizontal, MapPin, CalendarClock, Clock, Bell, ArrowUpDown, Upload, CheckCheck } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -234,6 +235,19 @@ const People = () => {
     return `${days} days ago`;
   };
 
+  const markContactedToday = async (e: React.MouseEvent, c: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const { error } = await supabase
+      .from("contacts")
+      .update({ last_contacted_at: new Date().toISOString() })
+      .eq("id", c.id);
+    if (error) { toast.error(error.message); return; }
+    qc.invalidateQueries({ queryKey: ["contacts"] });
+    qc.invalidateQueries({ queryKey: ["dashboard-contacts"] });
+    toast.success(`Marked ${[c.name, c.last_name].filter(Boolean).join(" ")} contacted today`);
+  };
+
   return (
     <AppLayout>
       <PageHeader
@@ -251,7 +265,7 @@ const People = () => {
       <div className="flex flex-wrap gap-2 mb-4">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search name, title, company, city, notes, group…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input data-hotkey-search placeholder="Search name, title, company, city, notes, group… (press / to focus)" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
           {q && (
             <button onClick={() => setQ("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
@@ -481,7 +495,7 @@ const People = () => {
               <Link
                 key={c.id}
                 to={`/app/people/${c.id}`}
-                className="surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30 flex flex-col"
+                className="group surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30 flex flex-col"
               >
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 rounded-full gradient-primary text-primary-foreground grid place-items-center font-semibold shrink-0">
@@ -542,6 +556,17 @@ const People = () => {
                     ))}
                   </div>
                 )}
+
+                <div className="mt-auto pt-3 flex items-center justify-end opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => markContactedToday(e, c)}
+                    className="text-xs inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                    title="Mark contacted today"
+                  >
+                    <CheckCheck className="h-3.5 w-3.5" />
+                    Mark contacted
+                  </button>
+                </div>
               </Link>
             );
           })}

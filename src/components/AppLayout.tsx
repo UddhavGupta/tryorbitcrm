@@ -6,6 +6,10 @@ import { DemoBadge } from "@/components/DemoBadge";
 import { AppFooter } from "@/components/AppFooter";
 import { UserMenu } from "@/components/UserMenu";
 import { TourProvider } from "@/components/Tour";
+import { HotkeysHelp } from "@/components/HotkeysHelp";
+import { ContactDialog } from "@/components/ContactDialog";
+import { ReminderDialog } from "@/components/ReminderDialog";
+import { useHotkeys } from "@/hooks/useHotkeys";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { loadSampleDataForCurrentUser } from "@/lib/sampleData";
@@ -58,6 +62,24 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [shouldStartTour, setShouldStartTour] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [reminderOpen, setReminderOpen] = useState(false);
+
+  useHotkeys({
+    "?": () => setHelpOpen(true),
+    n: () => setContactOpen(true),
+    r: () => setReminderOpen(true),
+    "/": () => {
+      const el = document.querySelector<HTMLInputElement>("[data-hotkey-search]");
+      if (el) { el.focus(); el.select(); }
+    },
+    "g d": () => navigate("/app"),
+    "g p": () => navigate("/app/people"),
+    "g r": () => navigate("/app/reminders"),
+    "g g": () => navigate("/app/groups"),
+    "g t": () => navigate("/app/dates"),
+  });
 
   const isAnon = !!user && ((user as any).is_anonymous === true || (user as any).app_metadata?.provider === "anonymous");
 
@@ -162,6 +184,9 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
         </header>
         <main key={location.pathname} className="container py-6 md:py-10 flex-1 animate-fade-in">{children}</main>
         <AppFooter />
+        <HotkeysHelp open={helpOpen} onOpenChange={setHelpOpen} />
+        <ContactDialog open={contactOpen} onOpenChange={setContactOpen} onSaved={() => qc.invalidateQueries({ queryKey: ["contacts"] })} />
+        <ReminderDialog open={reminderOpen} onOpenChange={setReminderOpen} reminder={null} onSaved={() => qc.invalidateQueries({ queryKey: ["reminders"] })} />
       </div>
     </TourProvider>
   );

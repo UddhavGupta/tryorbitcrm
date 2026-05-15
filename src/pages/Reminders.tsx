@@ -1,14 +1,17 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { format, parseISO, isPast, isToday, differenceInDays, startOfWeek, endOfWeek } from "date-fns";
-import { Plus, Pencil, Trash2, CheckCircle2, Bell, SlidersHorizontal, X, ArrowUpDown, Circle, Check } from "lucide-react";
+import { format, parseISO, isPast, isToday, differenceInDays, startOfWeek, endOfWeek, addDays } from "date-fns";
+import { Plus, Pencil, Trash2, CheckCircle2, Bell, SlidersHorizontal, X, ArrowUpDown, Circle, Check, Clock, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -17,6 +20,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { SampleDataButton } from "@/components/SampleDataButton";
 import { toast } from "sonner";
 import { todayLocalISO, dateToLocalISO } from "@/lib/dates";
+import { parseQuickReminder } from "@/lib/parseQuickReminder";
 
 type DueFilter = "all" | "today" | "overdue" | "week";
 type SortBy = "due" | "priority" | "name";
@@ -24,14 +28,18 @@ type SortBy = "due" | "priority" | "name";
 const Reminders = () => {
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [tab, setTab] = useState<"open" | "completed">("open");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [quick, setQuick] = useState("");
+  const [quickPreview, setQuickPreview] = useState<{ title: string; due_date: string } | null>(null);
 
   const [dueFilter, setDueFilter] = useState<DueFilter>("all");
   const [highOnly, setHighOnly] = useState(false);
   const [groupFilter, setGroupFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortBy>("due");
+  const [grouped, setGrouped] = useState(true);
 
   const { data: reminders, isLoading, error } = useQuery({
     queryKey: ["reminders"],
@@ -130,8 +138,148 @@ const Reminders = () => {
     toast.success("Reminder deleted");
   };
 
+  const snooze = async (r: any, days: number) => {
+    const base = parseISO(r.due_date);
+    const today = new Date();
+    const start = base > today ? base : today;
+    const next = dateToLocalISO(addDays(start, days));
+    const { error } = await supabase.from("reminders").update({ due_date: next }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    invalidate();
+    toast.success(`Snoozed ${days === 1 ? "1 day" : days === 7 ? "1 week" : `${days} days`}`);
+  };
+
+  const submitQuick = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quick.trim() || !user) return;
+    const parsed = parseQuickReminder(quick);
+    const { error } = await supabase.from("reminders").insert({
+      user_id: user.id,
+      title: parsed.title,
+      due_date: parsed.due_date,
+      priority: "medium",
+    });
+    if (error) return toast.error(error.message);
+    setQuick("");
+    setQuickPreview(null);
+    invalidate();
+    toast.success("Reminder added");
+  };
+
+  const onQuickChange = (v: string) => {
+    setQuick(v);
+    if (v.trim().length > 1) setQuickPreview(parseQuickReminder(v));
+    else setQuickPreview(null);
+  };
+
+  const sections = useMemo(() => {
+    if (tab !== "open" || !grouped) return null;
+    const todayStr = todayLocalISO();
+    const today = new Date();
+    const wkEnd = dateToLocalISO(endOfWeek(today, { weekStartsOn: 1 }));
+    const buckets = { overdue: [] as any[], today: [] as any[], week: [] as any[], later: [] as any[] };
+    filteredAndSorted.forEach((r: any) => {
+      if (r.due_date < todayStr) buckets.overdue.push(r);
+      else if (r.due_date === todayStr) buckets.today.push(r);
+      else if (r.due_date <= wkEnd) buckets.week.push(r);
+      else buckets.later.push(r);
+    });
+    return buckets;
+  }, [filteredAndSorted, tab, grouped]);
+
   const activeFilterCount = (dueFilter !== "all" ? 1 : 0) + (highOnly ? 1 : 0) + (groupFilter !== "all" ? 1 : 0);
   const clearAll = () => { setDueFilter("all"); setHighOnly(false); setGroupFilter("all"); };
+
+  const renderRow = (r: any) => {
+    const due = parseISO(r.due_date);
+    const overdue = !r.completed && isPast(due) && !isToday(due);
+    const today = !r.completed && isToday(due);
+    const overdueDays = overdue ? Math.abs(differenceInDays(due, new Date())) : 0;
+    const firstGroup = r.contacts?.contact_groups?.[0]?.groups;
+    const onRowClick = (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest("[data-stop]")) return;
+      if (r.contacts?.id) navigate(`/app/people/${r.contacts.id}`);
+    };
+    return (
+      <div
+        key={r.id}
+        onClick={onRowClick}
+        className={`flex items-center gap-3 p-4 transition-colors ${r.contacts?.id ? "cursor-pointer hover:bg-secondary/40" : ""}`}
+      >
+        <button
+          data-stop
+          onClick={() => (r.completed ? reopen(r) : completeWithUndo(r))}
+          className={`shrink-0 h-6 w-6 rounded-full grid place-items-center transition-colors ${
+            r.completed ? "bg-primary text-primary-foreground" : "border-2 border-border hover:border-primary"
+          }`}
+          aria-label={r.completed ? "Reopen" : "Mark complete"}
+        >
+          {r.completed ? <Check className="h-3.5 w-3.5" /> : <Circle className="h-0 w-0" />}
+        </button>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className={`font-medium truncate ${r.completed ? "line-through text-muted-foreground" : ""}`}>{r.title}</p>
+            <span className={`text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full ${priorityClasses(r.priority)}`}>{r.priority}</span>
+            {firstGroup && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: (firstGroup.color ?? "#a78bfa") + "22", color: firstGroup.color ?? "#a78bfa" }}>
+                {firstGroup.name}
+              </span>
+            )}
+          </div>
+          <div className="text-sm text-muted-foreground truncate">
+            {r.contacts ? [r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ") : <span className="italic">No contact</span>}
+            {r.notes && <span className="ml-2 opacity-70">· {r.notes}</span>}
+          </div>
+        </div>
+
+        <div className="text-right shrink-0">
+          {r.completed ? (
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              Completed {r.completed_at ? format(parseISO(r.completed_at), "MMM d") : ""}
+            </span>
+          ) : (
+            <span className={`text-sm whitespace-nowrap ${overdue ? "text-primary font-medium" : today ? "text-primary font-medium" : "text-muted-foreground"}`}>
+              {overdue ? `${overdueDays}d overdue · ` : today ? "Today · " : ""}{format(due, "MMM d")}
+            </span>
+          )}
+        </div>
+
+        <div data-stop className="flex items-center">
+          {!r.completed && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" title="Snooze"><Clock className="h-4 w-4" /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => snooze(r, 1)}>Tomorrow</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => snooze(r, 3)}>In 3 days</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => snooze(r, 7)}>Next week</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => snooze(r, 14)}>In 2 weeks</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => snooze(r, 30)}>In a month</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <Button variant="ghost" size="icon" onClick={() => { setEditing(r); setDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4" /></Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this reminder?</AlertDialogTitle>
+                <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => remove(r.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <AppLayout>
@@ -144,6 +292,24 @@ const Reminders = () => {
           </Button>
         }
       />
+
+      {tab === "open" && (
+        <form onSubmit={submitQuick} className="surface-card p-3 mb-4 flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary shrink-0 ml-1" />
+          <Input
+            value={quick}
+            onChange={(e) => onQuickChange(e.target.value)}
+            placeholder="Quick add — try 'Call Sarah tomorrow' or 'Email Pat in 3 days'"
+            className="border-0 shadow-none focus-visible:ring-0 px-1"
+          />
+          {quickPreview && quick.trim() && (
+            <span className="hidden sm:inline text-xs text-muted-foreground whitespace-nowrap">
+              → {format(parseISO(quickPreview.due_date), "EEE, MMM d")}
+            </span>
+          )}
+          <Button type="submit" size="sm" disabled={!quick.trim()} className="gradient-primary shrink-0">Add</Button>
+        </form>
+      )}
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="mb-4">
         <TabsList>
@@ -214,6 +380,11 @@ const Reminders = () => {
             )}
           </PopoverContent>
         </Popover>
+        {tab === "open" && (
+          <Button variant="ghost" size="sm" onClick={() => setGrouped((g) => !g)} className="text-muted-foreground">
+            {grouped ? "Flat list" : "Group by section"}
+          </Button>
+        )}
         {activeFilterCount > 0 && (
           <span className="text-sm text-muted-foreground">{filteredAndSorted.length} match</span>
         )}
@@ -247,86 +418,30 @@ const Reminders = () => {
       )}
 
       {!isLoading && !error && filteredAndSorted.length > 0 && (
-        <div className="surface-card divide-y divide-border">
-          {filteredAndSorted.map((r: any) => {
-            const due = parseISO(r.due_date);
-            const overdue = !r.completed && isPast(due) && !isToday(due);
-            const today = !r.completed && isToday(due);
-            const overdueDays = overdue ? Math.abs(differenceInDays(due, new Date())) : 0;
-            const firstGroup = r.contacts?.contact_groups?.[0]?.groups;
-
-            const onRowClick = (e: React.MouseEvent) => {
-              if ((e.target as HTMLElement).closest("[data-stop]")) return;
-              if (r.contacts?.id) navigate(`/app/people/${r.contacts.id}`);
-            };
-
-            return (
-              <div
-                key={r.id}
-                onClick={onRowClick}
-                className={`flex items-center gap-3 p-4 transition-colors ${r.contacts?.id ? "cursor-pointer hover:bg-secondary/40" : ""}`}
-              >
-                <button
-                  data-stop
-                  onClick={() => (r.completed ? reopen(r) : completeWithUndo(r))}
-                  className={`shrink-0 h-6 w-6 rounded-full grid place-items-center transition-colors ${
-                    r.completed ? "bg-primary text-primary-foreground" : "border-2 border-border hover:border-primary"
-                  }`}
-                  aria-label={r.completed ? "Reopen" : "Mark complete"}
-                >
-                  {r.completed ? <Check className="h-3.5 w-3.5" /> : <Circle className="h-0 w-0" />}
-                </button>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className={`font-medium truncate ${r.completed ? "line-through text-muted-foreground" : ""}`}>{r.title}</p>
-                    <span className={`text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full ${priorityClasses(r.priority)}`}>{r.priority}</span>
-                    {firstGroup && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: (firstGroup.color ?? "#a78bfa") + "22", color: firstGroup.color ?? "#a78bfa" }}>
-                        {firstGroup.name}
-                      </span>
-                    )}
+        sections ? (
+          <div className="space-y-6">
+            {(["overdue", "today", "week", "later"] as const).map((key) => {
+              const items = sections[key];
+              if (items.length === 0) return null;
+              const label = key === "overdue" ? "Overdue" : key === "today" ? "Today" : key === "week" ? "This week" : "Later";
+              return (
+                <section key={key}>
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <h2 className={`text-sm font-semibold uppercase tracking-wide ${key === "overdue" ? "text-primary" : "text-muted-foreground"}`}>{label}</h2>
+                    <span className="text-xs text-muted-foreground">{items.length}</span>
                   </div>
-                  <div className="text-sm text-muted-foreground truncate">
-                    {r.contacts ? [r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ") : <span className="italic">No contact</span>}
-                    {r.notes && <span className="ml-2 opacity-70">· {r.notes}</span>}
+                  <div className="surface-card divide-y divide-border">
+                    {items.map((r: any) => renderRow(r))}
                   </div>
-                </div>
-
-                <div className="text-right shrink-0">
-                  {r.completed ? (
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      Completed {r.completed_at ? format(parseISO(r.completed_at), "MMM d") : ""}
-                    </span>
-                  ) : (
-                    <span className={`text-sm whitespace-nowrap ${overdue ? "text-primary font-medium" : today ? "text-primary font-medium" : "text-muted-foreground"}`}>
-                      {overdue ? `${overdueDays}d overdue · ` : today ? "Today · " : ""}{format(due, "MMM d")}
-                    </span>
-                  )}
-                </div>
-
-                <div data-stop className="flex items-center">
-                  <Button variant="ghost" size="icon" onClick={() => { setEditing(r); setDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4" /></Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete this reminder?</AlertDialogTitle>
-                        <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => remove(r.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                </section>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="surface-card divide-y divide-border">
+            {filteredAndSorted.map((r: any) => renderRow(r))}
+          </div>
+        )
       )}
 
       <ReminderDialog

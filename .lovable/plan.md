@@ -1,33 +1,82 @@
-# Performance & Polish Plan
+# Make Orbit Better — Multi-Track Plan
 
-Focus: faster initial load, fewer "blank flash" moments, smoother interactions. No new features, no redesign.
+You picked all four tracks. To avoid a sprawling, half-done sweep, I'll do one focused pass per track with the highest-leverage wins, then we can iterate.
 
-## Performance
+## Track 1 — Core CRM UX (People & Reminders)
 
-1. **Route-level code splitting** — Convert all `src/pages/*` imports in `App.tsx` to `React.lazy()` and wrap `<Routes>` in `<Suspense>` with a lightweight fallback. Marketing pages (`Landing`, `About`, `Press`, `UseCase`, `Changelog`, `ProjectNotes`, `Demo`) are 200–600 LOC each and currently ship in the main bundle. Expected: meaningfully smaller first chunk for signed-in users.
+Goal: make daily use feel fast and keyboard-friendly.
 
-2. **LCP image preload** — Add `<link rel="preload" as="image">` for the Landing hero logo in `index.html` and set explicit width/height + `fetchpriority="high"` on the hero `<img>`. Eliminates CLS and speeds up first paint.
+- **Smarter People search/filter bar**
+  - Single search box matches name, company, email, tags
+  - Filter chips: Priority (high/med/low), Group, Cooling, Has birthday this month
+  - Sort: Recently contacted, Name, Cooling risk
+  - Persist filters in URL query params so refreshes/back-button work
+- **Bulk actions on People**
+  - Row checkboxes + "Select all on page"
+  - Bulk: add to group, add tag, set priority, delete (with AlertDialog)
+- **Inline quick actions**
+  - Hover row → quick "Log interaction" / "Snooze reminder" buttons
+  - "Mark contacted today" one-click on each row (updates `last_contacted_at`)
+- **Reminders upgrades**
+  - Group by Overdue / Today / This week / Later
+  - Snooze menu (1d, 3d, 1w, custom)
+  - Quick-add input at top: "Call Sarah tomorrow" → parses date heuristically
+- **Keyboard shortcuts**
+  - `/` focus search, `n` new contact, `r` new reminder, `g p` go to People, `g r` go to Reminders, `?` help overlay
 
-3. **Hover prefetch for app nav** — On `NavLink` mouseenter, call `queryClient.prefetchQuery` for that route's primary query (People → contacts list, Reminders → open reminders, Dashboard → reminders-today). Makes nav feel instant.
+## Track 2 — Landing & marketing polish
 
-4. **Memoize Dashboard derivations** — Wrap `reachOuts`, birthdays list, and cooling list in `useMemo` keyed on the source queries. Currently they recompute on every render including unrelated state changes.
+Goal: the homepage should feel like a premium product, not a template.
 
-## Polish (loading & motion)
+- Tighten hero: stronger headline, single primary CTA + ghost "See live demo"
+- Add real social proof band (logos placeholder + 2–3 short testimonials)
+- New "How it works" 3-step section with mini illustrations
+- Replace generic screenshot block with annotated product shots (Dashboard, Contact detail, Reminders)
+- Sticky compact nav after scroll; smooth anchor scrolling
+- Footer cleanup: group links, add changelog + status
 
-5. **Skeleton screens everywhere a query renders** — Replace `Loader2` spinners with the existing `CardListSkeleton` / `RowListSkeleton` in `People`, `Reminders`, `Groups`, `Dates`, `ContactDetail`, and add a new `DashboardSkeleton` (4 stat cards + reach-out list shell) and `ContactDetailSkeleton` (avatar + meta + timeline shell).
+## Track 3 — Visual polish pass
 
-6. **Page enter animation** — Add `animate-fade-in` (already in tailwind config) to the `AppLayout` content wrapper so route changes feel intentional rather than abrupt.
+Scoped to highest-impact surfaces, using design directions so you choose the look:
 
-7. **Subtle list stagger** — On reach-outs, contact cards, and timeline rows, apply incremental `animation-delay` (0–200ms across first ~10 items) using inline style. Adds polish without library cost.
+- Dashboard summary cards (3 directions)
+- Contact detail header (3 directions)
+- Landing hero (3 directions)
 
-8. **Empty-state warmth** — Audit `InlineEmpty` callers; ensure each has a primary action button (Reminders empty → "Create your first reminder", etc.). A few currently render text-only.
+For each, I'll generate options via the design-directions tool and you pick one before I implement. No global redesign — semantic tokens only, existing palette preserved.
 
-9. **Confirm dialog for destructive actions** — Replace remaining `window.confirm` calls (delete contact / reminder / group) with the project's `AlertDialog`. Consistent visual + keyboard handling.
+## Track 4 — Smarter relationship intel
+
+- **Better cooling detection**
+  - Use per-contact `cooling_days` already in schema (default 30) instead of a global threshold
+  - Severity tiers: Warming (80% of window), Cooling (100%), Cold (150%+)
+  - Surface on Dashboard + a dedicated "Needs attention" filter on People
+- **AI follow-up draft (Lovable AI Gateway, no key needed)**
+  - On Contact detail: "Draft follow-up" button → calls edge function with contact context (name, company, last interaction note, why_matters) → returns 2 short message options (email + casual text)
+  - Copy-to-clipboard, no auto-send
+  - Model: `google/gemini-2.5-flash` (fast, cheap, good enough)
+- **Weekly digest view**
+  - New `/digest` route: top 5 reach-outs this week, upcoming birthdays/anniversaries (next 14d), cooling list, recent wins (interactions logged last 7d)
+  - Link from Dashboard; print-friendly layout
+
+## Technical notes
+
+- New edge function: `draft-followup` using `LOVABLE_API_KEY` + Lovable AI Gateway, `verify_jwt = true`
+- No schema changes required for tracks 1–3
+- Track 4 uses existing `cooling_days`, `last_contacted_at`, `interactions`, `why_matters` — no migration needed
+- URL-state for filters via `useSearchParams`
+- Keyboard shortcuts via a small `useHotkeys` hook (no new dep)
+
+## Suggested rollout order
+
+1. Track 1 (biggest daily-use payoff)
+2. Track 4 cooling tiers + digest (uses existing data)
+3. Track 2 landing polish
+4. Track 3 visual directions (interactive — needs your picks)
+5. Track 4 AI follow-up draft
 
 ## Out of scope
-- New features, redesign, dark-mode rework
-- Backend or RLS changes
-- Test suite
 
-## Rollout order
-1 → 2 → 5 → 6 → 4 → 3 → 7 → 8 → 9. Verify preview after step 1 (Suspense edge cases) and step 5 (visual diff across pages).
+- Mobile app, dark mode toggle, team/multi-user, billing, email sending, calendar sync, new auth providers.
+
+If this is too much for one go, tell me which track to do first and I'll ship just that.
