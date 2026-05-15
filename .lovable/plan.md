@@ -1,88 +1,67 @@
 
-# Growth & Shareability Plan
+# Finish the growth plan — phases 1, 5, 6
 
-Goal: turn OrbitCRM from a private portfolio app into something people can discover, share, and pass around. Built for all three audiences (job seekers, founders, students) without picking a winner.
+Three tightly-scoped shippable bundles. Each is pragmatic and avoids rewriting the entire data layer.
 
-## The big bets
+## Phase 1 — Shareable demo (`/demo`)
 
-### 1. Shareable demo (the killer feature for a portfolio CRM)
+The original plan's "no-auth, localStorage-backed demo" would require a full data-layer abstraction across ~13 files. Instead, ship a faster equivalent that delivers the same outcome (anyone hits a link, instantly sees a working app):
 
-The current "Start Demo" creates an anonymous account no one can hand to a friend. Replace with a true shareable experience:
+- **New route `/demo`** that:
+  - Auto-runs `startDemo()` on mount (no button click).
+  - Shows a calm centered shimmer ("Spinning up your demo…") while the anonymous session and seed are created.
+  - Redirects to `/app` when ready.
+- **Friendly demo banner** inside `AppLayout` when the active session is anonymous: a slim sticky bar reading *"You're in demo mode — sign up to save your changes"* with a "Sign up" button. (`DemoBadge` already exists; extend it.)
+- **Share button on landing** next to "Start Demo": copies `https://orbitcrm.guptau.com/demo` to clipboard with a toast. Lets people DM the link to friends without thinking.
+- **`/demo` link replaces `Start Demo` buttons** that currently call `handleStartDemo()` directly (Landing hero, Landing CTA section, Auth side panel, Auth mobile button) — they all just `<Link to="/demo">` instead. The auto-seed runs once on demo mount.
+- **Idempotent seed**: existing `seedDemo()` already wipes-and-reseeds, so re-hitting `/demo` resets the experience cleanly.
 
-- **`/demo` public route**: read-only, no auth required, pre-loaded with curated fictional data. Visitors land directly on a working dashboard — no signup wall, no spinner, no "create temp account" friction.
-- **"Try the demo" buttons everywhere** link to `/demo` instead of triggering signInAnonymously.
-- **"Sign up to save your changes" banner** floats over the demo, converting curiosity into accounts.
-- **Persistent demo dataset** stored client-side in `localStorage` so visitors can edit, add, and play freely without backend writes.
+Why this scope: 90% of the value (instantly shareable URL) for 10% of the work. The localStorage-only demo stays available as a future upgrade if you ever want a true logged-out experience.
 
-Why this matters: someone can DM their friend "check this out → orbitcrm.guptau.com/demo" and they instantly see the product working. Today they hit a logo and have to commit to "Start Demo" first.
+## Phase 5 — Onboarding that converts
 
-### 2. Public showcase / case-study pages
+A focused first-run tour for **real** sign-ups (skipped for anonymous demo sessions):
 
-Portfolio projects live or die by how well you tell their story. Add Markdown-driven public pages:
+- **Lightweight in-house tour** (no new dep) — a `<TourOverlay>` component using a portal + simple anchored tooltips driven by `data-tour="step-id"` attributes on existing UI elements. 5 steps:
+  1. Dashboard intro (the cards).
+  2. "Add your first contact" → highlights the People nav item, opens contact dialog when clicked.
+  3. "Set a follow-up reminder" → highlights reminder field in contact dialog.
+  4. "Cooling alerts" → back to dashboard, highlights the cooling card.
+  5. Done — friendly close.
+- **Trigger logic**: shown once per real user; persisted via `profiles.onboarded_at` timestamp (added in a small migration). Skipped for anonymous demo sessions.
+- **"Replay tour" link** in the `UserMenu` so people can revisit it.
+- **Inline "load sample data" CTA** on empty People/Groups pages for real users who skip the tour — runs the same `seedDemo()` against the real account on confirmation.
 
-- **`/about`** — the why behind OrbitCRM, your design process, screenshots, technical decisions.
-- **`/use-cases/job-seekers`**, **`/use-cases/founders`**, **`/use-cases/students`** — one focused page per audience with hero copy, real workflows ("here's how a job seeker would use this"), screenshots, CTAs. Linked from the landing-page "Built for" section.
-- **`/changelog`** already exists — promote it on the landing page footer with the latest entry preview ("Latest: v0.5 — Smarter cooling alerts").
+## Phase 6 — Public profile / shareable contact cards
 
-These pages are the SEO surface area; landing alone won't rank for anything.
+The most adventurous piece. Scoped down to one shippable shape:
 
-### 3. SEO foundation (zero today)
+- **Schema**: new `public_profiles` table (`user_id`, `slug`, `display_name`, `headline`, `bio`, `avatar_url`, `published bool`, `created_at`). RLS: anyone can `select` rows with `published = true`; only the owner can insert/update/delete their row.
+- **New `featured` boolean on `contacts`** (owner-only writes). When the owner publishes their profile, only `featured = true` contacts are exposed publicly (read-only subset: name, role, company, optional one-line note — no emails, phones, birthdays, or notes).
+- **Settings page (`/app/profile`)**: pick a slug, write a headline + bio, toggle "publish my page", and pick which contacts to feature ("People I'd love to introduce you to" — checkbox list, max 12).
+- **Public route `/u/:slug`**: full marketing-style page with the user's headline, bio, avatar, and the featured contact cards as a clean grid. No auth. Per-route SEO via the existing `<SEO>` component. "Built with OrbitCRM →" footer link.
+- **Share buttons** on `/u/:slug` (Twitter / LinkedIn / copy link), powered by the existing `<MarketingPage>` share component.
 
-- **Per-route meta** via `react-helmet-async`: each public page gets its own `<title>`, description, canonical, and OG tags. Today every URL renders the same OG image and title.
-- **`sitemap.xml`** generator running on `predev` / `prebuild` covering `/`, `/auth`, `/changelog`, `/project-notes`, `/about`, `/use-cases/*`, `/demo`.
-- **`robots.txt`** allowing crawlers and pointing to the sitemap. Disallow `/app/*` (the private application).
-- **Organization + WebSite JSON-LD** in `index.html`.
-- **Polished OG image** generated specifically for OrbitCRM (using the `product-shot` skill on a real screenshot) instead of the auto-captured preview thumbnail.
-- **Real keyword targets**: validate "personal CRM", "track networking contacts", "follow up reminder app" with Semrush before committing copy.
+Why this matters: every published profile becomes outbound marketing for OrbitCRM with zero ad spend.
 
-### 4. Built-in shareability inside the app
+## Out of scope (for later)
 
-- **"Share this contact" / "Share this list"** export to a clean PDF or copyable plain-text snippet (no real PII, just the structure) — gives signed-in users something to send to friends with a "made with OrbitCRM" footer.
-- **Public profile cards**: optional `/u/<handle>` page where a user can publish a curated subset (e.g., "people I'd love to introduce you to") — turns the app into something with outward-facing artifacts.
-- **"Built with OrbitCRM" footer badge** on shared artifacts, linking back to landing.
-
-### 5. Onboarding that converts
-
-- **Interactive product tour** on first sign-in (5 steps using a lightweight library or custom tooltips): adds a contact, sets a reminder, opens cooling alerts, completes a follow-up, ends on dashboard.
-- **Empty-state CTAs** that ship sample data inline ("not sure where to start? Load 5 example contacts") instead of an all-or-nothing demo seed.
-
-### 6. Social proof & trust signals on landing
-
-- **"As featured on" / "Built by Uddhav" credibility row** with LinkedIn, GitHub, portfolio links above the fold.
-- **A real screenshot carousel** (mobile + dashboard + contact detail) instead of just the dashboard preview.
-- **Testimonial slot** — even one real quote ("the cleanest personal CRM I've seen — Anna, founder") is more powerful than any feature list. Leave the slot empty or mock until you collect one.
-- **Live counter** ("8 demos started today") if you want a low-key activity signal.
-
-### 7. Distribution mechanics
-
-- **Open Graph polish per route** so every shared link previews well on LinkedIn / Twitter / iMessage.
-- **Twitter / LinkedIn share buttons** on changelog entries and use-case pages with pre-filled copy.
-- **Submit-to-directories prep**: a `/press` page with logo, screenshots, one-liner, founder bio, ready for Product Hunt / BetaList / Hacker News Show HN. Even if you don't launch on PH, having the assets ready unblocks it.
-- **Friendly URLs** for sharing: `/demo`, `/for/job-seekers` (instead of `/use-cases/job-seekers`) — shorter, more memorable.
-
-## Out of scope (intentionally)
-
-- New CRM features (covered by a separate "smarter intel" plan if you want).
-- Pricing / payments — this is a portfolio piece, free is the right default.
-- Native mobile app.
-- Real analytics dashboard for the user (PostHog/Plausible at the project level is enough; add this later).
+- Localstorage-only demo with no anonymous auth (only ship if anon-auth limits become a problem).
+- PDF export of contact lists.
+- "Built with OrbitCRM" badge as an embedded widget.
 
 ## Suggested rollout
 
-1. **`/demo` shareable route** — biggest single unlock; everything else amplifies it.
-2. **SEO foundation** (Helmet, sitemap, robots, JSON-LD, polished OG image).
-3. **`/about` + 3 use-case pages** with shared layout component.
-4. **OG-per-route + share buttons** on landing, changelog, use-case pages.
-5. **Interactive onboarding tour**.
-6. **Public profile / shareable contact cards** (the most adventurous; ship last).
+1. **Phase 1 first** — small surface, immediate value, unblocks distribution.
+2. **Phase 6 second** — the schema migration is simple, but it produces public artifacts that compound.
+3. **Phase 5 last** — most code, lowest urgency once the demo is shareable.
 
-Each step is independently shippable — pause whenever you want to evaluate.
+Each phase ships independently. Pause between any of them.
 
 ## Technical notes
 
-- **Helmet**: install `react-helmet-async`, wrap `App` in `HelmetProvider`, remove `og:*` and `<title>` duplicates from `index.html` in favor of per-route Helmet (keep sitewide fallback in `index.html` for non-JS crawlers).
-- **`/demo` data**: extract `seedContacts.json` into a typed in-memory store; React Query reads from it via a custom queryFn when the route prefix is `/demo`. No Supabase calls, no anonymous auth.
-- **Use-case pages**: one shared `<MarketingPage>` layout (hero / problem / workflow / screenshot / CTA) parameterized by JSON or MDX content. Avoids a separate page per audience drifting visually.
-- **Sitemap generator** in `scripts/generate-sitemap.ts`, wired to `predev` / `prebuild` per the head-meta convention.
-- **OG image**: capture dashboard screenshot via browser tool, run product-shot skill with `sunset` or `peach` preset to match the maroon palette, save to `public/og-image.png`, reference at `https://orbitcrm.guptau.com/og-image.png`.
-- **No new heavy deps**: all of this can be done with `react-helmet-async` + tsx (already used) + a small content JSON/MDX layer.
+- `/demo` page: a single-purpose component that calls `startDemo()` in a `useEffect`, navigates to `/app` on success, surfaces errors via toast and a retry button. No data-layer refactor required.
+- Tour: ~150 LOC in a single `Tour.tsx` + a small `useTour()` hook reading/writing `profiles.onboarded_at`. No `react-joyride` install.
+- Public profiles migration: one `public_profiles` table + one `featured` column on `contacts` + RLS policies. Profile page reads via `supabase.from("public_profiles").select("*, user:user_id(...)")` filtered to `published = true`.
+- Slug uniqueness: enforced by a unique index on `public_profiles.slug`; UI shows availability check on blur.
+- All new public pages get `<SEO>` and a sitemap entry update (the generator script already exists; published profile slugs are added by extending `entries` with a Supabase fetch in the script).
