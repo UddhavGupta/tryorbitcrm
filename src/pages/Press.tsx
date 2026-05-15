@@ -45,12 +45,12 @@ const Press = () => (
 
     <h2>Founder bio</h2>
     <p>
-      <strong>Uddhav Gupta</strong> is a designer and builder exploring AI-native software. OrbitCRM is one of several portfolio projects shipped in 2026. Find more at <a href="https://uddhavgupta.com" target="_blank" rel="noreferrer">uddhavgupta.com</a>, on <a href="https://www.linkedin.com/in/uddhavgupta/" target="_blank" rel="noreferrer">LinkedIn</a>, or on <a href="https://github.com/uddhavgupta" target="_blank" rel="noreferrer">GitHub</a>.
+      <strong>Uddhav Gupta</strong> is a designer and builder exploring AI-native software. OrbitCRM is one of several portfolio projects shipped in 2026. Find more at <a href="https://www.guptau.com" target="_blank" rel="noreferrer">uddhavgupta.com</a>, on <a href="https://www.linkedin.com/in/guptauddhav/" target="_blank" rel="noreferrer">LinkedIn</a>, or on <a href="https://github.com/uddhavgupta" target="_blank" rel="noreferrer">GitHub</a>.
     </p>
 
     <h2>Contact</h2>
     <p>
-      For press inquiries, reach out via <a href="https://www.linkedin.com/in/uddhavgupta/" target="_blank" rel="noreferrer">LinkedIn DM</a>.
+      For press inquiries, reach out via <a href="https://www.linkedin.com/in/guptauddhav/" target="_blank" rel="noreferrer">LinkedIn DM</a>.
     </p>
   </MarketingPage>
 );
