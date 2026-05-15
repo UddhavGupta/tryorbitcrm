@@ -82,6 +82,22 @@ const Auth = () => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    setLoading(true);
+    try {
+      if (isAnon(user)) await supabase.auth.signOut();
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + safeRedirect,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      navigate(safeRedirect, { replace: true });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Couldn't sign in with Google");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
