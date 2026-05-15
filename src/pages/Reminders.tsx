@@ -14,6 +14,7 @@ import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RowListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
+import { SampleDataButton } from "@/components/SampleDataButton";
 import { toast } from "sonner";
 
 type DueFilter = "all" | "today" | "overdue" | "week";
