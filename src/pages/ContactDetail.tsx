@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO, differenceInDays, addDays, isAfter, isBefore } from "date-fns";
-import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock, Bell, CheckCircle2, UserPlus, Sparkles } from "lucide-react";
+import { z } from "zod";
+import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock, Bell, CheckCircle2, UserPlus, Sparkles, Briefcase, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
@@ -14,6 +15,7 @@ import { InteractionDialog, interactionTypeLabel } from "@/components/Interactio
 import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { InlineField } from "@/components/InlineField";
 import { toast } from "sonner";
 import { tagClasses } from "@/lib/tags";
 import { Timeline } from "@/components/Timeline";
@@ -21,6 +23,11 @@ import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
 } from "@/lib/relationshipIntel";
+
+const shortText = z.string().max(255, "Keep under 255 characters");
+const longText = z.string().max(2000, "Keep under 2000 characters");
+const emailSchema = z.union([z.literal(""), z.string().email("Invalid email").max(255)]);
+const urlSchema = z.union([z.literal(""), z.string().url("Must be a valid URL").max(500)]);
 
 const ContactDetail = () => {
   const { id } = useParams();
@@ -117,6 +124,13 @@ const ContactDetail = () => {
     navigate("/app/people");
   };
 
+  const saveField = async (field: string, value: string) => {
+    const { error } = await (supabase.from("contacts").update({ [field]: value || null } as any) as any).eq("id", id!);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: ["contact", id] });
+    qc.invalidateQueries({ queryKey: ["contacts"] });
+  };
+
   const days = contact.last_contacted_at ? differenceInDays(new Date(), parseISO(contact.last_contacted_at)) : null;
   const groupIds = new Set(contact.contact_groups?.map((cg: any) => cg.group_id) ?? []);
   const status = getRelationshipStatus(contact.last_contacted_at);
@@ -177,13 +191,35 @@ const ContactDetail = () => {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-            <div className="mt-6 space-y-2 text-sm text-left">
-              {contact.email && <Row icon={Mail}>{contact.email}</Row>}
-              {contact.phone && <Row icon={Phone}>{contact.phone}</Row>}
-              {contact.city && <Row icon={MapPin}>{contact.city}</Row>}
-              {contact.linkedin_url && <Row icon={Linkedin}><a href={contact.linkedin_url} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate inline-block max-w-[200px] align-bottom">LinkedIn</a></Row>}
-              {contact.birthday && <Row icon={Cake}>{format(parseISO(contact.birthday), "MMMM d")}</Row>}
-              {contact.next_follow_up_date && <Row icon={CalendarClock}>Follow up {format(parseISO(contact.next_follow_up_date), "MMM d, yyyy")}</Row>}
+            <div className="mt-6 space-y-1.5 text-sm text-left">
+              <FieldRow icon={Briefcase}>
+                <InlineField value={contact.title} schema={shortText} placeholder="Title" emptyLabel="Add title" onSave={(v) => saveField("title", v)} />
+              </FieldRow>
+              <FieldRow icon={Building2}>
+                <InlineField value={contact.company} schema={shortText} placeholder="Company" emptyLabel="Add company" onSave={(v) => saveField("company", v)} />
+              </FieldRow>
+              <FieldRow icon={Mail}>
+                <InlineField value={contact.email} schema={emailSchema} type="email" placeholder="email@example.com" emptyLabel="Add email" onSave={(v) => saveField("email", v)} />
+              </FieldRow>
+              <FieldRow icon={Phone}>
+                <InlineField value={contact.phone} schema={shortText} type="tel" placeholder="Phone" emptyLabel="Add phone" onSave={(v) => saveField("phone", v)} />
+              </FieldRow>
+              <FieldRow icon={MapPin}>
+                <InlineField value={contact.city} schema={shortText} placeholder="City" emptyLabel="Add city" onSave={(v) => saveField("city", v)} />
+              </FieldRow>
+              <FieldRow icon={Linkedin}>
+                <InlineField
+                  value={contact.linkedin_url}
+                  schema={urlSchema}
+                  type="url"
+                  placeholder="https://linkedin.com/in/…"
+                  emptyLabel="Add LinkedIn URL"
+                  onSave={(v) => saveField("linkedin_url", v)}
+                  renderDisplay={(v) => <a href={v} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate inline-block max-w-[200px] align-bottom" onClick={(e) => e.stopPropagation()}>LinkedIn</a>}
+                />
+              </FieldRow>
+              {contact.birthday && <FieldRow icon={Cake}><span className="text-foreground">{format(parseISO(contact.birthday), "MMMM d")}</span></FieldRow>}
+              {contact.next_follow_up_date && <FieldRow icon={CalendarClock}><span className="text-foreground">Follow up {format(parseISO(contact.next_follow_up_date), "MMM d, yyyy")}</span></FieldRow>}
               {days !== null && (
                 <div className="pt-2 text-xs text-muted-foreground">
                   Last contact: {days} day{days === 1 ? "" : "s"} ago {days >= contact.cooling_days && <span className="text-warning font-medium">· cooling</span>}
@@ -209,19 +245,35 @@ const ContactDetail = () => {
             </div>
           </div>
 
-          {contact.why_matters && (
-            <div className="surface-card p-6">
-              <h3 className="font-semibold mb-2">Why they matter</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{contact.why_matters}</p>
+          <div className="surface-card p-6">
+            <h3 className="font-semibold mb-2">Why they matter</h3>
+            <div className="text-sm text-muted-foreground">
+              <InlineField
+                value={contact.why_matters}
+                schema={longText}
+                multiline
+                placeholder="What makes this person important to you?"
+                emptyLabel="Add a short note about why this person matters"
+                onSave={(v) => saveField("why_matters", v)}
+                renderDisplay={(v) => <span className="whitespace-pre-wrap text-foreground">{v}</span>}
+              />
             </div>
-          )}
+          </div>
 
-          {contact.notes && (
-            <div className="surface-card p-6">
-              <h3 className="font-semibold mb-2">Notes</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{contact.notes}</p>
+          <div className="surface-card p-6">
+            <h3 className="font-semibold mb-2">Notes</h3>
+            <div className="text-sm text-muted-foreground">
+              <InlineField
+                value={contact.notes}
+                schema={longText}
+                multiline
+                placeholder="General notes…"
+                emptyLabel="Add notes"
+                onSave={(v) => saveField("notes", v)}
+                renderDisplay={(v) => <span className="whitespace-pre-wrap text-foreground">{v}</span>}
+              />
             </div>
-          )}
+          </div>
         </div>
 
         <div className="lg:col-span-2 space-y-6">
@@ -275,8 +327,8 @@ const ContactDetail = () => {
   );
 };
 
-const Row = ({ icon: Icon, children }: any) => (
-  <div className="flex items-center gap-2 text-muted-foreground"><Icon className="h-4 w-4" /><span className="text-foreground">{children}</span></div>
+const FieldRow = ({ icon: Icon, children }: any) => (
+  <div className="flex items-start gap-2 text-muted-foreground"><Icon className="h-4 w-4 mt-1.5 shrink-0" /><div className="flex-1 min-w-0 text-foreground">{children}</div></div>
 );
 
 export default ContactDetail;

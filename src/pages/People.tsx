@@ -1,21 +1,25 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
 import { differenceInDays, parseISO, format } from "date-fns";
-import { Plus, Search, UserPlus, X, SlidersHorizontal, MapPin, CalendarClock, Clock, Bell, ArrowUpDown, Upload, CheckCheck } from "lucide-react";
+import { Plus, Search, UserPlus, X, SlidersHorizontal, MapPin, CalendarClock, Clock, Bell, ArrowUpDown, Upload, CheckCheck, MoreVertical, Flag, Snowflake, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { ContactDialog } from "@/components/ContactDialog";
 import { ImportCsvDialog } from "@/components/ImportCsvDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
 import { SampleDataButton } from "@/components/SampleDataButton";
+import { BulkActionBar } from "@/components/BulkActionBar";
+import { useSelection } from "@/hooks/useSelection";
 import { tagClasses, dedupeTags } from "@/lib/tags";
 import { todayLocalISO, dateToLocalISO } from "@/lib/dates";
 import {
@@ -34,6 +38,8 @@ const People = () => {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<any>(null);
+  const selection = useSelection();
   const [searchParams, setSearchParams] = useSearchParams();
   const groupFilter = searchParams.get("group") ?? "all";
   const setGroupFilter = (v: string) => {
@@ -246,6 +252,16 @@ const People = () => {
     qc.invalidateQueries({ queryKey: ["contacts"] });
     qc.invalidateQueries({ queryKey: ["dashboard-contacts"] });
     toast.success(`Marked ${[c.name, c.last_name].filter(Boolean).join(" ")} contacted today`);
+  };
+
+  useEffect(() => { selection.clear(); }, [q]);
+
+  const quickUpdate = async (id: string, patch: Record<string, any>, label: string) => {
+    const { error } = await (supabase.from("contacts").update(patch as any) as any).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    qc.invalidateQueries({ queryKey: ["contacts"] });
+    qc.invalidateQueries({ queryKey: ["contact", id] });
+    toast.success(label);
   };
 
   return (
@@ -491,12 +507,19 @@ const People = () => {
               nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
             });
 
+            const isSelected = selection.has(c.id);
             return (
               <Link
                 key={c.id}
                 to={`/app/people/${c.id}`}
-                className="group surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30 flex flex-col"
+                className={`group surface-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30 flex flex-col relative ${isSelected ? "ring-2 ring-primary border-primary/40" : ""}`}
               >
+                <div
+                  className={`absolute top-3 left-3 z-10 transition-opacity ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100"}`}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); selection.toggle(c.id); }}
+                >
+                  <Checkbox checked={isSelected} className="bg-background" aria-label={`Select ${fullName(c)}`} />
+                </div>
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 rounded-full gradient-primary text-primary-foreground grid place-items-center font-semibold shrink-0">
                     {c.name.charAt(0)}
@@ -557,7 +580,7 @@ const People = () => {
                   </div>
                 )}
 
-                <div className="mt-auto pt-3 flex items-center justify-end opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                <div className="mt-auto pt-3 flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => markContactedToday(e, c)}
                     className="text-xs inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
@@ -566,6 +589,44 @@ const People = () => {
                     <CheckCheck className="h-3.5 w-3.5" />
                     Mark contacted
                   </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        className="h-7 w-7 grid place-items-center rounded-md border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                        title="More"
+                      >
+                        <MoreVertical className="h-3.5 w-3.5" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                      <DropdownMenuLabel className="text-xs">Priority</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { priority: "high" }, "Set to high priority")}>
+                        <Flag className="h-3.5 w-3.5 mr-2" />High {priorityVal === "high" && "·"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { priority: "medium" }, "Set to medium priority")}>
+                        <Flag className="h-3.5 w-3.5 mr-2" />Medium {priorityVal === "medium" && "·"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { priority: "low" }, "Set to low priority")}>
+                        <Flag className="h-3.5 w-3.5 mr-2" />Low {priorityVal === "low" && "·"}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="text-xs">Cooling threshold</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { cooling_days: (c.cooling_days ?? 30) + 15 }, `Cooling +15 days (now ${(c.cooling_days ?? 30) + 15})`)}>
+                        <Snowflake className="h-3.5 w-3.5 mr-2" />+15 days
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { cooling_days: (c.cooling_days ?? 30) + 30 }, `Cooling +30 days (now ${(c.cooling_days ?? 30) + 30})`)}>
+                        <Snowflake className="h-3.5 w-3.5 mr-2" />+30 days
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => quickUpdate(c.id, { cooling_days: (c.cooling_days ?? 30) + 60 }, `Cooling +60 days (now ${(c.cooling_days ?? 30) + 60})`)}>
+                        <Snowflake className="h-3.5 w-3.5 mr-2" />+60 days
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setEditingContact(c)}>
+                        <Pencil className="h-3.5 w-3.5 mr-2" />Edit details…
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </Link>
             );
@@ -574,10 +635,34 @@ const People = () => {
       )}
 
       <ContactDialog open={open} onOpenChange={setOpen} onSaved={() => qc.invalidateQueries({ queryKey: ["contacts"] })} />
+      <ContactDialog
+        open={!!editingContact}
+        onOpenChange={(o) => !o && setEditingContact(null)}
+        contact={editingContact}
+        onSaved={() => qc.invalidateQueries({ queryKey: ["contacts"] })}
+      />
       <ImportCsvDialog open={importOpen} onOpenChange={setImportOpen} onImported={() => {
         qc.invalidateQueries({ queryKey: ["contacts"] });
         qc.invalidateQueries({ queryKey: ["all-groups"] });
       }} />
+
+      <BulkActionBar
+        selectedIds={Array.from(selection.ids)}
+        contacts={filtered}
+        groups={allGroups ?? []}
+        onClear={selection.clear}
+      />
+
+      {selection.count > 0 && filtered.length > 0 && (
+        <div className="fixed top-20 right-4 z-30 surface-card px-3 py-1.5 text-xs text-muted-foreground shadow-[var(--shadow-elevated)] flex items-center gap-2">
+          <button
+            className="hover:text-foreground"
+            onClick={() => selection.add(filtered.map((c: any) => c.id))}
+          >
+            Select all visible ({filtered.length})
+          </button>
+        </div>
+      )}
     </AppLayout>
   );
 };
