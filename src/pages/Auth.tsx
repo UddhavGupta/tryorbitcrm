@@ -17,21 +17,36 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const isAnon = (u: any) => !!u && (u.is_anonymous === true || (u.app_metadata as any)?.provider === "anonymous");
+  const safeRedirect = (() => {
+    const r = params.get("redirect");
+    if (!r) return "/app";
+    try {
+      const decoded = decodeURIComponent(r);
+      // Only allow same-origin paths starting with /app
+      return decoded.startsWith("/app") ? decoded : "/app";
+    } catch {
+      return "/app";
+    }
+  })();
 
-  // If an anonymous demo session is active, sign it out so the user can log in.
+  // If an anonymous demo session is active, sign it out once so the user can log in.
   // Only auto-redirect to /app for real (non-anonymous) users.
   useEffect(() => {
     if (!user) return;
     if (isAnon(user)) {
+      // Only sign out the anonymous session; the listener will clear `user` and
+      // this effect won't reschedule sign-out.
       supabase.auth.signOut();
-    } else {
-      navigate("/app");
+      return;
     }
-  }, [user, navigate]);
+    navigate(safeRedirect, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,17 +57,23 @@ const Auth = () => {
         await supabase.auth.signOut();
       }
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { emailRedirectTo: window.location.origin + "/app", data: { full_name: name } },
         });
         if (error) throw error;
+        // If email confirmation is required, no session is returned.
+        if (!data.session) {
+          setCheckEmail(true);
+          toast.success("Check your email to confirm your account.");
+          return;
+        }
         toast.success("Welcome to OrbitCRM!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
-      navigate("/app");
+      navigate(safeRedirect, { replace: true });
     } catch (err: any) {
       toast.error(err.message ?? "Something went wrong");
     } finally {
