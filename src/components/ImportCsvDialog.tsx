@@ -70,6 +70,7 @@ export const ImportCsvDialog = ({ open, onOpenChange, onImported }: Props) => {
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [headerWarnings, setHeaderWarnings] = useState<string[]>([]);
   const [importing, setImporting] = useState(false);
+  const [skipDupes, setSkipDupes] = useState(true);
 
   const valid = useMemo(() => rows.filter(r => r.errors.length === 0), [rows]);
   const invalid = useMemo(() => rows.filter(r => r.errors.length > 0), [rows]);
