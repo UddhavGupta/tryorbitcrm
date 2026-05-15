@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { format, differenceInDays, parseISO, addDays, isWithinInterval, setYear } from "date-fns";
@@ -16,8 +16,9 @@ import { todayLocalISO } from "@/lib/dates";
 import { isDemoUser } from "@/components/DemoBadge";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
-  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
+  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, intelRationale,
 } from "@/lib/relationshipIntel";
+import { ReminderDialog } from "@/components/ReminderDialog";
 
 function nextOccurrence(dateStr: string) {
   const d = parseISO(dateStr);
@@ -135,10 +136,51 @@ const Dashboard = () => {
     })
     .slice(0, 8), [contacts]);
 
+  // Weekly digest: contacts whose suggested action is reconnect_soon or send_birthday_note,
+  // excluding ones already surfaced in today's reach-outs.
+  const reachOutContactIds = useMemo(() => new Set(reachOuts.map((r) => r.contact?.id).filter(Boolean) as string[]), [reachOuts]);
+  const weeklyDigest = useMemo(() => {
+    return (contacts ?? [])
+      .map((c: any) => {
+        const action = getSuggestedAction({
+          priority: c.priority,
+          last_contacted_at: c.last_contacted_at,
+          birthday: c.birthday,
+          nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
+        });
+        return { c, action };
+      })
+      .filter(({ c, action }: any) =>
+        !reachOutContactIds.has(c.id) &&
+        (action === "reconnect_soon" || action === "send_birthday_note")
+      )
+      .sort((a: any, b: any) => priorityRank(a.c.priority) - priorityRank(b.c.priority))
+      .slice(0, 5);
+  }, [contacts, openReminders, reachOutContactIds]);
+
+  const [reminderOpen, setReminderOpen] = useState(false);
+  const [reminderPrefill, setReminderPrefill] = useState<any>(null);
+  const openReachOut = (c: any, action: string) => {
+    const due = action === "send_birthday_note" ? todayStr : format(addDays(new Date(), 3), "yyyy-MM-dd");
+    setReminderPrefill({
+      title: action === "send_birthday_note" ? "Send birthday note" : "Reconnect",
+      due_date: due,
+      priority: c.priority ?? "medium",
+      contact_id: c.id,
+    });
+    setReminderOpen(true);
+  };
+
   // Stats
   const totalContacts = contacts?.length ?? 0;
   const overdueRemindersCount = (reminders ?? []).filter((r: any) => r.due_date < todayStr).length;
   const highPriorityCount = (contacts ?? []).filter((c: any) => c.priority === "high").length;
+  const newThisWeek = useMemo(() => {
+    const cutoff = addDays(new Date(), -7);
+    return (contacts ?? []).filter((c: any) => c.created_at && new Date(c.created_at) >= cutoff).length;
+  }, [contacts]);
+  const openReminderCount = openReminders?.count ?? 0;
+  const overdueRatio = openReminderCount > 0 ? Math.min(1, overdueRemindersCount / openReminderCount) : 0;
 
   const completeReminder = async (id: string) => {
     await supabase.from("reminders").update({ completed: true }).eq("id", id);
@@ -197,8 +239,8 @@ const Dashboard = () => {
       )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 animate-fade-up">
-        <StatCard label="Total contacts" value={totalContacts} icon={Users} to="/app/people" />
-        <StatCard label="Open reminders" value={openReminders?.count ?? 0} icon={Bell} to="/app/reminders" />
+        <StatCard label="Total contacts" value={totalContacts} icon={Users} to="/app/people" hint={newThisWeek > 0 ? `+${newThisWeek} this week` : undefined} />
+        <StatCard label="Open reminders" value={openReminderCount} icon={Bell} to="/app/reminders" progress={overdueRatio} progressLabel={overdueRemindersCount > 0 ? `${overdueRemindersCount} overdue` : undefined} />
         <StatCard label="Overdue reminders" value={overdueRemindersCount} icon={AlertTriangle} to="/app/reminders" tone="destructive" />
         <StatCard label="High-priority contacts" value={highPriorityCount} icon={Star} to="/app/people?priority=high" tone="primary" />
       </div>
@@ -304,11 +346,49 @@ const Dashboard = () => {
           </Section>
         </div>
       </div>
+
+      {weeklyDigest.length > 0 && (
+        <div className="mt-6 animate-fade-up-delay-2">
+          <Section
+            title="This week"
+            icon={Sparkles}
+            count={weeklyDigest.length}
+          >
+            <p className="text-xs text-muted-foreground mb-3">Relationships worth a nudge in the next few days.</p>
+            <ul className="divide-y divide-border -mx-1">
+              {weeklyDigest.map(({ c, action }: any) => {
+                const fullName = [c.name, c.last_name].filter(Boolean).join(" ");
+                return (
+                  <li key={c.id} className="px-1 py-3 flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/app/people/${c.id}`} className="font-medium hover:text-primary transition-colors truncate block">{fullName}</Link>
+                      <p className="text-sm text-muted-foreground leading-snug">{intelRationale({ priority: c.priority, last_contacted_at: c.last_contacted_at, birthday: c.birthday, nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null })}</p>
+                      <span className={`mt-1.5 inline-block text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded-full border ${ACTION_CLASSES[action as keyof typeof ACTION_CLASSES]}`}>{ACTION_LABEL[action as keyof typeof ACTION_LABEL]}</span>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => openReachOut(c, action)}>Reach out</Button>
+                  </li>
+                );
+              })}
+            </ul>
+          </Section>
+        </div>
+      )}
+
+      <ReminderDialog
+        open={reminderOpen}
+        onOpenChange={(o) => { setReminderOpen(o); if (!o) setReminderPrefill(null); }}
+        reminder={reminderPrefill}
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ["reminders"] });
+          qc.invalidateQueries({ queryKey: ["reminders-today"] });
+          qc.invalidateQueries({ queryKey: ["reminders-open-count"] });
+        }}
+      />
     </AppLayout>
   );
 };
 
-const StatCard = ({ label, value, icon: Icon, to, tone }: any) => {
+const StatCard = ({ label, value, icon: Icon, to, tone, hint, progress, progressLabel }: any) => {
   const iconWrap =
     tone === "destructive"
       ? "bg-[hsl(var(--destructive-soft))] text-destructive"
@@ -324,6 +404,15 @@ const StatCard = ({ label, value, icon: Icon, to, tone }: any) => {
         </span>
       </div>
       <p className={`text-3xl font-semibold mt-3 num-tabular ${tone === "destructive" ? "text-destructive" : ""}`}>{value}</p>
+      {hint && <p className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">{hint}</p>}
+      {typeof progress === "number" && progress > 0 && (
+        <div className="mt-2">
+          <div className="h-1 rounded-full bg-secondary overflow-hidden">
+            <div className="h-full bg-destructive/70" style={{ width: `${Math.round(progress * 100)}%` }} />
+          </div>
+          {progressLabel && <p className="mt-1 text-[10px] text-muted-foreground">{progressLabel}</p>}
+        </div>
+      )}
     </Link>
   );
 };

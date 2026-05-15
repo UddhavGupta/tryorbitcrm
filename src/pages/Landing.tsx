@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Link2 } from "lucide-react";
+import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Link2, Zap, Lock, Sparkles, Check, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -67,7 +67,7 @@ const Landing = () => {
               <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
             </Button>
             <Button size="lg" asChild className="gradient-primary w-full sm:w-auto">
-              <Link to="/auth?mode=signup">Sign Up <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
           <button
@@ -78,6 +78,7 @@ const Landing = () => {
             <Link2 className="h-3 w-3" /> Copy shareable demo link
           </button>
           <p className="mt-2 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
+          <p className="mt-6 text-sm text-muted-foreground/80 italic">Built for the people whose careers compound on relationships.</p>
         </div>
       </section>
 
@@ -110,6 +111,66 @@ const Landing = () => {
               </div>
               <h3 className="font-semibold text-lg">{s.title}</h3>
               <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* KPI strip */}
+      <section className="container pb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          {[
+            { icon: Zap, label: "0 setup", desc: "Sign in and start adding people." },
+            { icon: Lock, label: "Private to you", desc: "Your contacts never leave your account." },
+            { icon: Sparkles, label: "Demo in 5 seconds", desc: "Load sample data with one click." },
+          ].map((k) => (
+            <div key={k.label} className="surface-card p-5 flex items-start gap-3">
+              <span className="h-9 w-9 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center shrink-0">
+                <k.icon className="h-4 w-4 text-primary" />
+              </span>
+              <div>
+                <p className="font-semibold text-sm">{k.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{k.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Comparison */}
+      <section className="container py-16">
+        <div className="text-center max-w-2xl mx-auto">
+          <p className="eyebrow-primary">Why OrbitCRM</p>
+          <h2 className="display-lg mt-3">Built for personal networks, not pipelines.</h2>
+        </div>
+        <div className="mt-10 grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          {[
+            { title: "Spreadsheets", primary: false, items: [
+              { ok: false, t: "No reminders or cooling alerts" },
+              { ok: false, t: "Easy to forget follow-ups" },
+              { ok: true, t: "Free and familiar" },
+            ]},
+            { title: "Big CRMs", primary: false, items: [
+              { ok: false, t: "Built for sales pipelines, not people" },
+              { ok: false, t: "Heavy setup and noisy UI" },
+              { ok: true, t: "Powerful for teams of reps" },
+            ]},
+            { title: "OrbitCRM", primary: true, items: [
+              { ok: true, t: "Reach-outs surface automatically" },
+              { ok: true, t: "Calm UI that respects your time" },
+              { ok: true, t: "Built around relationships, not deals" },
+            ]},
+          ].map((col) => (
+            <div key={col.title} className={`surface-card p-6 ${col.primary ? "border-primary/40 ring-1 ring-primary/20" : ""}`}>
+              <h3 className={`font-semibold ${col.primary ? "text-primary" : ""}`}>{col.title}</h3>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                {col.items.map((i, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    {i.ok ? <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" /> : <Minus className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />}
+                    <span className={i.ok ? "text-foreground" : "text-muted-foreground"}>{i.t}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>

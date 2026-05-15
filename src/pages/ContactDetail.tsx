@@ -21,7 +21,7 @@ import { tagClasses } from "@/lib/tags";
 import { Timeline } from "@/components/Timeline";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
-  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
+  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, intelRationale,
 } from "@/lib/relationshipIntel";
 
 const shortText = z.string().max(255, "Keep under 255 characters");
@@ -37,6 +37,7 @@ const ContactDetail = () => {
   const [editing, setEditing] = useState(false);
   const [interactionOpen, setInteractionOpen] = useState(false);
   const [editingInteraction, setEditingInteraction] = useState<any>(null);
+  const [interactionDraft, setInteractionDraft] = useState<string | undefined>(undefined);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<any>(null);
 
@@ -246,6 +247,33 @@ const ContactDetail = () => {
           </div>
 
           <div className="surface-card p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Relationship intel</h3>
+              <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${STATUS_CLASSES[status]}`}>{STATUS_LABEL[status]}</span>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed">{intelRationale({ priority: contact.priority, last_contacted_at: contact.last_contacted_at, birthday: contact.birthday, nextOpenReminderDue: earliestOpenReminder })}</p>
+            {action !== "no_action" && (
+              <div className="mt-3">
+                <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${ACTION_CLASSES[action]}`}>{ACTION_LABEL[action]}</span>
+              </div>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              className="mt-4 w-full"
+              onClick={() => {
+                setEditingInteraction(null);
+                const lastDate = contact.last_contacted_at ? format(parseISO(contact.last_contacted_at), "MMM d, yyyy") : "—";
+                setInteractionDraft(`Quick check-in — last connected ${lastDate}.\nTalking points:\n- `);
+                setInteractionOpen(true);
+              }}
+            >
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />Draft a reach-out
+            </Button>
+            <p className="mt-3 text-[10px] text-muted-foreground italic leading-relaxed">{INTEL_DISCLAIMER}</p>
+          </div>
+
+          <div className="surface-card p-6">
             <h3 className="font-semibold mb-3">Groups</h3>
             <div className="flex flex-wrap gap-2">
               {(groups ?? []).map((g: any) => {
@@ -323,9 +351,10 @@ const ContactDetail = () => {
       <ContactDialog open={editing} onOpenChange={setEditing} contact={contact} onSaved={() => qc.invalidateQueries({ queryKey: ["contact", id] })} />
       <InteractionDialog
         open={interactionOpen}
-        onOpenChange={(o) => { setInteractionOpen(o); if (!o) setEditingInteraction(null); }}
+        onOpenChange={(o) => { setInteractionOpen(o); if (!o) { setEditingInteraction(null); setInteractionDraft(undefined); } }}
         contactId={id!}
         interaction={editingInteraction}
+        defaultNote={interactionDraft}
         onSaved={refreshInteractions}
       />
       <ReminderDialog

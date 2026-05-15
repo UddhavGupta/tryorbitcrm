@@ -32,9 +32,10 @@ type Props = {
   onSaved: () => void;
   contactId: string;
   interaction?: any;
+  defaultNote?: string;
 };
 
-export const InteractionDialog = ({ open, onOpenChange, onSaved, contactId, interaction }: Props) => {
+export const InteractionDialog = ({ open, onOpenChange, onSaved, contactId, interaction, defaultNote }: Props) => {
   const { user } = useAuth();
   const [form, setForm] = useState<any>({
     kind: "note",
@@ -60,12 +61,12 @@ export const InteractionDialog = ({ open, onOpenChange, onSaved, contactId, inte
       setForm({
         kind: "note",
         occurred_at: todayLocalISO(),
-        note: "",
+        note: defaultNote ?? "",
         next_steps: "",
         update_last_contacted: true,
       });
     }
-  }, [interaction, open]);
+  }, [interaction, open, defaultNote]);
 
   const set = (k: string, v: any) => setForm((f: any) => ({ ...f, [k]: v }));
 
