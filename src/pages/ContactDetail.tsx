@@ -37,6 +37,7 @@ const ContactDetail = () => {
   const [editing, setEditing] = useState(false);
   const [interactionOpen, setInteractionOpen] = useState(false);
   const [editingInteraction, setEditingInteraction] = useState<any>(null);
+  const [interactionDraft, setInteractionDraft] = useState<string | undefined>(undefined);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<any>(null);
 
