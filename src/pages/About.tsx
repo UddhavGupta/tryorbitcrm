@@ -35,7 +35,7 @@ const About = () => (
 
     <h2>About the maker</h2>
     <p>
-      Hi, I'm <a href="https://uddhavgupta.com" target="_blank" rel="noreferrer">Uddhav Gupta</a>. OrbitCRM is one of several portfolio projects exploring how AI-augmented design can ship polished, opinionated software fast. Find me on <a href="https://www.linkedin.com/in/uddhavgupta/" target="_blank" rel="noreferrer">LinkedIn</a> or <a href="https://github.com/uddhavgupta" target="_blank" rel="noreferrer">GitHub</a>.
+      Hi, I'm <a href="https://www.guptau.com" target="_blank" rel="noreferrer">Uddhav Gupta</a>. OrbitCRM is one of several portfolio projects exploring how AI-augmented design can ship polished, opinionated software fast. Find me on <a href="https://www.linkedin.com/in/guptauddhav/" target="_blank" rel="noreferrer">LinkedIn</a> or <a href="https://github.com/uddhavgupta" target="_blank" rel="noreferrer">GitHub</a>.
     </p>
   </MarketingPage>
 );
