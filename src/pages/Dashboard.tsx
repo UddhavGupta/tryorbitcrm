@@ -239,8 +239,8 @@ const Dashboard = () => {
       )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 animate-fade-up">
-        <StatCard label="Total contacts" value={totalContacts} icon={Users} to="/app/people" />
-        <StatCard label="Open reminders" value={openReminders?.count ?? 0} icon={Bell} to="/app/reminders" />
+        <StatCard label="Total contacts" value={totalContacts} icon={Users} to="/app/people" hint={newThisWeek > 0 ? `+${newThisWeek} this week` : undefined} />
+        <StatCard label="Open reminders" value={openReminderCount} icon={Bell} to="/app/reminders" progress={overdueRatio} progressLabel={overdueRemindersCount > 0 ? `${overdueRemindersCount} overdue` : undefined} />
         <StatCard label="Overdue reminders" value={overdueRemindersCount} icon={AlertTriangle} to="/app/reminders" tone="destructive" />
         <StatCard label="High-priority contacts" value={highPriorityCount} icon={Star} to="/app/people?priority=high" tone="primary" />
       </div>
