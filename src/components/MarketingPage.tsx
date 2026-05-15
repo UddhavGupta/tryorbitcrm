@@ -92,7 +92,7 @@ export const MarketingPage = ({ seo, eyebrow, title, subtitle, children, showSha
                 <Link to="/auth?mode=signup">Sign up free <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/auth">Try the demo</Link>
+                <Link to="/demo">Try the demo</Link>
               </Button>
             </div>
           </div>
