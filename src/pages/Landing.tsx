@@ -59,7 +59,7 @@ const Landing = () => {
             </Button>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
-          <p className="mt-6 text-sm text-muted-foreground/80 italic">Built for the people whose careers compound on relationships.</p>
+          
         </div>
       </section>
 
