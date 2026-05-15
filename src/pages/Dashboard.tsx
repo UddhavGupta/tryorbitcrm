@@ -16,8 +16,11 @@ import { todayLocalISO } from "@/lib/dates";
 import { isDemoUser } from "@/components/DemoBadge";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
-  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
+  ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, intelRationale,
 } from "@/lib/relationshipIntel";
+import { ReminderDialog } from "@/components/ReminderDialog";
+import { useState } from "react";
+import { addDays as addDaysFn } from "date-fns";
 
 function nextOccurrence(dateStr: string) {
   const d = parseISO(dateStr);
