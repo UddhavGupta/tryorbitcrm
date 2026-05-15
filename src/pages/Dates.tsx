@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { format, parseISO, setYear, differenceInDays } from "date-fns";
-import { Cake, Heart, Loader2, CalendarDays } from "lucide-react";
+import { Cake, Heart, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
-import { ErrorState } from "@/components/LoadingStates";
+import { ErrorState, RowListSkeleton } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
 
 function nextOccurrence(dateStr: string) {
