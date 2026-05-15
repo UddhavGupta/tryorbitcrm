@@ -349,9 +349,10 @@ const ContactDetail = () => {
       <ContactDialog open={editing} onOpenChange={setEditing} contact={contact} onSaved={() => qc.invalidateQueries({ queryKey: ["contact", id] })} />
       <InteractionDialog
         open={interactionOpen}
-        onOpenChange={(o) => { setInteractionOpen(o); if (!o) setEditingInteraction(null); }}
+        onOpenChange={(o) => { setInteractionOpen(o); if (!o) { setEditingInteraction(null); setInteractionDraft(undefined); } }}
         contactId={id!}
         interaction={editingInteraction}
+        defaultNote={interactionDraft}
         onSaved={refreshInteractions}
       />
       <ReminderDialog
