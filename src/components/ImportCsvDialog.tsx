@@ -325,16 +325,31 @@ export const ImportCsvDialog = ({ open, onOpenChange, onImported }: Props) => {
           </div>
         )}
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button
-            className="gradient-primary"
-            disabled={importing || valid.length === 0}
-            onClick={runImport}
-          >
-            {importing ? "Importing…" : `Import ${valid.length} contact${valid.length === 1 ? "" : "s"}`}
-          </Button>
+        <DialogFooter className="sm:justify-between gap-3">
+          {rows.length > 0 ? (
+            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+              <Checkbox
+                checked={skipDupes}
+                onCheckedChange={(v) => setSkipDupes(v === true)}
+                id="skip-dupes"
+              />
+              <Label htmlFor="skip-dupes" className="cursor-pointer text-xs font-normal">
+                Skip duplicates by email
+              </Label>
+            </label>
+          ) : <span />}
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button
+              className="gradient-primary"
+              disabled={importing || valid.length === 0}
+              onClick={runImport}
+            >
+              {importing ? "Importing…" : `Import ${valid.length} contact${valid.length === 1 ? "" : "s"}`}
+            </Button>
+          </div>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );
