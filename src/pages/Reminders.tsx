@@ -289,6 +289,11 @@ const Reminders = () => {
             )}
           </PopoverContent>
         </Popover>
+        {tab === "open" && (
+          <Button variant="ghost" size="sm" onClick={() => setGrouped((g) => !g)} className="text-muted-foreground">
+            {grouped ? "Flat list" : "Group by section"}
+          </Button>
+        )}
         {activeFilterCount > 0 && (
           <span className="text-sm text-muted-foreground">{filteredAndSorted.length} match</span>
         )}
