@@ -91,3 +91,31 @@ export const ACTION_CLASSES: Record<SuggestedAction, string> = {
   send_birthday_note: "bg-pink-500/10 text-pink-700 dark:text-pink-300 border-pink-500/20",
   no_action: "bg-secondary text-muted-foreground border-border",
 };
+
+export function intelRationale(c: IntelInput & { name?: string | null }): string {
+  const todayStr = todayLocalISO();
+  const due = c.nextOpenReminderDue ?? null;
+  if (due && due < todayStr) return `You have an overdue follow-up scheduled for ${due}.`;
+  if (due && due === todayStr) return "You scheduled a follow-up for today.";
+
+  const status = getRelationshipStatus(c.last_contacted_at);
+  const days = c.last_contacted_at
+    ? differenceInDays(new Date(), parseISO(c.last_contacted_at))
+    : null;
+
+  if ((c.priority ?? "medium") === "high" && (status === "cooling" || status === "cold")) {
+    return days !== null
+      ? `High priority and you haven't talked in ${days} days.`
+      : "High priority and no contact history yet.";
+  }
+
+  const dToBday = daysUntilNextBirthday(c.birthday);
+  if (dToBday !== null && dToBday >= 0 && dToBday <= 7) {
+    return dToBday === 0 ? "Their birthday is today." : `Their birthday is in ${dToBday} day${dToBday === 1 ? "" : "s"}.`;
+  }
+
+  if (status === "cold") return days !== null ? `It's been ${days} days since you last connected.` : "No recent contact recorded.";
+  if (status === "cooling") return days !== null ? `Cooling off — ${days} days since last contact.` : "Relationship may be cooling.";
+  if (status === "warming") return days !== null ? `Warming — ${days} days since last contact.` : "Relationship is warming.";
+  return "All caught up.";
+}

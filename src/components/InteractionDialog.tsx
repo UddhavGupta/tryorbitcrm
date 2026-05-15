@@ -32,6 +32,7 @@ type Props = {
   onSaved: () => void;
   contactId: string;
   interaction?: any;
+  defaultNote?: string;
 };
 
 export const InteractionDialog = ({ open, onOpenChange, onSaved, contactId, interaction }: Props) => {
