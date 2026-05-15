@@ -124,6 +124,13 @@ const ContactDetail = () => {
     navigate("/app/people");
   };
 
+  const saveField = async (field: string, value: string) => {
+    const { error } = await (supabase.from("contacts").update({ [field]: value || null } as any) as any).eq("id", id!);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: ["contact", id] });
+    qc.invalidateQueries({ queryKey: ["contacts"] });
+  };
+
   const days = contact.last_contacted_at ? differenceInDays(new Date(), parseISO(contact.last_contacted_at)) : null;
   const groupIds = new Set(contact.contact_groups?.map((cg: any) => cg.group_id) ?? []);
   const status = getRelationshipStatus(contact.last_contacted_at);
