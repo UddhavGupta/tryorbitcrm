@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { format, differenceInDays, parseISO, addDays, isWithinInterval, setYear } from "date-fns";
@@ -74,11 +75,10 @@ const Dashboard = () => {
 
   // Reach-outs: reminders + contacts with next_follow_up_date today/overdue.
   // Dedupe: if a contact has both a reminder and a follow-up date, prefer the reminder row.
-  const reachOuts = (() => {
+  const reachOuts = useMemo(() => {
     const seenContacts = new Set<string>();
     const fromReminders = (reminders ?? []).map((r: any) => {
       const contactName = r.contacts ? [r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ") : "";
-      // Normalize titles like "Follow up with Owen" -> "Follow up" so the contact line below isn't redundant
       let title = (r.title ?? "").trim();
       if (contactName && new RegExp(`\\s+with\\s+${r.contacts.name}.*$`, "i").test(title)) {
         title = title.replace(/\s+with\s+.+$/i, "");
@@ -112,9 +112,9 @@ const Dashboard = () => {
       if (p !== 0) return p;
       return a.date.localeCompare(b.date);
     });
-  })();
+  }, [reminders, contacts, todayStr]);
 
-  const upcomingDates = (contacts ?? [])
+  const upcomingDates = useMemo(() => (contacts ?? [])
     .flatMap((c: any) => {
       const arr: any[] = [];
       if (c.birthday) arr.push({ contact: c, type: "Birthday", date: nextOccurrence(c.birthday) });
@@ -122,9 +122,9 @@ const Dashboard = () => {
       return arr;
     })
     .filter((e) => isWithinInterval(e.date, { start: new Date(), end: addDays(new Date(), 30) }))
-    .sort((a, b) => a.date.getTime() - b.date.getTime());
+    .sort((a, b) => a.date.getTime() - b.date.getTime()), [contacts]);
 
-  const cooling = (contacts ?? [])
+  const cooling = useMemo(() => (contacts ?? [])
     .filter((c: any) => c.last_contacted_at)
     .map((c: any) => ({ c, days: differenceInDays(new Date(), parseISO(c.last_contacted_at)) }))
     .filter((x) => x.days > 60)
@@ -133,7 +133,7 @@ const Dashboard = () => {
       if (p !== 0) return p;
       return b.days - a.days;
     })
-    .slice(0, 8);
+    .slice(0, 8), [contacts]);
 
   // Stats
   const totalContacts = contacts?.length ?? 0;
@@ -207,7 +207,9 @@ const Dashboard = () => {
         <div className="animate-fade-up-delay-1">
           <Section title="Today's reach-outs" icon={Bell} count={reachOuts.length}>
             {reachOuts.length === 0 ? (
-              <InlineEmpty text="Nothing due today. Take a breath." />
+              <InlineEmpty text="Nothing due today. Take a breath." action={
+                <Button variant="outline" size="sm" asChild><Link to="/app/reminders">View all reminders</Link></Button>
+              } />
             ) : (
               <ul className="divide-y divide-border -mx-1">
                 {reachOuts.slice(0, 8).map((r) => (
@@ -238,7 +240,9 @@ const Dashboard = () => {
         <div className="animate-fade-up-delay-1">
           <Section title="Birthdays & anniversaries" icon={Cake} count={upcomingDates.length}>
             {upcomingDates.length === 0 ? (
-              <InlineEmpty text="No upcoming dates in the next 30 days." />
+              <InlineEmpty text="No upcoming dates in the next 30 days." action={
+                <Button variant="outline" size="sm" asChild><Link to="/app/dates">Open dates</Link></Button>
+              } />
             ) : (
               <ul className="divide-y divide-border -mx-1">
                 {upcomingDates.slice(0, 6).map((e, i) => {
@@ -261,7 +265,9 @@ const Dashboard = () => {
         <div className="animate-fade-up-delay-2">
           <Section title="Cooling alerts" icon={Snowflake} count={cooling.length}>
             {cooling.length === 0 ? (
-              <InlineEmpty text="All your relationships are warm." />
+              <InlineEmpty text="All your relationships are warm." action={
+                <Button variant="outline" size="sm" asChild><Link to="/app/people">Browse people</Link></Button>
+              } />
             ) : (
               <>
                 <ul className="divide-y divide-border -mx-1">

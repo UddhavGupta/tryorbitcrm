@@ -24,6 +24,10 @@ export const EmptyState = ({ icon: Icon, title, description, action, className =
   </div>
 );
 
-export const InlineEmpty = ({ text }: { text: string }) => (
-  <p className="text-sm text-muted-foreground py-6 text-center">{text}</p>
+export const InlineEmpty = ({ text, action }: { text: string; action?: ReactNode }) => (
+  <div className="py-6 text-center">
+    <p className="text-sm text-muted-foreground">{text}</p>
+    {action && <div className="mt-3 flex justify-center">{action}</div>}
+  </div>
 );
+

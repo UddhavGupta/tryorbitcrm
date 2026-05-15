@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { format, parseISO, setYear, differenceInDays } from "date-fns";
-import { Cake, Heart, Loader2, CalendarDays } from "lucide-react";
+import { Cake, Heart, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
-import { ErrorState } from "@/components/LoadingStates";
+import { ErrorState, RowListSkeleton } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
 
 function nextOccurrence(dateStr: string) {
@@ -43,11 +43,7 @@ const Dates = () => {
         description="Birthdays and anniversaries across your network."
       />
 
-      {isLoading && (
-        <div className="surface-card p-10 flex flex-col items-center text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin mb-2" /><p className="text-sm">Loading dates…</p>
-        </div>
-      )}
+      {isLoading && <RowListSkeleton count={6} />}
 
       {error && <ErrorState title="Couldn't load dates" message={(error as Error).message} />}
 

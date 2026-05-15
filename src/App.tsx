@@ -1,5 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,21 +8,30 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/queryClient";
-import Landing from "./pages/Landing";
+
+// App shell pages — likely needed for signed-in users; load eagerly so
+// the post-auth navigation feels instant.
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
-import People from "./pages/People";
-import ContactDetail from "./pages/ContactDetail";
-import Groups from "./pages/Groups";
-import Dates from "./pages/Dates";
-import Reminders from "./pages/Reminders";
 import NotFound from "./pages/NotFound.tsx";
-import ProjectNotes from "./pages/ProjectNotes";
-import Changelog from "./pages/Changelog";
-import About from "./pages/About";
-import UseCase from "./pages/UseCase";
-import Press from "./pages/Press";
-import Demo from "./pages/Demo";
+
+// Marketing + heavy pages — code-split so they don't bloat the first chunk.
+const Landing = lazy(() => import("./pages/Landing"));
+const People = lazy(() => import("./pages/People"));
+const ContactDetail = lazy(() => import("./pages/ContactDetail"));
+const Groups = lazy(() => import("./pages/Groups"));
+const Dates = lazy(() => import("./pages/Dates"));
+const Reminders = lazy(() => import("./pages/Reminders"));
+const ProjectNotes = lazy(() => import("./pages/ProjectNotes"));
+const Changelog = lazy(() => import("./pages/Changelog"));
+const About = lazy(() => import("./pages/About"));
+const UseCase = lazy(() => import("./pages/UseCase"));
+const Press = lazy(() => import("./pages/Press"));
+const Demo = lazy(() => import("./pages/Demo"));
+
+const RouteFallback = () => (
+  <div className="min-h-screen bg-background" aria-hidden="true" />
+);
 
 const App = () => (
   <ErrorBoundary>
@@ -32,23 +42,25 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <ErrorBoundary>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/demo" element={<Demo />} />
-                <Route path="/project-notes" element={<ProjectNotes />} />
-                <Route path="/changelog" element={<Changelog />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/for/:slug" element={<UseCase />} />
-                <Route path="/press" element={<Press />} />
-                <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
-                <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
-                <Route path="/app/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
-                <Route path="/app/dates" element={<ProtectedRoute><Dates /></ProtectedRoute>} />
-                <Route path="/app/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Suspense fallback={<RouteFallback />}>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/demo" element={<Demo />} />
+                  <Route path="/project-notes" element={<ProjectNotes />} />
+                  <Route path="/changelog" element={<Changelog />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/for/:slug" element={<UseCase />} />
+                  <Route path="/press" element={<Press />} />
+                  <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
+                  <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
+                  <Route path="/app/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
+                  <Route path="/app/dates" element={<ProtectedRoute><Dates /></ProtectedRoute>} />
+                  <Route path="/app/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </ErrorBoundary>
           </AuthProvider>
         </BrowserRouter>

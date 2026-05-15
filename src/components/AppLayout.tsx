@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Bell, Calendar, LayoutDashboard, Users, UsersRound } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,15 +13,47 @@ import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/orbitcrm-logo.png";
 
 const links = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true, tour: "dashboard" },
-  { to: "/app/people", label: "People", icon: Users, tour: "people" },
-  { to: "/app/groups", label: "Groups", icon: UsersRound, tour: "groups" },
-  { to: "/app/dates", label: "Dates", icon: Calendar, tour: "dates" },
-  { to: "/app/reminders", label: "Reminders", icon: Bell, tour: "reminders" },
+  { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true, tour: "dashboard", prefetch: ["reminders-today", "dashboard-contacts"] },
+  { to: "/app/people", label: "People", icon: Users, tour: "people", prefetch: ["contacts"] },
+  { to: "/app/groups", label: "Groups", icon: UsersRound, tour: "groups", prefetch: ["groups"] },
+  { to: "/app/dates", label: "Dates", icon: Calendar, tour: "dates", prefetch: ["contacts"] },
+  { to: "/app/reminders", label: "Reminders", icon: Bell, tour: "reminders", prefetch: ["reminders"] },
 ];
+
+// Lightweight prefetch handlers — query keys mirror what each page asks for.
+const PREFETCHERS: Record<string, () => Promise<unknown>> = {
+  "reminders-today": async () => {
+    const { todayLocalISO } = await import("@/lib/dates");
+    const today = todayLocalISO();
+    return supabase.from("reminders").select("*, contacts(id, name, last_name, priority)").eq("completed", false).lte("due_date", today).order("due_date");
+  },
+  "dashboard-contacts": async () =>
+    supabase.from("contacts").select("*").order("name"),
+  contacts: async () =>
+    supabase.from("contacts").select("*").order("name"),
+  groups: async () =>
+    supabase.from("groups").select("*").order("name"),
+  reminders: async () =>
+    supabase.from("reminders").select("*, contacts(id, name, last_name, priority)").order("due_date"),
+};
+
+import type { QueryClient } from "@tanstack/react-query";
+const prefetchFor = (qc: QueryClient, keys?: string[]) => {
+  if (!keys) return;
+  keys.forEach((k) => {
+    const fn = PREFETCHERS[k];
+    if (!fn) return;
+    qc.prefetchQuery({ queryKey: [k], queryFn: async () => {
+      const res: any = await fn();
+      return res?.data ?? res;
+    }}).catch(() => {});
+  });
+};
+
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
@@ -81,6 +113,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
                   to={l.to}
                   end={l.end as any}
                   data-tour={l.tour}
+                  onMouseEnter={() => prefetchFor(qc, l.prefetch)}
+                  onFocus={() => prefetchFor(qc, l.prefetch)}
                   className={({ isActive }) =>
                     `relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                       isActive
@@ -126,7 +160,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
             </div>
           </nav>
         </header>
-        <main className="container py-6 md:py-10 flex-1">{children}</main>
+        <main key={location.pathname} className="container py-6 md:py-10 flex-1 animate-fade-in">{children}</main>
         <AppFooter />
       </div>
     </TourProvider>
