@@ -175,6 +175,12 @@ const Dashboard = () => {
   const totalContacts = contacts?.length ?? 0;
   const overdueRemindersCount = (reminders ?? []).filter((r: any) => r.due_date < todayStr).length;
   const highPriorityCount = (contacts ?? []).filter((c: any) => c.priority === "high").length;
+  const newThisWeek = useMemo(() => {
+    const cutoff = addDays(new Date(), -7);
+    return (contacts ?? []).filter((c: any) => c.created_at && new Date(c.created_at) >= cutoff).length;
+  }, [contacts]);
+  const openReminderCount = openReminders?.count ?? 0;
+  const overdueRatio = openReminderCount > 0 ? Math.min(1, overdueRemindersCount / openReminderCount) : 0;
 
   const completeReminder = async (id: string) => {
     await supabase.from("reminders").update({ completed: true }).eq("id", id);
