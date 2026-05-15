@@ -38,6 +38,8 @@ const People = () => {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<any>(null);
+  const selection = useSelection();
   const [searchParams, setSearchParams] = useSearchParams();
   const groupFilter = searchParams.get("group") ?? "all";
   const setGroupFilter = (v: string) => {
