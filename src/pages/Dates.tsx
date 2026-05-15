@@ -5,6 +5,7 @@ import { Cake, Heart, Loader2, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { ErrorState } from "@/components/LoadingStates";
+import { PageHeader } from "@/components/PageHeader";
 
 function nextOccurrence(dateStr: string) {
   const d = parseISO(dateStr);
@@ -37,10 +38,10 @@ const Dates = () => {
 
   return (
     <AppLayout>
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Dates</h1>
-        <p className="text-muted-foreground mt-1 text-sm md:text-base">Birthdays and anniversaries across your network.</p>
-      </div>
+      <PageHeader
+        title="Dates"
+        description="Birthdays and anniversaries across your network."
+      />
 
       {isLoading && (
         <div className="surface-card p-10 flex flex-col items-center text-muted-foreground">

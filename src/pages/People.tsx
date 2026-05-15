@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { ContactDialog } from "@/components/ContactDialog";
 import { ImportCsvDialog } from "@/components/ImportCsvDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
+import { PageHeader } from "@/components/PageHeader";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, type RelationshipStatus, type SuggestedAction,
@@ -216,17 +217,17 @@ const People = () => {
 
   return (
     <AppLayout>
-      <div className="flex items-end justify-between flex-wrap gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">People</h1>
-          <p className="text-muted-foreground mt-1 text-sm md:text-base">Search, filter, and manage the relationships in your orbit.</p>
-          <p className="text-xs text-muted-foreground mt-1">{contacts?.length ?? 0} contacts</p>
-        </div>
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <Button variant="outline" onClick={() => setImportOpen(true)} className="flex-1 sm:flex-none"><Upload className="h-4 w-4 mr-2" />Import CSV</Button>
-          <Button onClick={() => setOpen(true)} className="gradient-primary flex-1 sm:flex-none"><Plus className="h-4 w-4 mr-2" />Add contact</Button>
-        </div>
-      </div>
+      <PageHeader
+        title="People"
+        description="Search, filter, and manage the relationships in your orbit."
+        meta={`${contacts?.length ?? 0} contacts`}
+        actions={
+          <>
+            <Button variant="outline" onClick={() => setImportOpen(true)} className="flex-1 sm:flex-none"><Upload className="h-4 w-4 mr-2" />Import CSV</Button>
+            <Button onClick={() => setOpen(true)} className="gradient-primary flex-1 sm:flex-none"><Plus className="h-4 w-4 mr-2" />Add contact</Button>
+          </>
+        }
+      />
 
       <div className="flex flex-wrap gap-2 mb-4">
         <div className="relative flex-1 min-w-[220px]">
