@@ -190,6 +190,97 @@ const Reminders = () => {
   const activeFilterCount = (dueFilter !== "all" ? 1 : 0) + (highOnly ? 1 : 0) + (groupFilter !== "all" ? 1 : 0);
   const clearAll = () => { setDueFilter("all"); setHighOnly(false); setGroupFilter("all"); };
 
+  const renderRow = (r: any) => {
+    const due = parseISO(r.due_date);
+    const overdue = !r.completed && isPast(due) && !isToday(due);
+    const today = !r.completed && isToday(due);
+    const overdueDays = overdue ? Math.abs(differenceInDays(due, new Date())) : 0;
+    const firstGroup = r.contacts?.contact_groups?.[0]?.groups;
+    const onRowClick = (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest("[data-stop]")) return;
+      if (r.contacts?.id) navigate(`/app/people/${r.contacts.id}`);
+    };
+    return (
+      <div
+        key={r.id}
+        onClick={onRowClick}
+        className={`flex items-center gap-3 p-4 transition-colors ${r.contacts?.id ? "cursor-pointer hover:bg-secondary/40" : ""}`}
+      >
+        <button
+          data-stop
+          onClick={() => (r.completed ? reopen(r) : completeWithUndo(r))}
+          className={`shrink-0 h-6 w-6 rounded-full grid place-items-center transition-colors ${
+            r.completed ? "bg-primary text-primary-foreground" : "border-2 border-border hover:border-primary"
+          }`}
+          aria-label={r.completed ? "Reopen" : "Mark complete"}
+        >
+          {r.completed ? <Check className="h-3.5 w-3.5" /> : <Circle className="h-0 w-0" />}
+        </button>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className={`font-medium truncate ${r.completed ? "line-through text-muted-foreground" : ""}`}>{r.title}</p>
+            <span className={`text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full ${priorityClasses(r.priority)}`}>{r.priority}</span>
+            {firstGroup && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: (firstGroup.color ?? "#a78bfa") + "22", color: firstGroup.color ?? "#a78bfa" }}>
+                {firstGroup.name}
+              </span>
+            )}
+          </div>
+          <div className="text-sm text-muted-foreground truncate">
+            {r.contacts ? [r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ") : <span className="italic">No contact</span>}
+            {r.notes && <span className="ml-2 opacity-70">· {r.notes}</span>}
+          </div>
+        </div>
+
+        <div className="text-right shrink-0">
+          {r.completed ? (
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              Completed {r.completed_at ? format(parseISO(r.completed_at), "MMM d") : ""}
+            </span>
+          ) : (
+            <span className={`text-sm whitespace-nowrap ${overdue ? "text-primary font-medium" : today ? "text-primary font-medium" : "text-muted-foreground"}`}>
+              {overdue ? `${overdueDays}d overdue · ` : today ? "Today · " : ""}{format(due, "MMM d")}
+            </span>
+          )}
+        </div>
+
+        <div data-stop className="flex items-center">
+          {!r.completed && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" title="Snooze"><Clock className="h-4 w-4" /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => snooze(r, 1)}>Tomorrow</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => snooze(r, 3)}>In 3 days</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => snooze(r, 7)}>Next week</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => snooze(r, 14)}>In 2 weeks</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => snooze(r, 30)}>In a month</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          <Button variant="ghost" size="icon" onClick={() => { setEditing(r); setDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4" /></Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this reminder?</AlertDialogTitle>
+                <AlertDialogDescription>This can't be undone.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => remove(r.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <AppLayout>
       <PageHeader
