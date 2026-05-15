@@ -92,6 +92,12 @@ const People = () => {
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [contacts]);
 
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    (contacts ?? []).forEach((c: any) => (c.tags ?? []).forEach((t: string) => set.add(t)));
+    return Array.from(set).sort();
+  }, [contacts]);
+
   const filtered = useMemo(() => {
     let list = contacts ?? [];
     const today = new Date();
@@ -151,11 +157,18 @@ const People = () => {
         nextOpenReminderDue: openReminders?.earliest.get(c.id) ?? null,
       }) === actionFilter);
     }
+    if (tagFilter.length > 0) {
+      list = list.filter((c: any) => {
+        const tags: string[] = (c.tags ?? []).map((t: string) => t.toLowerCase());
+        return tagFilter.every((t) => tags.includes(t.toLowerCase()));
+      });
+    }
     if (q) {
       const t = q.toLowerCase();
       list = list.filter((c: any) =>
         [c.name, c.last_name, c.title, c.company, c.city, c.email, c.notes,
-         ...(c.contact_groups?.map((cg: any) => cg.groups?.name) ?? [])]
+         ...(c.contact_groups?.map((cg: any) => cg.groups?.name) ?? []),
+         ...((c.tags ?? []) as string[])]
           .filter(Boolean).join(" ").toLowerCase().includes(t)
       );
     }
