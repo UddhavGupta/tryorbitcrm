@@ -15,9 +15,30 @@ export function normalizeTag(s: string) {
   return s.trim().replace(/\s+/g, " ").slice(0, 32);
 }
 
+/** Lower-case key for dedup/comparison. Display value should preserve user casing. */
+export function tagKey(s: string) {
+  return normalizeTag(s).toLowerCase();
+}
+
+/** Dedupe a list of tags case-insensitively, preserving first-seen casing. */
+export function dedupeTags(tags: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of tags) {
+    const t = normalizeTag(raw);
+    if (!t) continue;
+    const k = t.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(t);
+  }
+  return out.sort((a, b) => a.localeCompare(b));
+}
+
 export function tagColor(tag: string) {
+  const key = tag.toLowerCase();
   let h = 0;
-  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
   return PALETTE[h % PALETTE.length];
 }
 
