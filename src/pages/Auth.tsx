@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { PlayCircle, ArrowLeft } from "lucide-react";
 import logo from "@/assets/orbitcrm-logo.png";
-import { startDemo } from "@/lib/startDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -61,18 +60,6 @@ const Auth = () => {
     }
   };
 
-  const handleStartDemo = async () => {
-    setLoading(true);
-    toast.loading("Spinning up demo…", { id: "demo" });
-    try {
-      await startDemo();
-      toast.success("Demo ready", { id: "demo" });
-      navigate("/app");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Could not start demo", { id: "demo" });
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
