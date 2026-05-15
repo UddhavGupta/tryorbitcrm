@@ -63,7 +63,30 @@ const ContactDetail = () => {
     queryFn: async () => (await supabase.from("groups").select("*").order("name")).data ?? [],
   });
 
-  if (isLoading) return <AppLayout><div className="surface-card p-10 flex flex-col items-center text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin mb-2" /><p className="text-sm">Loading contact…</p></div></AppLayout>;
+  if (isLoading) return (
+    <AppLayout>
+      <div className="surface-card p-6 md:p-8 animate-fade-in">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-16 rounded-full bg-muted animate-pulse" />
+          <div className="flex-1 space-y-2">
+            <div className="h-5 w-1/3 bg-muted animate-pulse rounded" />
+            <div className="h-3 w-1/4 bg-muted animate-pulse rounded" />
+          </div>
+        </div>
+        <div className="mt-6 grid sm:grid-cols-2 gap-3">
+          <div className="h-4 w-2/3 bg-muted animate-pulse rounded" />
+          <div className="h-4 w-1/2 bg-muted animate-pulse rounded" />
+          <div className="h-4 w-3/4 bg-muted animate-pulse rounded" />
+          <div className="h-4 w-1/3 bg-muted animate-pulse rounded" />
+        </div>
+        <div className="mt-8 space-y-3">
+          <div className="h-12 bg-muted/60 animate-pulse rounded-lg" />
+          <div className="h-12 bg-muted/60 animate-pulse rounded-lg" />
+          <div className="h-12 bg-muted/60 animate-pulse rounded-lg" />
+        </div>
+      </div>
+    </AppLayout>
+  );
   if (error || !contact) return <AppLayout><div className="surface-card p-6 border border-destructive/30 bg-destructive/5 text-destructive flex items-start gap-3"><AlertCircle className="h-5 w-5 shrink-0 mt-0.5" /><div><p className="font-medium">Couldn't load contact</p><p className="text-sm opacity-80">{(error as Error)?.message ?? "Not found"}</p></div></div></AppLayout>;
 
   const refreshInteractions = () => {
