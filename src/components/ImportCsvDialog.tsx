@@ -5,9 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Upload, FileText, AlertTriangle, CheckCircle2, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+
+const CHUNK_SIZE = 100;
 
 type Props = { open: boolean; onOpenChange: (v: boolean) => void; onImported?: () => void };
 
