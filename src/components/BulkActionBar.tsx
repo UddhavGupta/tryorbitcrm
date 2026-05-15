@@ -96,17 +96,17 @@ export const BulkActionBar = ({ selectedIds, contacts, groups, onClear }: Props)
     if (!tag) return;
     setBusy(true);
     try {
-      const updates = contacts
+      const targets = contacts
         .filter((c: any) => selectedIds.includes(c.id))
-        .map((c: any) => {
+        .filter((c: any) => !((c.tags ?? []) as string[]).some((t) => t.toLowerCase() === tag.toLowerCase()));
+      if (targets.length === 0) { toast("All selected already have that tag"); return; }
+      const results = await Promise.all(
+        targets.map(async (c: any) => {
           const current: string[] = c.tags ?? [];
-          if (current.some((t) => t.toLowerCase() === tag.toLowerCase())) return null;
-          return supabase.from("contacts").update({ tags: [...current, tag] }).eq("id", c.id);
+          return await supabase.from("contacts").update({ tags: [...current, tag] }).eq("id", c.id);
         })
-        .filter(Boolean) as Promise<any>[];
-      if (updates.length === 0) { toast("All selected already have that tag"); return; }
-      const results = await Promise.all(updates);
-      const firstErr = results.find((r) => r.error);
+      );
+      const firstErr = results.find((r: any) => r.error);
       if (firstErr) throw firstErr.error;
       invalidate();
       toast.success(`Tagged "${tag}" · ${updates.length} contact${updates.length === 1 ? "" : "s"}`);
