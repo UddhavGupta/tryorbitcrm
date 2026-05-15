@@ -13,12 +13,30 @@ import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/orbitcrm-logo.png";
 
 const links = [
-  { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true, tour: "dashboard" },
-  { to: "/app/people", label: "People", icon: Users, tour: "people" },
-  { to: "/app/groups", label: "Groups", icon: UsersRound, tour: "groups" },
-  { to: "/app/dates", label: "Dates", icon: Calendar, tour: "dates" },
-  { to: "/app/reminders", label: "Reminders", icon: Bell, tour: "reminders" },
+  { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true, tour: "dashboard", prefetch: ["reminders-today", "dashboard-contacts"] },
+  { to: "/app/people", label: "People", icon: Users, tour: "people", prefetch: ["contacts"] },
+  { to: "/app/groups", label: "Groups", icon: UsersRound, tour: "groups", prefetch: ["groups"] },
+  { to: "/app/dates", label: "Dates", icon: Calendar, tour: "dates", prefetch: ["contacts"] },
+  { to: "/app/reminders", label: "Reminders", icon: Bell, tour: "reminders", prefetch: ["reminders"] },
 ];
+
+// Lightweight prefetch handlers — query keys mirror what each page asks for.
+const PREFETCHERS: Record<string, () => Promise<unknown>> = {
+  "reminders-today": async () => {
+    const { todayLocalISO } = await import("@/lib/dates");
+    const today = todayLocalISO();
+    return supabase.from("reminders").select("*, contacts(id, name, last_name, priority)").eq("completed", false).lte("due_date", today).order("due_date");
+  },
+  "dashboard-contacts": async () =>
+    supabase.from("contacts").select("*").order("name"),
+  contacts: async () =>
+    supabase.from("contacts").select("*").order("name"),
+  groups: async () =>
+    supabase.from("groups").select("*").order("name"),
+  reminders: async () =>
+    supabase.from("reminders").select("*, contacts(id, name, last_name, priority)").order("due_date"),
+};
+
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
