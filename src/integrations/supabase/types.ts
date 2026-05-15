@@ -122,6 +122,45 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_dates: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          event_date: string
+          event_type: string
+          id: string
+          notes: string | null
+          recurring: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          event_date: string
+          event_type?: string
+          id?: string
+          notes?: string | null
+          recurring?: boolean
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          event_date?: string
+          event_type?: string
+          id?: string
+          notes?: string | null
+          recurring?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       groups: {
         Row: {
           color: string | null
