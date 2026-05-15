@@ -556,6 +556,17 @@ const People = () => {
                     ))}
                   </div>
                 )}
+
+                <div className="mt-auto pt-3 flex items-center justify-end opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => markContactedToday(e, c)}
+                    className="text-xs inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-background hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                    title="Mark contacted today"
+                  >
+                    <CheckCheck className="h-3.5 w-3.5" />
+                    Mark contacted
+                  </button>
+                </div>
               </Link>
             );
           })}
