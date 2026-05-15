@@ -63,12 +63,21 @@ const Landing = () => {
             A lightweight CRM for students, founders, operators, and job seekers. Track who you know, what matters, and when to reach out next.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none animate-fade-up-delay-1">
-            <Button size="lg" variant="outline" onClick={handleStartDemo} disabled={loadingDemo} className="w-full sm:w-auto">
-              <PlayCircle className="mr-2 h-4 w-4" />{loadingDemo ? "Loading demo…" : "Start Demo"}
+            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
+              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
             </Button>
-            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto"><Link to="/auth?mode=signup">Sign Up <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto">
+              <Link to="/auth?mode=signup">Sign Up <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">Demo loads sample contacts in a temporary account — no real data is shown.</p>
+          <button
+            type="button"
+            onClick={copyDemoLink}
+            className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            <Link2 className="h-3 w-3" /> Copy shareable demo link
+          </button>
+          <p className="mt-2 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
         </div>
       </section>
 
@@ -149,8 +158,8 @@ const Landing = () => {
           ))}
         </div>
         <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Button size="lg" onClick={handleStartDemo} disabled={loadingDemo} className="gradient-primary">
-            <PlayCircle className="mr-2 h-4 w-4" />{loadingDemo ? "Loading demo…" : "Start Demo"}
+          <Button size="lg" asChild className="gradient-primary">
+            <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
             <Link to="/auth?mode=signup">Sign Up</Link>
@@ -179,7 +188,7 @@ const Landing = () => {
           </div>
 
           <FooterCol title="Product">
-            <FooterButton onClick={handleStartDemo}>Live Demo</FooterButton>
+            <FooterRoute to="/demo">Live Demo</FooterRoute>
             <FooterAnchor href="#features">Features</FooterAnchor>
             <FooterRoute to="/auth?mode=signup">Sign Up</FooterRoute>
             <FooterRoute to="/auth">Sign In</FooterRoute>
