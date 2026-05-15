@@ -210,6 +210,7 @@ const Changelog = () => {
                   <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
                     <span className="text-xs font-mono tracking-widest text-primary/80">{r.version}</span>
                     <h2 className="font-serif text-2xl tracking-tight">{r.title}</h2>
+                    {r.date && <span className="text-xs text-muted-foreground">· {r.date}</span>}
                     <span
                       className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${
                         planned
