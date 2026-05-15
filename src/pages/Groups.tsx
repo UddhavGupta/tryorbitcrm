@@ -68,9 +68,12 @@ const Groups = () => {
           </div>
           <h3 className="text-lg font-semibold">No groups yet</h3>
           <p className="text-muted-foreground mt-1 max-w-sm mx-auto">Group people by context to filter your orbit fast.</p>
-          <Button onClick={() => { setEditing(null); setEditorOpen(true); }} className="gradient-primary mt-5">
-            <Plus className="h-4 w-4 mr-2" />Create your first group
-          </Button>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <Button onClick={() => { setEditing(null); setEditorOpen(true); }} className="gradient-primary">
+              <Plus className="h-4 w-4 mr-2" />Create your first group
+            </Button>
+            <SampleDataButton />
+          </div>
         </div>
       )}
 
