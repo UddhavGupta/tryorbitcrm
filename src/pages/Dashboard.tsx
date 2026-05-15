@@ -207,7 +207,9 @@ const Dashboard = () => {
         <div className="animate-fade-up-delay-1">
           <Section title="Today's reach-outs" icon={Bell} count={reachOuts.length}>
             {reachOuts.length === 0 ? (
-              <InlineEmpty text="Nothing due today. Take a breath." />
+              <InlineEmpty text="Nothing due today. Take a breath." action={
+                <Button variant="outline" size="sm" asChild><Link to="/app/reminders">View all reminders</Link></Button>
+              } />
             ) : (
               <ul className="divide-y divide-border -mx-1">
                 {reachOuts.slice(0, 8).map((r) => (
