@@ -15,7 +15,7 @@ import { ImportCsvDialog } from "@/components/ImportCsvDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
 import { SampleDataButton } from "@/components/SampleDataButton";
-import { tagClasses } from "@/lib/tags";
+import { tagClasses, dedupeTags } from "@/lib/tags";
 import { todayLocalISO, dateToLocalISO } from "@/lib/dates";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
@@ -94,9 +94,9 @@ const People = () => {
   }, [contacts]);
 
   const allTags = useMemo(() => {
-    const set = new Set<string>();
-    (contacts ?? []).forEach((c: any) => (c.tags ?? []).forEach((t: string) => set.add(t)));
-    return Array.from(set).sort();
+    const flat: string[] = [];
+    (contacts ?? []).forEach((c: any) => (c.tags ?? []).forEach((t: string) => flat.push(t)));
+    return dedupeTags(flat);
   }, [contacts]);
 
   const filtered = useMemo(() => {
