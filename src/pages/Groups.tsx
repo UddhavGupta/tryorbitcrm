@@ -8,6 +8,7 @@ import { GroupDialog } from "@/components/GroupDialog";
 import { GroupDetailDialog } from "@/components/GroupDetailDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
+import { SampleDataButton } from "@/components/SampleDataButton";
 
 const Groups = () => {
   const qc = useQueryClient();
