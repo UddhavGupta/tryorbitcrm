@@ -37,6 +37,19 @@ const PREFETCHERS: Record<string, () => Promise<unknown>> = {
     supabase.from("reminders").select("*, contacts(id, name, last_name, priority)").order("due_date"),
 };
 
+import type { QueryClient } from "@tanstack/react-query";
+const prefetchFor = (qc: QueryClient, keys?: string[]) => {
+  if (!keys) return;
+  keys.forEach((k) => {
+    const fn = PREFETCHERS[k];
+    if (!fn) return;
+    qc.prefetchQuery({ queryKey: [k], queryFn: async () => {
+      const res: any = await fn();
+      return res?.data ?? res;
+    }}).catch(() => {});
+  });
+};
+
 
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
