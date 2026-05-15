@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO, differenceInDays, addDays, isAfter, isBefore } from "date-fns";
-import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock, Bell, CheckCircle2, UserPlus, Sparkles } from "lucide-react";
+import { z } from "zod";
+import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock, Bell, CheckCircle2, UserPlus, Sparkles, Briefcase, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
@@ -14,6 +15,7 @@ import { InteractionDialog, interactionTypeLabel } from "@/components/Interactio
 import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { InlineField } from "@/components/InlineField";
 import { toast } from "sonner";
 import { tagClasses } from "@/lib/tags";
 import { Timeline } from "@/components/Timeline";
@@ -21,6 +23,11 @@ import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
 } from "@/lib/relationshipIntel";
+
+const shortText = z.string().max(255, "Keep under 255 characters");
+const longText = z.string().max(2000, "Keep under 2000 characters");
+const emailSchema = z.union([z.literal(""), z.string().email("Invalid email").max(255)]);
+const urlSchema = z.union([z.literal(""), z.string().url("Must be a valid URL").max(500)]);
 
 const ContactDetail = () => {
   const { id } = useParams();
