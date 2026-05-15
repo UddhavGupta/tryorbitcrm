@@ -251,7 +251,7 @@ const People = () => {
       <div className="flex flex-wrap gap-2 mb-4">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search name, title, company, city, notes, group…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input data-hotkey-search placeholder="Search name, title, company, city, notes, group… (press / to focus)" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
           {q && (
             <button onClick={() => setQ("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
