@@ -148,15 +148,32 @@ const ContactDetail = () => {
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
-          <div className="surface-card p-6 text-center">
+          <div className="surface-card p-6 text-center relative">
+            <button
+              type="button"
+              onClick={async () => {
+                const isFav = contact.priority === "high";
+                const next = isFav ? "medium" : "high";
+                const { error } = await supabase.from("contacts").update({ priority: next }).eq("id", id!);
+                if (error) return toast.error(error.message);
+                qc.invalidateQueries({ queryKey: ["contact", id] });
+                qc.invalidateQueries({ queryKey: ["contacts"] });
+                toast.success(isFav ? "Removed from favorites" : "Marked as favorite");
+              }}
+              title={contact.priority === "high" ? "Remove favorite" : "Mark as favorite"}
+              aria-label={contact.priority === "high" ? "Remove favorite" : "Mark as favorite"}
+              className="absolute top-3 right-3 h-8 w-8 grid place-items-center rounded-md hover:bg-secondary transition-colors"
+            >
+              <Star className={`h-5 w-5 transition-colors ${contact.priority === "high" ? "fill-amber-400 text-amber-400" : "text-muted-foreground/60 hover:text-amber-400"}`} />
+            </button>
             <div className="h-20 w-20 rounded-full mx-auto gradient-primary text-primary-foreground grid place-items-center text-2xl font-semibold">
               {contact.name.charAt(0)}
             </div>
             <h1 className="mt-4 text-xl font-semibold">{[contact.name, contact.last_name].filter(Boolean).join(" ")}</h1>
             <p className="text-sm text-muted-foreground">{[contact.title, contact.company].filter(Boolean).join(" · ")}</p>
-            {contact.priority && contact.priority !== "medium" && (
-              <span className={`inline-block mt-2 text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full ${contact.priority === "high" ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
-                {contact.priority} priority
+            {contact.priority === "low" && (
+              <span className="inline-block mt-2 text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                low priority
               </span>
             )}
             <div className="mt-3 flex flex-wrap justify-center gap-1.5">
