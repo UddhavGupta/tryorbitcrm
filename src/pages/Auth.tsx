@@ -17,21 +17,36 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const isAnon = (u: any) => !!u && (u.is_anonymous === true || (u.app_metadata as any)?.provider === "anonymous");
+  const safeRedirect = (() => {
+    const r = params.get("redirect");
+    if (!r) return "/app";
+    try {
+      const decoded = decodeURIComponent(r);
+      // Only allow same-origin paths starting with /app
+      return decoded.startsWith("/app") ? decoded : "/app";
+    } catch {
+      return "/app";
+    }
+  })();
 
-  // If an anonymous demo session is active, sign it out so the user can log in.
+  // If an anonymous demo session is active, sign it out once so the user can log in.
   // Only auto-redirect to /app for real (non-anonymous) users.
   useEffect(() => {
     if (!user) return;
     if (isAnon(user)) {
+      // Only sign out the anonymous session; the listener will clear `user` and
+      // this effect won't reschedule sign-out.
       supabase.auth.signOut();
-    } else {
-      navigate("/app");
+      return;
     }
-  }, [user, navigate]);
+    navigate(safeRedirect, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,17 +57,23 @@ const Auth = () => {
         await supabase.auth.signOut();
       }
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { emailRedirectTo: window.location.origin + "/app", data: { full_name: name } },
         });
         if (error) throw error;
+        // If email confirmation is required, no session is returned.
+        if (!data.session) {
+          setCheckEmail(true);
+          toast.success("Check your email to confirm your account.");
+          return;
+        }
         toast.success("Welcome to OrbitCRM!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
-      navigate("/app");
+      navigate(safeRedirect, { replace: true });
     } catch (err: any) {
       toast.error(err.message ?? "Something went wrong");
     } finally {
@@ -103,25 +124,37 @@ const Auth = () => {
             {mode === "signup" ? "Start tracking your orbit in seconds." : "Sign in to continue."}
           </p>
 
-          <form onSubmit={submit} className="mt-8 space-y-4">
-            {mode === "signup" && (
+          {checkEmail ? (
+            <div className="mt-8 surface-card p-5">
+              <h2 className="font-semibold">Check your email</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                We sent a confirmation link to <span className="text-foreground font-medium">{email}</span>. Open it to finish creating your account.
+              </p>
+              <Button variant="outline" className="mt-4 w-full" onClick={() => { setCheckEmail(false); setMode("signin"); }}>
+                Back to sign in
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={submit} className="mt-8 space-y-4">
+              {mode === "signup" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="name">Full name</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                </div>
+              )}
               <div className="space-y-1.5">
-                <Label htmlFor="name">Full name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
-            )}
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
-            </div>
-            <Button type="submit" className="w-full gradient-primary" disabled={loading}>
-              {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
-            </Button>
-          </form>
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
+              </div>
+              <Button type="submit" className="w-full gradient-primary" disabled={loading}>
+                {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
+              </Button>
+            </form>
+          )}
 
           <div className="mt-6 flex flex-col gap-3 text-sm">
             <button

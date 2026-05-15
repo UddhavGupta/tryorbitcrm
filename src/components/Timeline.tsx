@@ -21,11 +21,11 @@ type Props = {
 };
 
 type Event =
-  | { kind: "interaction"; date: Date; data: any }
-  | { kind: "reminder"; date: Date; data: any }
-  | { kind: "created"; date: Date; data: any }
-  | { kind: "birthday"; date: Date; data: { label: string; original: string } }
-  | { kind: "anniversary"; date: Date; data: { label: string; original: string } };
+  | { kind: "interaction"; key: string; date: Date; data: any }
+  | { kind: "reminder"; key: string; date: Date; data: any }
+  | { kind: "created"; key: string; date: Date; data: any }
+  | { kind: "birthday"; key: string; date: Date; data: { label: string; original: string } }
+  | { kind: "anniversary"; key: string; date: Date; data: { label: string; original: string } };
 
 const nextOccurrence = (mmdd: string, fromDate = new Date()): Date | null => {
   if (!mmdd) return null;
@@ -55,21 +55,21 @@ export const Timeline = ({
   const events = useMemo<Event[]>(() => {
     const list: Event[] = [];
 
-    interactions.forEach((i) => list.push({ kind: "interaction", date: parseISO(i.occurred_at), data: i }));
-    reminders.forEach((r) => list.push({ kind: "reminder", date: parseISO(r.due_date), data: r }));
+    interactions.forEach((i) => list.push({ kind: "interaction", key: `interaction-${i.id}`, date: parseISO(i.occurred_at), data: i }));
+    reminders.forEach((r) => list.push({ kind: "reminder", key: `reminder-${r.id}`, date: parseISO(r.due_date), data: r }));
 
     if (contact.created_at) {
-      list.push({ kind: "created", date: parseISO(contact.created_at), data: contact });
+      list.push({ kind: "created", key: `created-${contact.id}`, date: parseISO(contact.created_at), data: contact });
     }
 
     const horizon = addDays(new Date(), 90);
     if (contact.birthday) {
       const d = nextOccurrence(contact.birthday);
-      if (d && isBefore(d, horizon)) list.push({ kind: "birthday", date: d, data: { label: "Birthday", original: contact.birthday } });
+      if (d && isBefore(d, horizon)) list.push({ kind: "birthday", key: `birthday-${contact.id}`, date: d, data: { label: "Birthday", original: contact.birthday } });
     }
     if (contact.anniversary) {
       const d = nextOccurrence(contact.anniversary);
-      if (d && isBefore(d, horizon)) list.push({ kind: "anniversary", date: d, data: { label: "Anniversary", original: contact.anniversary } });
+      if (d && isBefore(d, horizon)) list.push({ kind: "anniversary", key: `anniversary-${contact.id}`, date: d, data: { label: "Anniversary", original: contact.anniversary } });
     }
 
     list.sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -93,8 +93,8 @@ export const Timeline = ({
         </div>
       ) : (
         <ol className="space-y-5 border-l border-border ml-1.5">
-          {events.map((e, idx) => (
-            <li key={`${e.kind}-${idx}`} className="relative pl-5">
+          {events.map((e) => (
+            <li key={e.key} className="relative pl-5">
               <Dot kind={e.kind} />
               <Item event={e}
                 onEditInteraction={onEditInteraction}

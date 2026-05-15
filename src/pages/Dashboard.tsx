@@ -11,6 +11,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { InlineEmpty } from "@/components/EmptyState";
 import { seedDemo } from "@/lib/demo";
 import { toast } from "sonner";
+import { todayLocalISO } from "@/lib/dates";
+import { isDemoUser } from "@/components/DemoBadge";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
@@ -31,7 +33,7 @@ const priorityRank = (p?: string) => (p === "high" ? 0 : p === "medium" ? 1 : 2)
 const Dashboard = () => {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = todayLocalISO();
 
   const { data: reminders } = useQuery({
     queryKey: ["reminders-today"],
@@ -70,8 +72,10 @@ const Dashboard = () => {
     },
   });
 
-  // Reach-outs: reminders + contacts with next_follow_up_date today/overdue
+  // Reach-outs: reminders + contacts with next_follow_up_date today/overdue.
+  // Dedupe: if a contact has both a reminder and a follow-up date, prefer the reminder row.
   const reachOuts = (() => {
+    const seenContacts = new Set<string>();
     const fromReminders = (reminders ?? []).map((r: any) => {
       const contactName = r.contacts ? [r.contacts.name, r.contacts.last_name].filter(Boolean).join(" ") : "";
       // Normalize titles like "Follow up with Owen" -> "Follow up" so the contact line below isn't redundant
@@ -80,6 +84,7 @@ const Dashboard = () => {
         title = title.replace(/\s+with\s+.+$/i, "");
       }
       if (!title) title = "Follow up";
+      if (r.contacts?.id) seenContacts.add(r.contacts.id);
       return {
         kind: "reminder" as const,
         id: r.id,
@@ -91,7 +96,7 @@ const Dashboard = () => {
       };
     });
     const fromContacts = (contacts ?? [])
-      .filter((c: any) => c.next_follow_up_date && c.next_follow_up_date <= todayStr)
+      .filter((c: any) => c.next_follow_up_date && c.next_follow_up_date <= todayStr && !seenContacts.has(c.id))
       .map((c: any) => ({
         kind: "contact" as const,
         id: c.id,
@@ -173,9 +178,10 @@ const Dashboard = () => {
         description="Your daily snapshot — who's due, who's drifting, what's coming up."
         actions={
           <>
-            {isEmpty ? (
+            {isEmpty && (
               <Button variant="outline" onClick={runDemo} className="flex-1 sm:flex-none"><Sparkles className="h-4 w-4 mr-2" />Load demo data</Button>
-            ) : (
+            )}
+            {!isEmpty && isDemoUser(user) && (
               <Button variant="outline" onClick={unloadDemo} className="flex-1 sm:flex-none"><Sparkles className="h-4 w-4 mr-2" />Unload demo data</Button>
             )}
             <Button asChild className="gradient-primary flex-1 sm:flex-none"><Link to="/app/people"><Plus className="h-4 w-4 mr-2" />Add contact</Link></Button>

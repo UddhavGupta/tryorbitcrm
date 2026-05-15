@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
+import { todayLocalISO } from "@/lib/dates";
 
 const schema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
@@ -30,7 +31,7 @@ type Props = {
 export const ReminderDialog = ({ open, onOpenChange, onSaved, reminder, defaultContactId, lockContact }: Props) => {
   const { user } = useAuth();
   const [form, setForm] = useState<any>({
-    title: "", due_date: new Date().toISOString().slice(0, 10),
+    title: "", due_date: todayLocalISO(),
     priority: "medium", contact_id: defaultContactId ?? "none", completed: false, notes: "",
   });
   const [saving, setSaving] = useState(false);
@@ -47,7 +48,7 @@ export const ReminderDialog = ({ open, onOpenChange, onSaved, reminder, defaultC
     if (reminder) {
       setForm({
         title: reminder.title ?? "",
-        due_date: reminder.due_date ?? new Date().toISOString().slice(0, 10),
+        due_date: reminder.due_date ?? todayLocalISO(),
         priority: reminder.priority ?? "medium",
         contact_id: reminder.contact_id ?? "none",
         completed: !!reminder.completed,
@@ -55,7 +56,7 @@ export const ReminderDialog = ({ open, onOpenChange, onSaved, reminder, defaultC
       });
     } else {
       setForm({
-        title: "", due_date: new Date().toISOString().slice(0, 10),
+        title: "", due_date: todayLocalISO(),
         priority: "medium", contact_id: defaultContactId ?? "none", completed: false, notes: "",
       });
     }

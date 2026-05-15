@@ -1,4 +1,5 @@
 import { differenceInDays, parseISO } from "date-fns";
+import { todayLocalISO } from "@/lib/dates";
 
 export type RelationshipStatus = "active" | "warming" | "cooling" | "cold" | "unknown";
 export type SuggestedAction =
@@ -57,7 +58,7 @@ export type IntelInput = {
 };
 
 export function getSuggestedAction(c: IntelInput): SuggestedAction {
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = todayLocalISO();
   const due = c.nextOpenReminderDue ?? null;
 
   if (due && due < todayStr) return "overdue_follow_up";

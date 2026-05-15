@@ -1,69 +1,74 @@
-# More CRM features
+## Stability & polish audit
 
-Four additions, each independently shippable. Only DB change is a `tags` column on `contacts` and a settings field for birthday lead-time.
+After reading through the app, here are the real bug-class issues I want to fix. Visual/feature work stays unchanged — this is purely correctness, safety, and resilience.
 
-## 1. Tags (free-form labels)
+### 1. Timezone bugs (highest impact)
 
-Per-contact, in addition to groups. Lighter weight — no separate page, just colored chips on the card.
+The app computes "today" as `new Date().toISOString().slice(0,10)` in many places. That's **UTC**, not the user's local date. For users west of UTC (e.g. US), reminders due "today" appear as "overdue" before midnight, birthdays jump a day, and `last_contacted_at` saved from a `<input type="date">` shifts back a day.
 
-- **Schema**: `contacts.tags TEXT[] NOT NULL DEFAULT '{}'`. GIN index for filtering.
-- **Edit**: in `ContactDialog`, a tag input with comma/Enter to add, Backspace to remove last. Suggests existing tags from the user's other contacts.
-- **Display**: small pill row on contact cards (People page) and contact detail header. Color derived deterministically from tag string.
-- **Filter**: tag picker in the People filters popover. Multi-select; matches contacts that have ALL selected tags.
+Fix:
+- Add `src/lib/dates.ts` with `todayLocalISO()`, `dateOnlyToISO(d)`, and `parseDateOnly(d)` helpers.
+- Replace every `new Date().toISOString().slice(0,10)` and `new Date(form.last_contacted_at).toISOString()` across `Dashboard.tsx`, `Reminders.tsx`, `People.tsx`, `Dates.tsx`, `ContactDialog.tsx`, `InteractionDialog.tsx`, `Timeline.tsx`.
 
-## 2. Contact timeline
+### 2. Dangerous "Unload demo data" button
 
-Unified chronological view on the contact detail page, replacing the two stacked "Interaction history" + "Reminders" lists.
+`Dashboard.tsx` shows **Unload demo data** whenever `totalContacts > 0` — for a real user with real data, one click wipes everything. No confirmation.
 
-- New `Timeline` section with merged events sorted by date desc:
-  - Interactions (from `interactions`)
-  - Reminders (due / completed events from `reminders`)
-  - Lifecycle: contact created, last_contacted_at changes (from contact metadata, no new table)
-  - Upcoming: birthday / anniversary entries shown at their dates within ±90 days
-- Each row has icon, label, relative date, and inline actions (edit/delete) where applicable.
-- Keep the existing add buttons ("Log interaction", "New reminder") above the timeline.
-- Old separate sections collapse into one. No DB changes.
+Fix: Only show the unload button if the current data actually came from the seed (e.g. matches sample emails) **or** wrap it in an `AlertDialog` with a typed-in confirmation. Simpler: only render it for anonymous demo sessions; everyone else gets sample data via `SampleDataButton` and can delete contacts manually.
 
-## 3. Birthday & anniversary auto-reminders
+### 3. Auth flow rough edges
 
-A daily background job that creates reminders N days before each contact's birthday or anniversary, deduped so it never creates twice.
+- `Auth.tsx` signs out anonymous users inside an effect that re-runs on every `user` change — can briefly show the form, then redirect, then sign out, then show form again.
+- `ProtectedRoute` redirects to `/` instead of `/auth`, losing the intended destination.
+- After `signUp`, if email confirmation is on, no session is returned but we still `navigate("/app")` → ProtectedRoute bounces back. Show a "check your email" state instead.
+- `AuthContext` sets `loading=false` from both the listener and `getSession()` — fine, but doesn't guard against an unmounted state update.
 
-- **Settings**: extend `profiles` with `birthday_lead_days INT DEFAULT 7` and `birthday_reminders_enabled BOOL DEFAULT true`. Tiny settings card on Dashboard or new `/app/settings` page (pick one — recommend Dashboard collapsible).
-- **Edge function** `birthday-reminders`: for each user with the flag on, find contacts whose `birthday` or `anniversary` (month/day) lands within the next `lead_days`. Insert a reminder with title `"🎂 {name}'s birthday on {date}"` if no open reminder with that title already exists.
-- **Schedule**: pg_cron job runs the function once a day at 8am UTC.
-- **Manual trigger**: a "Generate now" button in settings for testing.
+### 4. Reminder list — duplicate items on Dashboard
 
-## 4. Custom fields
+`reachOuts` merges `reminders` and `contacts.next_follow_up_date`. A contact with both shows twice. Dedupe by `contact.id` preferring the reminder row.
 
-Per-user-defined fields applied to all contacts. Stored as JSONB to avoid a schema migration per field.
+### 5. Timeline keys & sort stability
 
-- **Schema**:
-  - `contacts.custom JSONB NOT NULL DEFAULT '{}'`
-  - New table `custom_field_defs (id, user_id, key, label, type, position)` where type ∈ `text | longtext | url | date | number`. RLS on user_id.
-- **Settings UI** (new `/app/settings` route, or modal from UserMenu): list/add/reorder/delete custom field definitions. Max 12 fields per user.
-- **Contact dialog**: render dynamic inputs after the standard fields, grouped under "Custom".
-- **Contact detail**: render filled custom fields as a labeled definition list in the sidebar.
-- **Filtering / search**: out of scope for v1.
+`<li key={\`${e.kind}-${idx}\`}>` uses array index — when toggling a reminder, React reuses checkboxes for the wrong item briefly. Switch to stable IDs (`reminder-${id}`, `interaction-${id}`, `birthday-${contactId}`, etc).
 
-## Out of scope
+### 6. TagInput — case dedup and stale suggestions
 
-- LinkedIn enrichment (needs API key + adds external dependency — separate ask)
-- Tag colors editable per tag (auto-generated only)
-- Custom field validation rules beyond type
-- Per-tag pages
+- `allTags` aggregates raw strings, so "Mentor" and "mentor" appear as two suggestions. Normalize before deduping.
+- After saving a contact with a new tag, the `["all-tags"]` query isn't invalidated. Invalidate it from `ContactDialog.save()`.
 
-## Rollout order
+### 7. React Query defaults
 
-1. Tags (small, high value, single migration)
-2. Timeline (no DB changes, pure refactor of contact detail)
-3. Birthday auto-reminders (settings + edge function + cron — needs user to confirm cron schedule)
-4. Custom fields (new table + settings page — biggest scope)
+`new QueryClient()` with no defaults — every navigation refetches and flickers. Set sensible defaults:
+```ts
+defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: 1 } }
+```
 
-Ship 1+2 first, then 3, then 4. I'll start with #1 once approved.
+### 8. ErrorBoundary scope
 
-## Technical notes
+Currently wraps `<Routes>` only. A render error in `AuthProvider` or in providers above it kills the whole app with a blank screen. Move `<ErrorBoundary>` to the outermost spot (around `QueryClientProvider`) and keep a second one inside `<Routes>` so route errors don't take down the shell.
 
-- Tag color: hash tag string → pick from a fixed 8-color palette in design tokens.
-- Timeline events: build in a `useMemo` from existing queries; no extra query.
-- Edge function uses service role key (already configured) and iterates over users with reminders enabled.
-- Custom field keys are slugified (`a-z0-9_`) and unique per user.
+### 9. Silent query failures
+
+Several `useQuery` callers ignore `error` (e.g. `openReminders`, `allTags`, `groups` on the reminders page). Add a small toast on error or surface a row banner so users know something failed instead of seeing empty data.
+
+### 10. CSV import — large insert safety
+
+`ImportCsvDialog` inserts up to 500 rows in one `insert`. Chunk into batches of 100, show a progress count, and roll back groups if contact insert fails partway. Also, when the same contact file is imported twice, we currently dupe — add a "skip if email matches existing" toggle (off by default, so behavior is unchanged for users who don't opt in).
+
+### Out of scope
+
+- New features (custom fields, birthday auto-reminders) — deferred from earlier plan.
+- Visual redesign.
+- Test suite — happy to add Vitest coverage in a follow-up if useful.
+
+### Rollout order
+
+1. Timezone helpers + replace usages (biggest correctness win).
+2. Dashboard unload-demo guard + Auth/ProtectedRoute redirect fixes.
+3. Dashboard reach-out dedupe + Timeline keys.
+4. TagInput dedup + invalidation.
+5. QueryClient defaults + ErrorBoundary move.
+6. Silent error surfacing.
+7. CSV chunking + dedupe option.
+
+Each step is small and ships independently — no destructive migrations, no breaking changes.

@@ -10,10 +10,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
 import { TagInput } from "@/components/TagInput";
+import { dateOnlyToISO } from "@/lib/dates";
 
 type Props = {
   open: boolean;
@@ -51,6 +52,7 @@ const empty = {
 export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOnCreate = true }: Props) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [form, setForm] = useState<any>(empty);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -122,7 +124,7 @@ export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOn
       priority: form.priority || "medium",
       cooling_days: Number(form.cooling_days) || 30,
       next_follow_up_date: form.next_follow_up_date || null,
-      last_contacted_at: form.last_contacted_at ? new Date(form.last_contacted_at).toISOString() : null,
+      last_contacted_at: dateOnlyToISO(form.last_contacted_at),
       tags: Array.isArray(form.tags) ? form.tags.filter((t: string) => t && t.trim().length > 0) : [],
       user_id: user.id,
     };
@@ -162,6 +164,7 @@ export const ContactDialog = ({ open, onOpenChange, onSaved, contact, navigateOn
     }
 
     setSaving(false);
+    qc.invalidateQueries({ queryKey: ["all-tags"] });
     toast.success(contact ? "Contact updated" : "Contact added");
     onSaved();
     onOpenChange(false);

@@ -4,7 +4,7 @@ import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { normalizeTag, tagClasses } from "@/lib/tags";
+import { normalizeTag, tagClasses, dedupeTags } from "@/lib/tags";
 
 type Props = {
   value: string[];
@@ -23,9 +23,9 @@ export const TagInput = ({ value, onChange, placeholder = "Add tag and press Ent
     enabled: !!user,
     queryFn: async () => {
       const { data } = await supabase.from("contacts").select("tags").eq("user_id", user!.id);
-      const set = new Set<string>();
-      (data ?? []).forEach((c: any) => (c.tags ?? []).forEach((t: string) => set.add(t)));
-      return Array.from(set).sort();
+      const flat: string[] = [];
+      (data ?? []).forEach((c: any) => (c.tags ?? []).forEach((t: string) => flat.push(t)));
+      return dedupeTags(flat);
     },
   });
 
