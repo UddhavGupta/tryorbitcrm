@@ -209,7 +209,8 @@ const People = () => {
     (followUp !== "all" ? 1 : 0) +
     (openReminder !== "all" ? 1 : 0) +
     (statusFilter !== "all" ? 1 : 0) +
-    (actionFilter !== "all" ? 1 : 0);
+    (actionFilter !== "all" ? 1 : 0) +
+    (tagFilter.length > 0 ? 1 : 0);
 
   const clearAll = () => {
     setQ("");
@@ -221,6 +222,7 @@ const People = () => {
     setOpenReminder("all");
     setStatusFilter("all");
     setActionFilter("all");
+    setTagFilter([]);
   };
 
   const lastContactedLabel = (c: any) => {
