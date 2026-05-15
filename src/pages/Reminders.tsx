@@ -138,8 +138,54 @@ const Reminders = () => {
     toast.success("Reminder deleted");
   };
 
-  const activeFilterCount = (dueFilter !== "all" ? 1 : 0) + (highOnly ? 1 : 0) + (groupFilter !== "all" ? 1 : 0);
-  const clearAll = () => { setDueFilter("all"); setHighOnly(false); setGroupFilter("all"); };
+  const snooze = async (r: any, days: number) => {
+    const base = parseISO(r.due_date);
+    const today = new Date();
+    const start = base > today ? base : today;
+    const next = dateToLocalISO(addDays(start, days));
+    const { error } = await supabase.from("reminders").update({ due_date: next }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    invalidate();
+    toast.success(`Snoozed ${days === 1 ? "1 day" : days === 7 ? "1 week" : `${days} days`}`);
+  };
+
+  const submitQuick = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quick.trim() || !user) return;
+    const parsed = parseQuickReminder(quick);
+    const { error } = await supabase.from("reminders").insert({
+      user_id: user.id,
+      title: parsed.title,
+      due_date: parsed.due_date,
+      priority: "medium",
+    });
+    if (error) return toast.error(error.message);
+    setQuick("");
+    setQuickPreview(null);
+    invalidate();
+    toast.success("Reminder added");
+  };
+
+  const onQuickChange = (v: string) => {
+    setQuick(v);
+    if (v.trim().length > 1) setQuickPreview(parseQuickReminder(v));
+    else setQuickPreview(null);
+  };
+
+  const sections = useMemo(() => {
+    if (tab !== "open" || !grouped) return null;
+    const todayStr = todayLocalISO();
+    const today = new Date();
+    const wkEnd = dateToLocalISO(endOfWeek(today, { weekStartsOn: 1 }));
+    const buckets = { overdue: [] as any[], today: [] as any[], week: [] as any[], later: [] as any[] };
+    filteredAndSorted.forEach((r: any) => {
+      if (r.due_date < todayStr) buckets.overdue.push(r);
+      else if (r.due_date === todayStr) buckets.today.push(r);
+      else if (r.due_date <= wkEnd) buckets.week.push(r);
+      else buckets.later.push(r);
+    });
+    return buckets;
+  }, [filteredAndSorted, tab, grouped]);
 
   return (
     <AppLayout>
