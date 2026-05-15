@@ -257,7 +257,7 @@ const People = () => {
   useEffect(() => { selection.clear(); }, [q]);
 
   const quickUpdate = async (id: string, patch: Record<string, any>, label: string) => {
-    const { error } = await supabase.from("contacts").update(patch).eq("id", id);
+    const { error } = await (supabase.from("contacts").update(patch as any) as any).eq("id", id);
     if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["contacts"] });
     qc.invalidateQueries({ queryKey: ["contact", id] });
