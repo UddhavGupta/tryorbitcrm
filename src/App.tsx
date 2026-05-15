@@ -20,6 +20,7 @@ import Changelog from "./pages/Changelog";
 import About from "./pages/About";
 import UseCase from "./pages/UseCase";
 import Press from "./pages/Press";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/demo" element={<Demo />} />
               <Route path="/project-notes" element={<ProjectNotes />} />
               <Route path="/changelog" element={<Changelog />} />
               <Route path="/about" element={<About />} />

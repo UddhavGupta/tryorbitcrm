@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { PlayCircle, ArrowLeft } from "lucide-react";
 import logo from "@/assets/orbitcrm-logo.png";
-import { startDemo } from "@/lib/startDemo";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -61,18 +60,6 @@ const Auth = () => {
     }
   };
 
-  const handleStartDemo = async () => {
-    setLoading(true);
-    toast.loading("Spinning up demo…", { id: "demo" });
-    try {
-      await startDemo();
-      toast.success("Demo ready", { id: "demo" });
-      navigate("/app");
-    } catch (e: any) {
-      toast.error(e?.message ?? "Could not start demo", { id: "demo" });
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
@@ -96,8 +83,8 @@ const Auth = () => {
           <p className="mt-3 text-muted-foreground max-w-md">
             Reviewers can skip sign-up and explore with seeded sample contacts.
           </p>
-          <Button onClick={handleStartDemo} disabled={loading} variant="outline" className="mt-5">
-            <PlayCircle className="mr-2 h-4 w-4" />Start Demo instead
+          <Button asChild variant="outline" className="mt-5">
+            <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
           </Button>
         </div>
         <div className="text-xs text-muted-foreground">© {new Date().getFullYear()} OrbitCRM · A portfolio project by Uddhav Gupta</div>
@@ -144,8 +131,8 @@ const Auth = () => {
             >
               {mode === "signup" ? "Already have an account? Sign in" : "New here? Create an account"}
             </button>
-            <Button onClick={handleStartDemo} disabled={loading} variant="outline" size="sm" className="lg:hidden">
-              <PlayCircle className="mr-2 h-4 w-4" />Or try the demo (no signup)
+            <Button asChild variant="outline" size="sm" className="lg:hidden">
+              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Or try the demo (no signup)</Link>
             </Button>
           </div>
 
