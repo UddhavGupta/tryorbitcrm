@@ -67,7 +67,7 @@ const Landing = () => {
               <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
             </Button>
             <Button size="lg" asChild className="gradient-primary w-full sm:w-auto">
-              <Link to="/auth?mode=signup">Sign Up <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
           <button
@@ -78,6 +78,7 @@ const Landing = () => {
             <Link2 className="h-3 w-3" /> Copy shareable demo link
           </button>
           <p className="mt-2 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
+          <p className="mt-6 text-sm text-muted-foreground/80 italic">Built for the people whose careers compound on relationships.</p>
         </div>
       </section>
 
