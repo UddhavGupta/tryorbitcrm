@@ -43,11 +43,7 @@ const Dates = () => {
         description="Birthdays and anniversaries across your network."
       />
 
-      {isLoading && (
-        <div className="surface-card p-10 flex flex-col items-center text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin mb-2" /><p className="text-sm">Loading dates…</p>
-        </div>
-      )}
+      {isLoading && <RowListSkeleton count={6} />}
 
       {error && <ErrorState title="Couldn't load dates" message={(error as Error).message} />}
 
