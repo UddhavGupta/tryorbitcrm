@@ -99,6 +99,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
                   to={l.to}
                   end={l.end as any}
                   data-tour={l.tour}
+                  onMouseEnter={() => prefetchFor(qc, l.prefetch)}
+                  onFocus={() => prefetchFor(qc, l.prefetch)}
                   className={({ isActive }) =>
                     `relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                       isActive
