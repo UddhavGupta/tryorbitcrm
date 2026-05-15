@@ -265,7 +265,9 @@ const Dashboard = () => {
         <div className="animate-fade-up-delay-2">
           <Section title="Cooling alerts" icon={Snowflake} count={cooling.length}>
             {cooling.length === 0 ? (
-              <InlineEmpty text="All your relationships are warm." />
+              <InlineEmpty text="All your relationships are warm." action={
+                <Button variant="outline" size="sm" asChild><Link to="/app/people">Browse people</Link></Button>
+              } />
             ) : (
               <>
                 <ul className="divide-y divide-border -mx-1">
