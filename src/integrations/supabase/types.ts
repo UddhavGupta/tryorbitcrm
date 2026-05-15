@@ -192,16 +192,19 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          onboarded_at: string | null
         }
         Insert: {
           created_at?: string
           full_name?: string | null
           id: string
+          onboarded_at?: string | null
         }
         Update: {
           created_at?: string
           full_name?: string | null
           id?: string
+          onboarded_at?: string | null
         }
         Relationships: []
       }

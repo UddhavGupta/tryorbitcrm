@@ -1,6 +1,7 @@
-import { LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon, PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTour } from "@/components/Tour";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
@@ -11,6 +12,7 @@ import demoAvatar from "@/assets/demo-avatar.png";
 export const UserMenu = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { start: startTour } = useTour();
   const email = user?.email ?? "Guest";
   const initial = (email ?? "?").charAt(0).toUpperCase();
   const isAnon = !!user && ((user as any).is_anonymous === true || (user as any).app_metadata?.provider === "anonymous");
@@ -37,6 +39,12 @@ export const UserMenu = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {!isAnon && (
+          <DropdownMenuItem onClick={() => startTour()}>
+            <PlayCircle className="h-4 w-4 mr-2" />
+            Replay tour
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           className="text-destructive focus:text-destructive"
           onClick={async () => { await signOut(); navigate("/"); }}

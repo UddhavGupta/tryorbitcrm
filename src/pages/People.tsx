@@ -14,6 +14,7 @@ import { ContactDialog } from "@/components/ContactDialog";
 import { ImportCsvDialog } from "@/components/ImportCsvDialog";
 import { CardListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
+import { SampleDataButton } from "@/components/SampleDataButton";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, type RelationshipStatus, type SuggestedAction,
@@ -397,7 +398,10 @@ const People = () => {
           </div>
           <h3 className="text-lg font-semibold">Your orbit is empty</h3>
           <p className="text-muted-foreground mt-1 max-w-sm mx-auto">Add the first person you want to keep in touch with — friends, founders, recruiters, anyone.</p>
-          <Button onClick={() => setOpen(true)} className="gradient-primary mt-5"><Plus className="h-4 w-4 mr-2" />Add your first contact</Button>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <Button onClick={() => setOpen(true)} className="gradient-primary"><Plus className="h-4 w-4 mr-2" />Add your first contact</Button>
+            <SampleDataButton />
+          </div>
         </div>
       )}
 

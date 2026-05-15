@@ -14,6 +14,7 @@ import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RowListSkeleton, ErrorState } from "@/components/LoadingStates";
 import { PageHeader } from "@/components/PageHeader";
+import { SampleDataButton } from "@/components/SampleDataButton";
 import { toast } from "sonner";
 
 type DueFilter = "all" | "today" | "overdue" | "week";
@@ -234,9 +235,12 @@ const Reminders = () => {
           {activeFilterCount > 0 ? (
             <Button onClick={clearAll} variant="outline" className="mt-5">Clear filters</Button>
           ) : tab === "open" && (
-            <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gradient-primary mt-5">
-              <Plus className="h-4 w-4 mr-2" />New reminder
-            </Button>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="gradient-primary">
+                <Plus className="h-4 w-4 mr-2" />New reminder
+              </Button>
+              <SampleDataButton />
+            </div>
           )}
         </div>
       )}
