@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { SEO } from "@/components/SEO";
 
 const Auth = () => {
   const [params] = useSearchParams();
@@ -75,6 +76,12 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
+      <SEO
+        title={mode === "signup" ? "Sign up — OrbitCRM" : "Sign in — OrbitCRM"}
+        description="Sign in to OrbitCRM or start the demo to explore a personal CRM with seeded sample contacts."
+        path="/auth"
+        noindex
+      />
       <div className="hidden lg:flex relative gradient-soft p-12 flex-col justify-between">
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="OrbitCRM" className="h-8 w-auto object-contain" />
