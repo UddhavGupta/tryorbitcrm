@@ -235,6 +235,19 @@ const People = () => {
     return `${days} days ago`;
   };
 
+  const markContactedToday = async (e: React.MouseEvent, c: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const { error } = await supabase
+      .from("contacts")
+      .update({ last_contacted_at: new Date().toISOString() })
+      .eq("id", c.id);
+    if (error) { toast.error(error.message); return; }
+    qc.invalidateQueries({ queryKey: ["contacts"] });
+    qc.invalidateQueries({ queryKey: ["dashboard-contacts"] });
+    toast.success(`Marked ${[c.name, c.last_name].filter(Boolean).join(" ")} contacted today`);
+  };
+
   return (
     <AppLayout>
       <PageHeader
