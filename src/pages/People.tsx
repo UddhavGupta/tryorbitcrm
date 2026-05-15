@@ -635,10 +635,34 @@ const People = () => {
       )}
 
       <ContactDialog open={open} onOpenChange={setOpen} onSaved={() => qc.invalidateQueries({ queryKey: ["contacts"] })} />
+      <ContactDialog
+        open={!!editingContact}
+        onOpenChange={(o) => !o && setEditingContact(null)}
+        contact={editingContact}
+        onSaved={() => qc.invalidateQueries({ queryKey: ["contacts"] })}
+      />
       <ImportCsvDialog open={importOpen} onOpenChange={setImportOpen} onImported={() => {
         qc.invalidateQueries({ queryKey: ["contacts"] });
         qc.invalidateQueries({ queryKey: ["all-groups"] });
       }} />
+
+      <BulkActionBar
+        selectedIds={Array.from(selection.ids)}
+        contacts={filtered}
+        groups={allGroups ?? []}
+        onClear={selection.clear}
+      />
+
+      {selection.count > 0 && filtered.length > 0 && (
+        <div className="fixed top-20 right-4 z-30 surface-card px-3 py-1.5 text-xs text-muted-foreground shadow-[var(--shadow-elevated)] flex items-center gap-2">
+          <button
+            className="hover:text-foreground"
+            onClick={() => selection.add(filtered.map((c: any) => c.id))}
+          >
+            Select all visible ({filtered.length})
+          </button>
+        </div>
+      )}
     </AppLayout>
   );
 };
