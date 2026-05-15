@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, parseISO, differenceInDays } from "date-fns";
-import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock } from "lucide-react";
+import { format, parseISO, differenceInDays, addDays, isAfter, isBefore } from "date-fns";
+import { ArrowLeft, Cake, Linkedin, Mail, MapPin, Pencil, Phone, Plus, Trash2, Loader2, AlertCircle, CalendarClock, Bell, CheckCircle2, UserPlus, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
@@ -15,6 +15,7 @@ import { ReminderDialog, priorityClasses } from "@/components/ReminderDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { tagClasses } from "@/lib/tags";
 import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER,
