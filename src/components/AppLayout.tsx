@@ -184,6 +184,9 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
         </header>
         <main key={location.pathname} className="container py-6 md:py-10 flex-1 animate-fade-in">{children}</main>
         <AppFooter />
+        <HotkeysHelp open={helpOpen} onOpenChange={setHelpOpen} />
+        <ContactDialog open={contactOpen} onOpenChange={setContactOpen} onSaved={() => qc.invalidateQueries({ queryKey: ["contacts"] })} />
+        <ReminderDialog open={reminderOpen} onOpenChange={setReminderOpen} reminder={null} onSaved={() => qc.invalidateQueries({ queryKey: ["reminders"] })} />
       </div>
     </TourProvider>
   );
