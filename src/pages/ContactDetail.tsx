@@ -263,6 +263,8 @@ const ContactDetail = () => {
               className="mt-4 w-full"
               onClick={() => {
                 setEditingInteraction(null);
+                const lastDate = contact.last_contacted_at ? format(parseISO(contact.last_contacted_at), "MMM d, yyyy") : "—";
+                setInteractionDraft(`Quick check-in — last connected ${lastDate}.\nTalking points:\n- `);
                 setInteractionOpen(true);
               }}
             >
