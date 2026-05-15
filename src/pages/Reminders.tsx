@@ -28,14 +28,18 @@ type SortBy = "due" | "priority" | "name";
 const Reminders = () => {
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [tab, setTab] = useState<"open" | "completed">("open");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [quick, setQuick] = useState("");
+  const [quickPreview, setQuickPreview] = useState<{ title: string; due_date: string } | null>(null);
 
   const [dueFilter, setDueFilter] = useState<DueFilter>("all");
   const [highOnly, setHighOnly] = useState(false);
   const [groupFilter, setGroupFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortBy>("due");
+  const [grouped, setGrouped] = useState(true);
 
   const { data: reminders, isLoading, error } = useQuery({
     queryKey: ["reminders"],
