@@ -187,6 +187,9 @@ const Reminders = () => {
     return buckets;
   }, [filteredAndSorted, tab, grouped]);
 
+  const activeFilterCount = (dueFilter !== "all" ? 1 : 0) + (highOnly ? 1 : 0) + (groupFilter !== "all" ? 1 : 0);
+  const clearAll = () => { setDueFilter("all"); setHighOnly(false); setGroupFilter("all"); };
+
   return (
     <AppLayout>
       <PageHeader
