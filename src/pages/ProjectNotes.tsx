@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, PlayCircle, Github, Linkedin, Globe } from "luci
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/orbitcrm-logo.png";
 import { PORTFOLIO_DISCLAIMER } from "@/components/AppFooter";
+import { SEO } from "@/components/SEO";
 
 const TARGET_USERS = [
   "Job seekers", "MBA students", "Founders", "Operators",
@@ -46,6 +47,11 @@ const ROADMAP = [
 const ProjectNotes = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title="Project Notes — OrbitCRM"
+        description="Behind-the-scenes notes on OrbitCRM: scope, decisions, limitations, and the thinking behind a personal CRM portfolio project."
+        path="/project-notes"
+      />
       {/* Top nav */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container py-4 flex items-center justify-between gap-4">

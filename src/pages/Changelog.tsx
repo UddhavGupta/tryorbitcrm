@@ -3,6 +3,7 @@ import { ArrowLeft, PlayCircle, Github, Linkedin, Globe, CheckCircle2, Sparkles 
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/orbitcrm-logo.png";
 import { PORTFOLIO_DISCLAIMER } from "@/components/AppFooter";
+import { SEO } from "@/components/SEO";
 
 type Release = {
   version: string;
@@ -82,6 +83,11 @@ const RELEASES: Release[] = [
 const Changelog = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title="Changelog — OrbitCRM"
+        description="A running log of how OrbitCRM evolved — what shipped, what changed, and what's planned next."
+        path="/changelog"
+      />
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container py-4 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2.5">
