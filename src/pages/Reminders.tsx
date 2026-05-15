@@ -202,6 +202,24 @@ const Reminders = () => {
         }
       />
 
+      {tab === "open" && (
+        <form onSubmit={submitQuick} className="surface-card p-3 mb-4 flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary shrink-0 ml-1" />
+          <Input
+            value={quick}
+            onChange={(e) => onQuickChange(e.target.value)}
+            placeholder="Quick add — try 'Call Sarah tomorrow' or 'Email Pat in 3 days'"
+            className="border-0 shadow-none focus-visible:ring-0 px-1"
+          />
+          {quickPreview && quick.trim() && (
+            <span className="hidden sm:inline text-xs text-muted-foreground whitespace-nowrap">
+              → {format(parseISO(quickPreview.due_date), "EEE, MMM d")}
+            </span>
+          )}
+          <Button type="submit" size="sm" disabled={!quick.trim()} className="gradient-primary shrink-0">Add</Button>
+        </form>
+      )}
+
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="mb-4">
         <TabsList>
           <TabsTrigger value="open">Open ({open.length})</TabsTrigger>
