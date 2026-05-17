@@ -7,7 +7,7 @@ import { Logo } from "@/components/Logo";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
 import { Reveal, RevealStagger } from "@/components/Reveal";
-import { AnimatedDashboard } from "@/components/landing/AnimatedDashboard";
+import { OrbitConstellation } from "@/components/landing/OrbitConstellation";
 
 import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
 import { DigestPreview } from "@/components/landing/DigestPreview";
