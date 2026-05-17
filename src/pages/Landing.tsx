@@ -320,52 +320,59 @@ const priorityDot: Record<"high" | "med" | "low", string> = {
 
 // Rotating word in the hero. Alternates between English people-types and
 // translations of "everyone" so foreign words never cluster together.
-const ENGLISH_WORDS = [
-  "everyone",
-  "friends",
-  "colleagues",
-  "mentors",
-  "classmates",
-  "investors",
-  "recruiters",
-  "family",
-  "alumni",
-  "neighbors",
+// Weighted pools. Higher weight = appears more often. Common, relatable roles
+// (friends, mentors, colleagues) surface more; niche ones (neighbors, alumni)
+// stay rare for variety.
+const ENGLISH_WORDS: Array<[string, number]> = [
+  ["everyone", 10],
+  ["friends", 9],
+  ["mentors", 8],
+  ["colleagues", 7],
+  ["family", 6],
+  ["classmates", 4],
+  ["recruiters", 4],
+  ["investors", 3],
+  ["alumni", 2],
+  ["neighbors", 1],
 ];
-// Translations of "everyone" across many languages and scripts.
-// Kept as a flat pool so each pick is independent — alternation with English
-// ensures foreign words never appear back-to-back.
-const FOREIGN_WORDS = [
-  "सबको",          // Hindi (Devanagari)
-  "tout le monde", // French (Latin)
-  "semua orang",   // Indonesian (Latin)
-  "每个人",         // Chinese (Han)
-  "todos",         // Spanish (Latin)
-  "みんな",         // Japanese (Hiragana)
-  "모두",           // Korean (Hangul)
-  "الجميع",         // Arabic
-  "כולם",           // Hebrew
-  "всех",          // Russian (Cyrillic)
-  "όλους",         // Greek
-  "ทุกคน",          // Thai
-  "tutti",          // Italian (Latin)
-  "alle",          // German (Latin)
-  "todos vocês",   // Portuguese (Latin)
-  "herkes",        // Turkish (Latin)
-  "எல்லோரும்",      // Tamil
-  "সবাইকে",         // Bengali
-  "ਸਾਰਿਆਂ",         // Punjabi (Gurmukhi)
-  "ಎಲ್ಲರೂ",         // Kannada
-  "ทั้งหมด",         // Thai alt
-  "усіх",          // Ukrainian (Cyrillic)
-  "mọi người",     // Vietnamese
-  "alla",          // Swedish (Latin)
-  "iedereen",      // Dutch (Latin)
+// Translations of "everyone" across many languages and scripts. Weighted so
+// widely-recognized languages appear more often, rarer scripts sprinkle in.
+const FOREIGN_WORDS: Array<[string, number]> = [
+  ["tout le monde", 6], // French
+  ["todos", 6],          // Spanish
+  ["सबको", 5],            // Hindi
+  ["每个人", 5],          // Chinese
+  ["みんな", 5],          // Japanese
+  ["semua orang", 4],   // Indonesian
+  ["모두", 4],            // Korean
+  ["tutti", 4],          // Italian
+  ["alle", 3],          // German
+  ["всех", 3],          // Russian
+  ["الجميع", 3],         // Arabic
+  ["mọi người", 3],     // Vietnamese
+  ["todos vocês", 3],   // Portuguese
+  ["herkes", 2],        // Turkish
+  ["כולם", 2],           // Hebrew
+  ["όλους", 2],         // Greek
+  ["ทุกคน", 2],          // Thai
+  ["সবাইকে", 2],         // Bengali
+  ["எல்லோரும்", 1],      // Tamil
+  ["ਸਾਰਿਆਂ", 1],         // Punjabi
+  ["ಎಲ್ಲರೂ", 1],         // Kannada
+  ["усіх", 1],          // Ukrainian
+  ["alla", 1],          // Swedish
+  ["iedereen", 1],      // Dutch
 ];
 
-function pickRandom<T>(pool: T[], exclude?: T): T {
-  const choices = exclude ? pool.filter((w) => w !== exclude) : pool;
-  return choices[Math.floor(Math.random() * choices.length)];
+function pickWeighted(pool: Array<[string, number]>, exclude?: string): string {
+  const choices = exclude ? pool.filter(([w]) => w !== exclude) : pool;
+  const total = choices.reduce((sum, [, w]) => sum + w, 0);
+  let r = Math.random() * total;
+  for (const [word, weight] of choices) {
+    r -= weight;
+    if (r <= 0) return word;
+  }
+  return choices[choices.length - 1][0];
 }
 
 const RotatingWord = () => {
