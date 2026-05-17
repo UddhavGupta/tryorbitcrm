@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -33,6 +33,16 @@ const RouteFallback = () => (
   <div className="min-h-screen bg-background" aria-hidden="true" />
 );
 
+/** Fades each route in on navigation so transitions don't feel snappy/jarring. */
+const AnimatedRoutes = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="animate-fade-in motion-reduce:animate-none">
+      {children}
+    </div>
+  );
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -43,24 +53,27 @@ const App = () => (
           <AuthProvider>
             <ErrorBoundary>
               <Suspense fallback={<RouteFallback />}>
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/demo" element={<Demo />} />
-                  <Route path="/project-notes" element={<ProjectNotes />} />
-                  <Route path="/changelog" element={<Changelog />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/for/:slug" element={<UseCase />} />
-                  <Route path="/press" element={<Press />} />
-                  <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                  <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
-                  <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
-                  <Route path="/app/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
-                  <Route path="/app/dates" element={<ProtectedRoute><Dates /></ProtectedRoute>} />
-                  <Route path="/app/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <AnimatedRoutes>
+                  <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/demo" element={<Demo />} />
+                    <Route path="/project-notes" element={<ProjectNotes />} />
+                    <Route path="/changelog" element={<Changelog />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/for/:slug" element={<UseCase />} />
+                    <Route path="/press" element={<Press />} />
+                    <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
+                    <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
+                    <Route path="/app/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
+                    <Route path="/app/dates" element={<ProtectedRoute><Dates /></ProtectedRoute>} />
+                    <Route path="/app/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </AnimatedRoutes>
               </Suspense>
+
             </ErrorBoundary>
           </AuthProvider>
         </BrowserRouter>
