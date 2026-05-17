@@ -334,7 +334,7 @@ const DashboardPreview = () => (
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Dashboard</p>
           <h3 className="font-display text-xl md:text-2xl mt-0.5">Good morning, Uddhav</h3>
         </div>
-        <span className="hidden sm:inline text-xs text-muted-foreground">Tuesday, May 5</span>
+        <span className="hidden sm:inline text-xs text-muted-foreground">{new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</span>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
