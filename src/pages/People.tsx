@@ -309,7 +309,7 @@ const People = () => {
       <PageHeader
         title="People"
         description="Search, filter, and manage the relationships in your orbit."
-        meta={`${contacts?.length ?? 0} contacts`}
+        meta={`${totalContacts} contacts`}
         actions={
           <>
             <Button variant="outline" onClick={() => setImportOpen(true)} className="flex-1 sm:flex-none"><Upload className="h-4 w-4 mr-2" />Import CSV</Button>
