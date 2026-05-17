@@ -190,13 +190,16 @@ export const OrbitConstellation = () => {
               transformOrigin: `${CENTER}px ${CENTER}px`,
               animation: `orbit-spin ${ring.duration}s linear infinite`,
               animationDirection: ring.direction === 1 ? "normal" : "reverse",
+              animationPlayState: paused ? "paused" : "running",
             }}
           >
             {CONTACTS.filter((c) => c.ring === ringIdx).map((c) => {
               const rad = (c.angle * Math.PI) / 180;
               const x = CENTER + ring.radius * Math.cos(rad);
               const y = CENTER + ring.radius * Math.sin(rad);
-              const featured = c.id === featuredId;
+              const featured = c.id === activeId;
+              const isHovered = c.id === hoveredId;
+              const isPinned = c.id === pinnedId;
               return (
                 <g
                   key={c.id}
@@ -205,8 +208,34 @@ export const OrbitConstellation = () => {
                     animation: `orbit-counter ${ring.duration}s linear infinite`,
                     animationDirection:
                       ring.direction === 1 ? "reverse" : "normal",
+                    animationPlayState: paused ? "paused" : "running",
+                    cursor: "pointer",
                   }}
+                  onMouseEnter={() => setHoveredId(c.id)}
+                  onMouseLeave={() =>
+                    setHoveredId((prev) => (prev === c.id ? null : prev))
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPinnedId((prev) => (prev === c.id ? null : c.id));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setPinnedId((prev) => (prev === c.id ? null : c.id));
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${c.name}. ${c.reason}. Click to ${
+                    isPinned ? "close" : "pin"
+                  } preview.`}
+                  aria-pressed={isPinned}
+                  className="focus:outline-none focus-visible:[&>circle:nth-of-type(1)]:stroke-primary"
                 >
+                  {/* Larger invisible hit target — orbit dots are small */}
+                  <circle cx={x} cy={y} r={22} fill="transparent" />
+
                   {featured && (
                     <>
                       <circle cx={x} cy={y} r={36} fill="url(#orb-warm)" />
@@ -225,12 +254,16 @@ export const OrbitConstellation = () => {
                   <circle
                     cx={x}
                     cy={y}
-                    r={featured ? 18 : 15}
+                    r={featured ? 18 : isHovered ? 17 : 15}
                     fill={featured ? "hsl(var(--primary))" : "hsl(var(--card))"}
-                    stroke={featured ? "hsl(var(--primary))" : "hsl(var(--border))"}
-                    strokeWidth={1.25}
-                    className={c.dim && !featured ? "opacity-60" : ""}
-                    style={{ transition: "all 400ms ease-out" }}
+                    stroke={
+                      featured || isHovered
+                        ? "hsl(var(--primary))"
+                        : "hsl(var(--border))"
+                    }
+                    strokeWidth={isHovered && !featured ? 1.75 : 1.25}
+                    className={c.dim && !featured && !isHovered ? "opacity-60" : ""}
+                    style={{ transition: "all 240ms ease-out" }}
                   />
                   <text
                     x={x}
@@ -245,25 +278,34 @@ export const OrbitConstellation = () => {
                       fill: featured
                         ? "hsl(var(--primary-foreground))"
                         : "hsl(var(--muted-foreground))",
-                      transition: "fill 400ms ease-out",
+                      transition: "fill 240ms ease-out",
+                      pointerEvents: "none",
                     }}
                   >
                     {c.initials}
                   </text>
-                  {featured && (
-                    <CalloutAnchor
-                      x={x}
-                      y={y}
-                      visible={calloutVisible}
-                      name={c.name}
-                      reason={c.reason}
-                    />
-                  )}
                 </g>
               );
             })}
           </g>
         ))}
+
+        {/* Single callout that follows the active contact. Rendered outside
+            the rotating rings so it stays upright and readable. Position is
+            recomputed from the contact's static angle + current ring rotation
+            inside CalloutForActive. */}
+        {activeContact && (
+          <CalloutForActive
+            contact={activeContact}
+            visible={calloutVisible}
+            pinned={!!pinnedId && pinnedId === activeContact.id}
+            paused={paused}
+            onClose={() => {
+              setPinnedId(null);
+              setHoveredId(null);
+            }}
+          />
+        )}
       </svg>
 
       <style>{`
