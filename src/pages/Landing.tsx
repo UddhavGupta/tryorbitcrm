@@ -338,30 +338,10 @@ const ENGLISH_WORDS: Array<[string, number]> = [
 // Translations of "everyone" across many languages and scripts. Weighted so
 // widely-recognized languages appear more often, rarer scripts sprinkle in.
 const FOREIGN_WORDS: Array<[string, number]> = [
-  ["tout le monde", 6], // French
-  ["todos", 6],          // Spanish
-  ["सबको", 5],            // Hindi
-  ["每个人", 5],          // Chinese
-  ["みんな", 5],          // Japanese
-  ["semua orang", 4],   // Indonesian
-  ["모두", 4],            // Korean
-  ["tutti", 4],          // Italian
-  ["alle", 3],          // German
-  ["всех", 3],          // Russian
-  ["الجميع", 3],         // Arabic
-  ["mọi người", 3],     // Vietnamese
-  ["todos vocês", 3],   // Portuguese
-  ["herkes", 2],        // Turkish
-  ["כולם", 2],           // Hebrew
-  ["όλους", 2],         // Greek
-  ["ทุกคน", 2],          // Thai
-  ["সবাইকে", 2],         // Bengali
-  ["எல்லோரும்", 1],      // Tamil
-  ["ਸਾਰਿਆਂ", 1],         // Punjabi
-  ["ಎಲ್ಲರೂ", 1],         // Kannada
-  ["усіх", 1],          // Ukrainian
-  ["alla", 1],          // Swedish
-  ["iedereen", 1],      // Dutch
+  ["सबको", 1],          // Hindi
+  ["tout le monde", 1], // French
+  ["semua orang", 1],   // Bahasa Indonesia
+  ["每个人", 1],         // Mandarin
 ];
 
 function pickWeighted(pool: Array<[string, number]>, exclude: string[] = []): string {
