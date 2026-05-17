@@ -83,9 +83,17 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
 
   const isAnon = !!user && ((user as any).is_anonymous === true || (user as any).app_metadata?.provider === "anonymous");
 
-  // Auto-start tour for new real users (no onboarded_at yet)
+  // Auto-start tour for new real users (no onboarded_at yet), and always for demo users once per session
   useEffect(() => {
-    if (!user || isAnon) return;
+    if (!user) return;
+    if (isAnon) {
+      const key = `orbit_demo_tour_shown_${user.id}`;
+      if (!sessionStorage.getItem(key)) {
+        setShouldStartTour(true);
+        sessionStorage.setItem(key, "1");
+      }
+      return;
+    }
     let cancelled = false;
     (async () => {
       const { data } = await supabase
@@ -100,9 +108,9 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
   }, [user, isAnon]);
 
   const markOnboarded = async () => {
+    setShouldStartTour(false);
     if (!user || isAnon) return;
     await supabase.from("profiles").update({ onboarded_at: new Date().toISOString() }).eq("id", user.id);
-    setShouldStartTour(false);
   };
 
   const handleLoadSample = async () => {
