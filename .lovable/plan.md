@@ -1,89 +1,33 @@
-# Landing v2 — "Quietly Premium"
+# Stabilize the rotating hero word on mobile
 
-Goal: same warm/editorial soul, but with depth, motion, and proof. Notion/Superhuman energy.
+## Problem (verified visually at 320 / 375 / 1366)
 
-## 1. Hero + live dashboard preview
+Two of the four foreign phrases (`tout le monde`, `semua orang`) wrap **mid-phrase** on narrow viewports, splitting the headline into 3 lines and causing the dashboard below to jump as the word rotates. Single-word picks (English + Devanagari + CJK + Japanese) render fine on the baseline at every size.
 
-**Headline area**
-- Keep the rotating word, add a soft animated aurora-style gradient blob behind the headline (very low opacity, slow drift). Adds depth without noise.
-- Tighten the CTA row: primary button gets a 1px gradient border + subtle inner glow on hover. Secondary stays ghost.
-- Add a thin "trusted by" strip under the CTAs — 4–5 monospaced labels ("Students at Stanford, NYU, BITS · Founders in YC, On Deck") instead of fake logos (honest for a portfolio project).
+## Fix
 
-**Dashboard mock → alive**
-- Wrap in a tilted/floating container with a soft radial gradient halo behind it.
-- Animate on a 3–4s loop:
-  - "Today's reach-outs" count ticks 3 → 4 with a new row sliding in.
-  - A birthday row flips "Today" → "🎉 sent" after a beat.
-  - Cooling counter increments "47d cold" → "48d cold" with a subtle pulse.
-- Add scroll-parallax: dashboard lifts ~20px as user scrolls past hero.
-- Reflection/fade at the bottom edge so it looks like it's floating on a surface.
+Two small, additive changes to `src/pages/Landing.tsx` (`RotatingWord` component):
 
-## 2. Scroll-reveal & micro-animations (page-wide)
+1. **Keep multi-word phrases atomic.** Add `whitespace-nowrap` to the rotating `<span>`. That makes the browser wrap *around* the phrase (between "Remember" and "tout le monde"), never inside it. Worst case the headline still grows to 3 lines on 320px, but the phrase stays intact.
 
-- Every section: fade-up + 16px translate on enter, staggered for grids (50ms between cards). Use IntersectionObserver, one shared hook.
-- Cards (`surface-card`): tilt-on-hover (max 4° via CSS transform), shadow expands, primary tint warms.
-- Number/stat moments: count-up animation when scrolled into view.
-- Sticky header already done — add a subtle shadow + tighter padding once scrolled >40px.
-- All animations respect `prefers-reduced-motion`.
+2. **Hide rare-wrap phrases on the smallest screens.** For viewports under ~360px, swap `tout le monde` and `semua orang` for shorter variants from the same languages so the headline stays 2 lines:
+   - French: `tous` (instead of `tout le monde`)
+   - Indonesian: `kawan` (instead of `semua orang`)
 
-## 3. Restructure content (proof + trust)
+   Implementation: define two parallel `FOREIGN_WORDS` arrays — one full, one mobile-safe — and pick from the right pool based on `window.matchMedia("(max-width: 380px)")` evaluated on mount and on resize.
 
-Current page has redundancy. New order:
+3. **No layout-shift padding hack needed.** Because the headline already centers and the wrapper isn't fixed-width, `whitespace-nowrap` alone solves the jitter; we don't need a reserved min-width.
 
-```text
-Hero (animated dashboard)
-  ↓
-Trusted-by strip (honest labels)
-  ↓
-Product tour — 3-screenshot carousel
-   (People view · Contact detail · Reminders)
-  ↓
-"Three steps to a warmer network" (keep, polish icons)
-  ↓
-Weekly digest preview
-   ("This is what lands in your inbox Monday morning")
-   — mock email card with 3 reach-outs, 1 birthday, 1 cooling alert
-  ↓
-"Built for network-heavy people" (keep)
-  ↓
-Testimonials — 3 portfolio quotes, framed as honest
-   ("Used during my MBA recruiting — Anya, '26")
-  ↓
-FAQ — 5 questions
-   (Is my data private? · Can I import contacts? · Is it really free?
-    · Does it sync with LinkedIn? · Why not just a spreadsheet?)
-  ↓
-Final CTA + footer
-```
+## What we are NOT changing
 
-**Dropped:** Comparison table (Spreadsheets / Big CRMs / OrbitCRM) — duplicates "Why OrbitCRM" message. Merge its best line ("Built around relationships, not deals") into hero subtitle area.
+- Baseline alignment for CJK / Devanagari — that's font-rendering behavior, not a fix worth chasing.
+- Rotation cadence, weights, or memory windows.
+- The animation (`blur + slide + fade`).
+- The existing visual regression test still passes; we'll extend it with one new assertion that the rotating span carries `whitespace-nowrap`.
 
-**Dropped:** The 3 KPI strip ("0 setup / Private / Demo in 5s") — moves into FAQ answers where it belongs.
+## Verification
 
-## 4. Typography & visual system polish
-
-- **One oversized stat moment** between sections: "Remember 12,400 birthdays. Never miss one again." Set in display serif at ~96px, centered, lots of whitespace.
-- **Vary section rhythm**: alternate eyebrow placement (centered, then left-aligned, then no eyebrow at all). Stops the templated feel.
-- **Custom duotone icons** for the 3 "how it works" steps — hand-styled SVGs in primary + primary-soft, not Lucide. Same for feature grid.
-- **Section dividers**: thin gradient hairlines instead of hard borders.
-- **Card depth tokens**: add `--shadow-lift-sm` and `--shadow-lift-md` to index.css. Replace ad-hoc shadows.
-- **Footer**: add a final big serif sign-off ("Stay in orbit.") above the columns.
-
-## Technical notes
-
-- New hook: `useInView` (IntersectionObserver wrapper) — used by all reveal components.
-- New component: `AnimatedDashboard` — replaces current `DashboardPreview`. Uses `useState` + `setInterval` for the loop; pauses when off-screen.
-- New components: `ScreenshotCarousel`, `DigestPreview`, `Testimonials`, `Faq`, `BigStat`, `RevealOnScroll`.
-- All animations use Tailwind classes + CSS keyframes already in `tailwind.config.ts`; no new deps.
-- Mocked screenshots for the carousel: build them as React components (same approach as current dashboard mock) so they stay crisp and themable.
-- All copy stays honest about being a portfolio project — testimonials labeled as scenarios, not real users.
-
-## What I'm explicitly NOT changing
-
-- Brand colors, fonts, or the rotating-word component (already working).
-- Routing, auth, or any app functionality.
-- The portfolio disclaimer (kept prominent).
-
-## Rollout
-
-Single PR replacing `src/pages/Landing.tsx` plus the new components above. Existing visual regression test (`landing-headline.test.tsx`) keeps passing — extended with one new check that the hero dashboard renders without `overflow-hidden` ancestors clipping it.
+After the fix, re-screenshot at 320 / 375 / 1366 across at least 6 rotations and confirm:
+- The headline stays at 2 lines on 375 and above for every word.
+- No mid-phrase wrap on 320.
+- All existing tests still green.
