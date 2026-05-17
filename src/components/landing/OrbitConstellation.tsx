@@ -205,7 +205,7 @@ export const OrbitConstellation = () => {
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [calloutVisible, setCalloutVisible] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [pinnedId, setPinnedId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   // Initial fade-in after mount.
   useEffect(() => {
@@ -213,9 +213,9 @@ export const OrbitConstellation = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // Auto-rotate featured contact, unless the user has pinned or is hovering one.
+  // Auto-rotate featured contact, unless the modal is open or a dot is hovered.
   useEffect(() => {
-    if (pinnedId || hoveredId) return;
+    if (openId || hoveredId) return;
     const interval = setInterval(() => {
       setCalloutVisible(false);
       setTimeout(() => {
@@ -224,31 +224,31 @@ export const OrbitConstellation = () => {
       }, FADE_MS);
     }, ROTATE_MS);
     return () => clearInterval(interval);
-  }, [pinnedId, hoveredId]);
+  }, [openId, hoveredId]);
 
-  // Make the callout snap visible when the active contact comes from
-  // a hover or pin (instead of the timed fade).
+  // Make the callout snap visible when a hover changes the active contact.
   useEffect(() => {
-    if (pinnedId || hoveredId) setCalloutVisible(true);
-  }, [pinnedId, hoveredId]);
+    if (hoveredId) setCalloutVisible(true);
+  }, [hoveredId]);
 
-  // The active contact: pinned beats hovered beats the rotation.
-  const activeId = pinnedId ?? hoveredId ?? FEATURED_ORDER[featuredIdx];
-  // Pause orbit rotation while the user is interacting so dots stay clickable.
-  const paused = !!hoveredId || !!pinnedId;
+  // The active (spotlit) contact for the callout: hover beats the rotation.
+  const activeId = hoveredId ?? FEATURED_ORDER[featuredIdx];
+  // Pause orbit rotation while the user is hovering so dots stay clickable.
+  const paused = !!hoveredId;
+
+  const openContact = CONTACTS.find((c) => c.id === openId) ?? null;
 
   return (
     <div className="relative mx-auto w-full max-w-3xl aspect-square">
-      {/* Click-away layer: when a contact is pinned, clicking the empty
-          backdrop unpins. Doesn't block dot clicks because it sits below the SVG. */}
-      {pinnedId && (
-        <button
-          type="button"
-          aria-label="Close contact preview"
-          onClick={() => setPinnedId(null)}
-          className="absolute inset-0 z-0 cursor-default"
-        />
-      )}
+      {/* Soft aurora wash behind the orbits */}
+      <div
+        aria-hidden
+        className="absolute inset-[10%] rounded-full opacity-70 blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.22), transparent 65%)",
+        }}
+      />
       {/* Soft aurora wash behind the orbits */}
       <div
         aria-hidden
