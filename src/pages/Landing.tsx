@@ -364,8 +364,11 @@ const FOREIGN_WORDS: Array<[string, number]> = [
   ["iedereen", 1],      // Dutch
 ];
 
-function pickWeighted(pool: Array<[string, number]>, exclude?: string): string {
-  const choices = exclude ? pool.filter(([w]) => w !== exclude) : pool;
+function pickWeighted(pool: Array<[string, number]>, exclude: string[] = []): string {
+  const excludeSet = new Set(exclude);
+  let choices = pool.filter(([w]) => !excludeSet.has(w));
+  // Safety: if exclusions wipe out the pool, fall back to the full pool.
+  if (choices.length === 0) choices = pool;
   const total = choices.reduce((sum, [, w]) => sum + w, 0);
   let r = Math.random() * total;
   for (const [word, weight] of choices) {
@@ -375,25 +378,35 @@ function pickWeighted(pool: Array<[string, number]>, exclude?: string): string {
   return choices[choices.length - 1][0];
 }
 
+// How many recent picks to avoid repeating, per pool. Sized to roughly half
+// the pool so rotation stays fresh without exhausting variety.
+const ENGLISH_MEMORY = 5;
+const FOREIGN_MEMORY = 8;
+
 const RotatingWord = () => {
   const [word, setWord] = useState("everyone");
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     let isForeignNext = true;
-    let lastEnglish: string | undefined = "everyone";
-    let lastForeign: string | undefined;
+    const recentEnglish: string[] = ["everyone"];
+    const recentForeign: string[] = [];
+
+    const remember = (list: string[], word: string, max: number) => {
+      list.push(word);
+      while (list.length > max) list.shift();
+    };
 
     const swap = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
         let next: string;
         if (isForeignNext) {
-          next = pickWeighted(FOREIGN_WORDS, lastForeign);
-          lastForeign = next;
+          next = pickWeighted(FOREIGN_WORDS, recentForeign);
+          remember(recentForeign, next, FOREIGN_MEMORY);
         } else {
-          next = pickWeighted(ENGLISH_WORDS, lastEnglish);
-          lastEnglish = next;
+          next = pickWeighted(ENGLISH_WORDS, recentEnglish);
+          remember(recentEnglish, next, ENGLISH_MEMORY);
         }
         isForeignNext = !isForeignNext;
         setWord(next);
