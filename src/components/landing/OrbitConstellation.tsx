@@ -337,7 +337,6 @@ export const OrbitConstellation = () => {
               const y = CENTER + ring.radius * Math.sin(rad);
               const featured = c.id === activeId;
               const isHovered = c.id === hoveredId;
-              const isPinned = c.id === pinnedId;
               return (
                 <g
                   key={c.id}
@@ -355,20 +354,17 @@ export const OrbitConstellation = () => {
                   }
                   onClick={(e) => {
                     e.stopPropagation();
-                    setPinnedId((prev) => (prev === c.id ? null : c.id));
+                    setOpenId(c.id);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      setPinnedId((prev) => (prev === c.id ? null : c.id));
+                      setOpenId(c.id);
                     }
                   }}
                   tabIndex={0}
                   role="button"
-                  aria-label={`${c.name}. ${c.reason}. Click to ${
-                    isPinned ? "close" : "pin"
-                  } preview.`}
-                  aria-pressed={isPinned}
+                  aria-label={`Open profile for ${c.name}. ${c.reason}`}
                   className="focus:outline-none focus-visible:[&>circle:nth-of-type(1)]:stroke-primary"
                 >
                   {/* Larger invisible hit target — orbit dots are small */}
@@ -431,12 +427,7 @@ export const OrbitConstellation = () => {
                       meta={c.meta}
                       reason={c.reason}
                       badge={c.badge}
-                      pinned={isPinned}
-                      onClose={(e) => {
-                        e.stopPropagation();
-                        setPinnedId(null);
-                        setHoveredId(null);
-                      }}
+                      onOpen={() => setOpenId(c.id)}
                     />
                   )}
                 </g>
@@ -445,6 +436,12 @@ export const OrbitConstellation = () => {
           </g>
         ))}
       </svg>
+
+      {/* Contact profile modal */}
+      <ContactProfileDialog
+        contact={openContact}
+        onOpenChange={(o) => !o && setOpenId(null)}
+      />
 
       <style>{`
         @keyframes orbit-spin {
