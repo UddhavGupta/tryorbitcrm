@@ -7,7 +7,7 @@ import { Logo } from "@/components/Logo";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
 import { Reveal, RevealStagger } from "@/components/Reveal";
-import { AnimatedDashboard } from "@/components/landing/AnimatedDashboard";
+import { OrbitConstellation } from "@/components/landing/OrbitConstellation";
 
 import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
 import { DigestPreview } from "@/components/landing/DigestPreview";
@@ -87,9 +87,9 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Animated dashboard preview */}
+      {/* Orbit constellation — branded hero visual */}
       <section className="container pb-12 md:pb-16 animate-fade-up-delay-2">
-        <AnimatedDashboard />
+        <OrbitConstellation />
       </section>
 
       {/* Product tour — moved up so visitors see real screens right under the hero */}
