@@ -92,10 +92,6 @@ export const OrbitConstellation = () => {
 
   // The active contact: pinned beats hovered beats the rotation.
   const activeId = pinnedId ?? hoveredId ?? FEATURED_ORDER[featuredIdx];
-  const activeContact = useMemo(
-    () => CONTACTS.find((c) => c.id === activeId),
-    [activeId],
-  );
   // Pause orbit rotation while the user is interacting so dots stay clickable.
   const paused = !!hoveredId || !!pinnedId;
 
