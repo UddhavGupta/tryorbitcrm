@@ -389,10 +389,10 @@ const RotatingWord = () => {
       setTimeout(() => {
         let next: string;
         if (isForeignNext) {
-          next = pickRandom(FOREIGN_WORDS, lastForeign);
+          next = pickWeighted(FOREIGN_WORDS, lastForeign);
           lastForeign = next;
         } else {
-          next = pickRandom(ENGLISH_WORDS, lastEnglish);
+          next = pickWeighted(ENGLISH_WORDS, lastEnglish);
           lastEnglish = next;
         }
         isForeignNext = !isForeignNext;
