@@ -318,9 +318,9 @@ const priorityDot: Record<"high" | "med" | "low", string> = {
   low: "bg-muted-foreground/40",
 };
 
-// Rotating word in the hero. Base is "everyone" (English) so the meaning stays obvious;
-// it then cycles through related people-types and occasional translations.
-const ROTATING_WORDS = [
+// Rotating word in the hero. Alternates between English people-types and
+// translations of "everyone" so foreign words never cluster together.
+const ENGLISH_WORDS = [
   "everyone",
   "friends",
   "colleagues",
@@ -329,25 +329,45 @@ const ROTATING_WORDS = [
   "investors",
   "recruiters",
   "family",
-  // Translations of "everyone" — appear less frequently because the list returns to base often
-  "सबको", // Hindi
-  "everyone",
-  "tout le monde", // French
-  "everyone",
-  "semua orang", // Indonesian
-  "everyone",
-  "每个人", // Chinese
+  "alumni",
+  "neighbors",
+];
+const FOREIGN_WORDS = [
+  "सबको",
+  "tout le monde",
+  "semua orang",
+  "每个人",
+  "todos",
+  "みんな",
 ];
 
+function pickRandom<T>(pool: T[], exclude?: T): T {
+  const choices = exclude ? pool.filter((w) => w !== exclude) : pool;
+  return choices[Math.floor(Math.random() * choices.length)];
+}
+
 const RotatingWord = () => {
-  const [idx, setIdx] = useState(0);
+  const [word, setWord] = useState("everyone");
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    let isForeignNext = true;
+    let lastEnglish: string | undefined = "everyone";
+    let lastForeign: string | undefined;
+
     const swap = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
-        setIdx((i) => (i + 1) % ROTATING_WORDS.length);
+        let next: string;
+        if (isForeignNext) {
+          next = pickRandom(FOREIGN_WORDS, lastForeign);
+          lastForeign = next;
+        } else {
+          next = pickRandom(ENGLISH_WORDS, lastEnglish);
+          lastEnglish = next;
+        }
+        isForeignNext = !isForeignNext;
+        setWord(next);
         setVisible(true);
       }, 280);
     }, 2200);
@@ -357,12 +377,12 @@ const RotatingWord = () => {
   return (
     <span className="relative inline-block align-baseline">
       <span
-        key={idx}
+        key={word}
         className={`italic text-primary inline-block transition-all duration-300 ${
           visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
         }`}
       >
-        {ROTATING_WORDS[idx]}
+        {word}
       </span>
     </span>
   );
