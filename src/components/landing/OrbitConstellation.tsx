@@ -345,7 +345,9 @@ const CalloutAnchor = ({
   y,
   visible,
   name,
+  meta,
   reason,
+  badge,
   pinned = false,
   onClose,
 }: {
@@ -353,19 +355,23 @@ const CalloutAnchor = ({
   y: number;
   visible: boolean;
   name: string;
+  meta?: string;
   reason: string;
+  badge?: string;
   pinned?: boolean;
   onClose?: (e: React.MouseEvent) => void;
 }) => {
   // Flip the callout toward the center side so it stays inside the frame.
+  // A bit more breathing room from the dot than before.
   const flipX = x > CENTER ? -1 : 1;
-  const offset = 70;
-  const tx = x + offset * flipX;
-  const ty = y - offset;
+  const offsetX = 92;
+  const offsetY = 92;
+  const tx = x + offsetX * flipX;
+  const ty = y - offsetY;
 
-  const cardW = 220;
-  const cardH = pinned ? 96 : 64;
-  const cardX = flipX === 1 ? tx - 4 : tx - cardW + 4;
+  const cardW = 232;
+  const cardH = pinned ? 116 : 86;
+  const cardX = flipX === 1 ? tx - 6 : tx - cardW + 6;
   const cardY = ty - cardH / 2;
 
   return (
@@ -376,38 +382,55 @@ const CalloutAnchor = ({
         pointerEvents: visible ? "auto" : "none",
       }}
     >
+      {/* connector: thin dashed line + a tiny anchor dot on the card side */}
       <line
         x1={x}
         y1={y}
         x2={tx}
         y2={ty}
         stroke="hsl(var(--primary))"
-        strokeOpacity={0.5}
+        strokeOpacity={0.45}
         strokeWidth={1}
         strokeDasharray="2 3"
       />
+      <circle cx={tx} cy={ty} r={2.5} fill="hsl(var(--primary))" />
+
       <foreignObject x={cardX} y={cardY} width={cardW} height={cardH}>
         <div
-          className="rounded-xl border border-border bg-card/95 px-3 py-2 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.35)] backdrop-blur"
+          className="rounded-2xl border border-border bg-card/95 px-3.5 py-2.5 shadow-[0_14px_36px_-14px_hsl(var(--primary)/0.4)] backdrop-blur"
           style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-2">
-            <p className="text-[11px] font-semibold tracking-tight text-foreground truncate">
-              {name}
-            </p>
-            {pinned && onClose && (
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close preview"
-                className="text-muted-foreground hover:text-foreground text-[14px] leading-none -mt-0.5 -mr-1 px-1"
-              >
-                ×
-              </button>
-            )}
+            <div className="min-w-0">
+              {meta && (
+                <p className="text-[9px] uppercase tracking-[0.12em] text-muted-foreground/80 font-medium truncate">
+                  {meta}
+                </p>
+              )}
+              <p className="text-[12px] font-semibold tracking-tight text-foreground truncate leading-tight mt-0.5">
+                {name}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              {badge && (
+                <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold leading-none">
+                  {badge}
+                </span>
+              )}
+              {pinned && onClose && (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close preview"
+                  className="text-muted-foreground hover:text-foreground text-[14px] leading-none px-1"
+                >
+                  ×
+                </button>
+              )}
+            </div>
           </div>
-          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5 line-clamp-2">
+          <p className="text-[10.5px] text-muted-foreground leading-snug mt-1.5 line-clamp-2">
             {reason}
           </p>
           {pinned && (
