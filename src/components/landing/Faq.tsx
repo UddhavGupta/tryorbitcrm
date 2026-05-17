@@ -3,10 +3,6 @@ import { Plus, Minus } from "lucide-react";
 
 const ITEMS: { q: string; a: string }[] = [
   {
-    q: "Is my data private?",
-    a: "Yes. Your contacts live in your account only — nobody else can see them, and they're never shared, sold, or used to train models. Authentication and storage run on a managed backend with row-level security.",
-  },
-  {
     q: "Is it really free?",
     a: "Yes. This is a portfolio project, so it's free to use. No credit card, no upsell.",
   },
