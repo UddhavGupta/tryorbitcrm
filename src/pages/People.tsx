@@ -36,6 +36,7 @@ type ActionFilter = "all" | SuggestedAction;
 
 const People = () => {
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<any>(null);
