@@ -397,11 +397,13 @@ const RotatingWord = () => {
   }, []);
 
   return (
-    <span className="relative inline-block align-baseline">
+    <span className="relative inline-block align-baseline overflow-hidden pb-1">
       <span
         key={word}
-        className={`italic text-primary inline-block transition-all duration-300 ${
-          visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+        className={`italic text-primary inline-block will-change-transform transition-[opacity,transform,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          visible
+            ? "opacity-100 translate-y-0 blur-0"
+            : "opacity-0 translate-y-3 blur-sm"
         }`}
       >
         {word}
