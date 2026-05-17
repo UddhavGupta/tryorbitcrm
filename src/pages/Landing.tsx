@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send } from "lucide-react";
+import { ArrowRight, PlayCircle, Github, Linkedin, Globe } from "lucide-react";
+import { AddPersonHand, NotebookHand, SendHand } from "@/components/landing/HandDrawnIcons";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
@@ -87,17 +88,15 @@ const Landing = () => {
       </section>
 
       {/* Animated dashboard preview */}
-      <section className="container pb-16 md:pb-24 animate-fade-up-delay-2">
+      <section className="container pb-12 md:pb-16 animate-fade-up-delay-2">
         <AnimatedDashboard />
         <p className="text-center text-xs text-muted-foreground mt-6">
           Live preview · pauses when offscreen
         </p>
       </section>
 
-      <TrustedStrip />
-
-      {/* Product tour */}
-      <section className="container py-20 md:py-28">
+      {/* Product tour — moved up so visitors see real screens right under the hero */}
+      <section className="container pb-20 md:pb-28">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto mb-12">
             <p className="eyebrow-primary">Product tour</p>
@@ -108,6 +107,8 @@ const Landing = () => {
           <ScreenshotCarousel />
         </Reveal>
       </section>
+
+      <TrustedStrip />
 
       <div className="container"><div className="divider-hairline" /></div>
 
@@ -121,14 +122,14 @@ const Landing = () => {
         </Reveal>
         <RevealStagger className="mt-12 grid md:grid-cols-3 gap-6" step={100}>
           {[
-            { icon: UserPlus, num: "01", title: "Add people", desc: "Capture the contacts who matter — recruiters, alumni, investors, classmates, mentors." },
-            { icon: NotebookPen, num: "02", title: "Capture context", desc: "Notes, groups, priorities, birthdays, and why each relationship matters." },
-            { icon: Send, num: "03", title: "Follow up at the right time", desc: "Reminders and cooling alerts surface who needs attention today." },
+            { icon: AddPersonHand, num: "01", title: "Add people", desc: "Capture the contacts who matter — recruiters, alumni, investors, classmates, mentors." },
+            { icon: NotebookHand, num: "02", title: "Capture context", desc: "Notes, groups, priorities, birthdays, and why each relationship matters." },
+            { icon: SendHand, num: "03", title: "Follow up at the right time", desc: "Reminders and cooling alerts surface who needs attention today." },
           ].map((s) => (
             <div key={s.title} className="surface-card p-7 lift relative h-full">
               <span className="text-[10px] font-mono tracking-widest text-primary/70 num-tabular">{s.num}</span>
-              <div className="h-10 w-10 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center mt-3 mb-4">
-                <s.icon className="h-5 w-5 text-primary" />
+              <div className="h-14 w-14 rounded-2xl bg-[hsl(var(--primary-soft))] grid place-items-center mt-3 mb-4">
+                <s.icon className="h-9 w-9" />
               </div>
               <h3 className="font-semibold text-lg">{s.title}</h3>
               <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.desc}</p>
