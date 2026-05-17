@@ -244,7 +244,7 @@ const People = () => {
       return 0;
     });
     return sorted;
-  }, [contacts, q, groupFilter, priority, companyFilter, lastRange, followUp, openReminder, openReminders, statusFilter, actionFilter, sortBy, tagFilter]);
+  }, [contacts, priority, lastRange, followUp, openReminder, openReminders, statusFilter, actionFilter, sortBy, tagFilter]);
 
   const fullName = (c: any) => [c.name, c.last_name].filter(Boolean).join(" ");
   const activeGroupName = allGroups?.find((g: any) => g.id === groupFilter)?.name;
