@@ -87,9 +87,9 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Animated dashboard preview */}
+      {/* Orbit constellation — branded hero visual */}
       <section className="container pb-12 md:pb-16 animate-fade-up-delay-2">
-        <AnimatedDashboard />
+        <OrbitConstellation />
       </section>
 
       {/* Product tour — moved up so visitors see real screens right under the hero */}
