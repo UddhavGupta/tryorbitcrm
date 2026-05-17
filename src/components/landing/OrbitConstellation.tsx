@@ -333,9 +333,10 @@ export const OrbitConstellation = () => {
 };
 
 /**
- * Callout card pinned to the featured dot. Uses foreignObject so the card
- * gets crisp HTML typography, then auto-flips its anchor based on where the
- * dot sits in the viewBox so it never falls off-canvas.
+ * Callout card pinned to the active dot. Uses foreignObject so the card
+ * gets crisp HTML typography. Auto-flips its anchor based on where the
+ * dot sits in the viewBox so it never falls off-canvas. When `pinned`,
+ * grows to show a "View profile" CTA + close button.
  */
 const CalloutAnchor = ({
   x,
@@ -343,22 +344,25 @@ const CalloutAnchor = ({
   visible,
   name,
   reason,
+  pinned = false,
+  onClose,
 }: {
   x: number;
   y: number;
   visible: boolean;
   name: string;
   reason: string;
+  pinned?: boolean;
+  onClose?: (e: React.MouseEvent) => void;
 }) => {
   // Flip the callout toward the center side so it stays inside the frame.
   const flipX = x > CENTER ? -1 : 1;
-  const flipY = y > CENTER ? -1 : 1;
   const offset = 70;
   const tx = x + offset * flipX;
-  const ty = y + offset * flipY * -1; // prefer "up" off the dot
+  const ty = y - offset;
 
-  const cardW = 210;
-  const cardH = 64;
+  const cardW = 220;
+  const cardH = pinned ? 96 : 64;
   const cardX = flipX === 1 ? tx - 4 : tx - cardW + 4;
   const cardY = ty - cardH / 2;
 
@@ -367,6 +371,7 @@ const CalloutAnchor = ({
       style={{
         opacity: visible ? 1 : 0,
         transition: `opacity ${FADE_MS}ms ease-out`,
+        pointerEvents: visible ? "auto" : "none",
       }}
     >
       <line
@@ -383,13 +388,35 @@ const CalloutAnchor = ({
         <div
           className="rounded-xl border border-border bg-card/95 px-3 py-2 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.35)] backdrop-blur"
           style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <p className="text-[11px] font-semibold tracking-tight text-foreground truncate">
-            {name}
-          </p>
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-[11px] font-semibold tracking-tight text-foreground truncate">
+              {name}
+            </p>
+            {pinned && onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close preview"
+                className="text-muted-foreground hover:text-foreground text-[14px] leading-none -mt-0.5 -mr-1 px-1"
+              >
+                ×
+              </button>
+            )}
+          </div>
           <p className="text-[10px] text-muted-foreground leading-tight mt-0.5 line-clamp-2">
             {reason}
           </p>
+          {pinned && (
+            <Link
+              to="/demo"
+              onClick={(e) => e.stopPropagation()}
+              className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
+            >
+              Open profile <ArrowRight className="h-3 w-3" />
+            </Link>
+          )}
         </div>
       </foreignObject>
     </g>
