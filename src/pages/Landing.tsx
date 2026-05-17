@@ -122,14 +122,14 @@ const Landing = () => {
         </Reveal>
         <RevealStagger className="mt-12 grid md:grid-cols-3 gap-6" step={100}>
           {[
-            { icon: UserPlus, num: "01", title: "Add people", desc: "Capture the contacts who matter — recruiters, alumni, investors, classmates, mentors." },
-            { icon: NotebookPen, num: "02", title: "Capture context", desc: "Notes, groups, priorities, birthdays, and why each relationship matters." },
-            { icon: Send, num: "03", title: "Follow up at the right time", desc: "Reminders and cooling alerts surface who needs attention today." },
+            { icon: AddPersonHand, num: "01", title: "Add people", desc: "Capture the contacts who matter — recruiters, alumni, investors, classmates, mentors." },
+            { icon: NotebookHand, num: "02", title: "Capture context", desc: "Notes, groups, priorities, birthdays, and why each relationship matters." },
+            { icon: SendHand, num: "03", title: "Follow up at the right time", desc: "Reminders and cooling alerts surface who needs attention today." },
           ].map((s) => (
             <div key={s.title} className="surface-card p-7 lift relative h-full">
               <span className="text-[10px] font-mono tracking-widest text-primary/70 num-tabular">{s.num}</span>
-              <div className="h-10 w-10 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center mt-3 mb-4">
-                <s.icon className="h-5 w-5 text-primary" />
+              <div className="h-14 w-14 rounded-2xl bg-[hsl(var(--primary-soft))] grid place-items-center mt-3 mb-4">
+                <s.icon className="h-9 w-9" />
               </div>
               <h3 className="font-semibold text-lg">{s.title}</h3>
               <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.desc}</p>
