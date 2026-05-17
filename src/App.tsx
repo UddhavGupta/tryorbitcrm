@@ -33,6 +33,16 @@ const RouteFallback = () => (
   <div className="min-h-screen bg-background" aria-hidden="true" />
 );
 
+/** Fades each route in on navigation so transitions don't feel snappy/jarring. */
+const AnimatedRoutes = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="animate-fade-in motion-reduce:animate-none">
+      {children}
+    </div>
+  );
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
