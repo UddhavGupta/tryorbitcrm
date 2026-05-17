@@ -192,14 +192,22 @@ const Dashboard = () => {
 
   const runDemo = async () => {
     if (!user) return;
+    if (!isDemoUser(user)) {
+      toast.error("Demo data can only be loaded in a demo session.");
+      return;
+    }
     toast.loading("Loading demo data…", { id: "seed" });
-    await seedDemo(user.id);
+    await seedDemo(user.id, { requireAnonymous: true });
     qc.invalidateQueries();
     toast.success("Demo data loaded", { id: "seed" });
   };
 
   const unloadDemo = async () => {
     if (!user) return;
+    if (!isDemoUser(user)) {
+      toast.error("This action is only available in a demo session.");
+      return;
+    }
     toast.loading("Unloading demo data…", { id: "seed" });
     await supabase.from("reminders").delete().eq("user_id", user.id);
     await supabase.from("interactions").delete().eq("user_id", user.id);
