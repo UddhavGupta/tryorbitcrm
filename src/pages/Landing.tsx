@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Zap, Lock, Sparkles, Check, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
@@ -44,7 +44,7 @@ const Landing = () => {
             <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Personal CRM, reimagined
           </span>
           <h1 className="display-xl mt-6 md:text-7xl tracking-tight animate-fade-up">
-            Remember everyone <br />
+            Remember <RotatingWord /> <br />
             <span className="italic text-primary">in your orbit.</span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2 animate-fade-up-delay-1">
@@ -316,6 +316,56 @@ const priorityDot: Record<"high" | "med" | "low", string> = {
   high: "bg-primary",
   med: "bg-amber-500",
   low: "bg-muted-foreground/40",
+};
+
+// Rotating word in the hero. Base is "everyone" (English) so the meaning stays obvious;
+// it then cycles through related people-types and occasional translations.
+const ROTATING_WORDS = [
+  "everyone",
+  "friends",
+  "colleagues",
+  "mentors",
+  "classmates",
+  "investors",
+  "recruiters",
+  "family",
+  // Translations of "everyone" — appear less frequently because the list returns to base often
+  "सबको", // Hindi
+  "everyone",
+  "tout le monde", // French
+  "everyone",
+  "semua orang", // Indonesian
+  "everyone",
+  "每个人", // Chinese
+];
+
+const RotatingWord = () => {
+  const [idx, setIdx] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const swap = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIdx((i) => (i + 1) % ROTATING_WORDS.length);
+        setVisible(true);
+      }, 280);
+    }, 2200);
+    return () => clearInterval(swap);
+  }, []);
+
+  return (
+    <span className="relative inline-block align-baseline">
+      <span
+        key={idx}
+        className={`italic text-primary inline-block transition-all duration-300 ${
+          visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+        }`}
+      >
+        {ROTATING_WORDS[idx]}
+      </span>
+    </span>
+  );
 };
 
 const DashboardPreview = () => {
