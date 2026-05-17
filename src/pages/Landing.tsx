@@ -85,7 +85,7 @@ const Landing = () => {
             { icon: NotebookPen, num: "02", title: "Capture context", desc: "Notes, groups, priorities, birthdays, and why each relationship matters." },
             { icon: Send, num: "03", title: "Follow up at the right time", desc: "Reminders and cooling alerts surface who needs attention today." },
           ].map((s) => (
-            <div key={s.title} className="surface-card p-7 lift relative">
+            <div key={s.title} className="surface-card p-7 lift relative h-full">
               <span className="text-[10px] font-mono tracking-widest text-primary/70 num-tabular">{s.num}</span>
               <div className="h-10 w-10 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center mt-3 mb-4">
                 <s.icon className="h-5 w-5 text-primary" />
@@ -105,7 +105,7 @@ const Landing = () => {
             { icon: Lock, label: "Private to you", desc: "Your contacts never leave your account." },
             { icon: Sparkles, label: "Demo in 5 seconds", desc: "Load sample data with one click." },
           ].map((k) => (
-            <div key={k.label} className="surface-card p-5 flex items-start gap-3">
+            <div key={k.label} className="surface-card p-5 flex items-start gap-3 h-full">
               <span className="h-9 w-9 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center shrink-0">
                 <k.icon className="h-4 w-4 text-primary" />
               </span>
@@ -142,7 +142,7 @@ const Landing = () => {
               { ok: true, t: "Built around relationships, not deals" },
             ]},
           ].map((col) => (
-            <div key={col.title} className={`surface-card p-6 ${col.primary ? "border-primary/40 ring-1 ring-primary/20" : ""}`}>
+            <div key={col.title} className={`surface-card p-6 h-full ${col.primary ? "border-primary/40 ring-1 ring-primary/20" : ""}`}>
               <h3 className={`font-semibold ${col.primary ? "text-primary" : ""}`}>{col.title}</h3>
               <ul className="mt-4 space-y-2.5 text-sm">
                 {col.items.map((i, idx) => (
@@ -164,7 +164,7 @@ const Landing = () => {
           { icon: Bell, title: "Never go cold", desc: "Cooling alerts surface relationships drifting out of touch." },
           { icon: Calendar, title: "Birthdays & dates", desc: "Always be the one who remembers." },
         ].map((f) => (
-          <div key={f.title} className="surface-card p-6 lift">
+          <div key={f.title} className="surface-card p-6 lift h-full">
             <div className="h-10 w-10 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center mb-4">
               <f.icon className="h-5 w-5 text-primary" />
             </div>
@@ -190,7 +190,7 @@ const Landing = () => {
             { t: "Students", d: "Managing classmates, alumni, and mentors as you build a long-term network.", to: "/for/students" },
             { t: "Operators", d: "Managing cross-functional partners and external relationships across teams.", to: "/for/job-seekers" },
           ].map((u) => (
-            <Link key={u.t} to={u.to} className="surface-card p-5 lift block group">
+            <Link key={u.t} to={u.to} className="surface-card p-5 lift block group h-full">
               <div className="flex items-center justify-between">
                 <p className="font-semibold text-foreground">{u.t}</p>
                 <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition" />
