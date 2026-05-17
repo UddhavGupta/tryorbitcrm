@@ -8,7 +8,7 @@ import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFoo
 import { SEO } from "@/components/SEO";
 import { Reveal, RevealStagger } from "@/components/Reveal";
 import { AnimatedDashboard } from "@/components/landing/AnimatedDashboard";
-import { TrustedStrip } from "@/components/landing/TrustedStrip";
+
 import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
 import { DigestPreview } from "@/components/landing/DigestPreview";
 import { Testimonials } from "@/components/landing/Testimonials";
