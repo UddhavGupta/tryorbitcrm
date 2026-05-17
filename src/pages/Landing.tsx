@@ -384,7 +384,8 @@ const DashboardPreview = () => {
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const PreviewPanel = ({
   icon, title, count, children,
