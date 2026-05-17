@@ -166,13 +166,6 @@ const Landing = () => {
 
       <div className="container"><div className="divider-hairline" /></div>
 
-      {/* Testimonials */}
-      <section className="container py-20 md:py-28">
-        <Reveal>
-          <Testimonials />
-        </Reveal>
-      </section>
-
       {/* FAQ */}
       <section className="container py-20 md:py-28 bg-card-muted/30 -mx-[max(1rem,(100vw-1400px)/2)] px-[max(1rem,(100vw-1400px)/2)]">
         <Reveal>
