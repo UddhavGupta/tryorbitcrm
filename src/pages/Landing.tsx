@@ -361,7 +361,7 @@ function pickWeighted(pool: Array<[string, number]>, exclude: string[] = []): st
 // How many recent picks to avoid repeating, per pool. Sized to roughly half
 // the pool so rotation stays fresh without exhausting variety.
 const ENGLISH_MEMORY = 5;
-const FOREIGN_MEMORY = 8;
+const FOREIGN_MEMORY = 2;
 
 const RotatingWord = () => {
   const [word, setWord] = useState("everyone");
