@@ -105,7 +105,6 @@ const Landing = () => {
         </Reveal>
       </section>
 
-      <TrustedStrip />
 
       <div className="container"><div className="divider-hairline" /></div>
 
