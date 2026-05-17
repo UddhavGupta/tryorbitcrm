@@ -62,6 +62,8 @@ const CENTER = 300;
 export const OrbitConstellation = () => {
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [calloutVisible, setCalloutVisible] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [pinnedId, setPinnedId] = useState<string | null>(null);
 
   // Initial fade-in after mount.
   useEffect(() => {
@@ -69,8 +71,9 @@ export const OrbitConstellation = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // Rotate featured contact. Fade callout out, swap, fade in.
+  // Auto-rotate featured contact, unless the user has pinned or is hovering one.
   useEffect(() => {
+    if (pinnedId || hoveredId) return;
     const interval = setInterval(() => {
       setCalloutVisible(false);
       setTimeout(() => {
@@ -79,12 +82,35 @@ export const OrbitConstellation = () => {
       }, FADE_MS);
     }, ROTATE_MS);
     return () => clearInterval(interval);
-  }, []);
+  }, [pinnedId, hoveredId]);
 
-  const featuredId = FEATURED_ORDER[featuredIdx];
+  // Make the callout snap visible when the active contact comes from
+  // a hover or pin (instead of the timed fade).
+  useEffect(() => {
+    if (pinnedId || hoveredId) setCalloutVisible(true);
+  }, [pinnedId, hoveredId]);
+
+  // The active contact: pinned beats hovered beats the rotation.
+  const activeId = pinnedId ?? hoveredId ?? FEATURED_ORDER[featuredIdx];
+  const activeContact = useMemo(
+    () => CONTACTS.find((c) => c.id === activeId),
+    [activeId],
+  );
+  // Pause orbit rotation while the user is interacting so dots stay clickable.
+  const paused = !!hoveredId || !!pinnedId;
 
   return (
     <div className="relative mx-auto w-full max-w-3xl aspect-square">
+      {/* Click-away layer: when a contact is pinned, clicking the empty
+          backdrop unpins. Doesn't block dot clicks because it sits below the SVG. */}
+      {pinnedId && (
+        <button
+          type="button"
+          aria-label="Close contact preview"
+          onClick={() => setPinnedId(null)}
+          className="absolute inset-0 z-0 cursor-default"
+        />
+      )}
       {/* Soft aurora wash behind the orbits */}
       <div
         aria-hidden
