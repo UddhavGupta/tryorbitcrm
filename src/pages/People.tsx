@@ -169,9 +169,6 @@ const People = () => {
     if (priority !== "all") {
       list = list.filter((c: any) => (c.priority ?? "medium") === priority);
     }
-    if (companyFilter !== "all") {
-      list = list.filter((c: any) => c.company === companyFilter);
-    }
     if (openReminder !== "all") {
       list = list.filter((c: any) => {
         const has = openReminders?.set.has(c.id) ?? false;
