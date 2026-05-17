@@ -332,13 +332,35 @@ const ENGLISH_WORDS = [
   "alumni",
   "neighbors",
 ];
+// Translations of "everyone" across many languages and scripts.
+// Kept as a flat pool so each pick is independent — alternation with English
+// ensures foreign words never appear back-to-back.
 const FOREIGN_WORDS = [
-  "सबको",
-  "tout le monde",
-  "semua orang",
-  "每个人",
-  "todos",
-  "みんな",
+  "सबको",          // Hindi (Devanagari)
+  "tout le monde", // French (Latin)
+  "semua orang",   // Indonesian (Latin)
+  "每个人",         // Chinese (Han)
+  "todos",         // Spanish (Latin)
+  "みんな",         // Japanese (Hiragana)
+  "모두",           // Korean (Hangul)
+  "الجميع",         // Arabic
+  "כולם",           // Hebrew
+  "всех",          // Russian (Cyrillic)
+  "όλους",         // Greek
+  "ทุกคน",          // Thai
+  "tutti",          // Italian (Latin)
+  "alle",          // German (Latin)
+  "todos vocês",   // Portuguese (Latin)
+  "herkes",        // Turkish (Latin)
+  "எல்லோரும்",      // Tamil
+  "সবাইকে",         // Bengali
+  "ਸਾਰਿਆਂ",         // Punjabi (Gurmukhi)
+  "ಎಲ್ಲರೂ",         // Kannada
+  "ทั้งหมด",         // Thai alt
+  "усіх",          // Ukrainian (Cyrillic)
+  "mọi người",     // Vietnamese
+  "alla",          // Swedish (Latin)
+  "iedereen",      // Dutch (Latin)
 ];
 
 function pickRandom<T>(pool: T[], exclude?: T): T {
