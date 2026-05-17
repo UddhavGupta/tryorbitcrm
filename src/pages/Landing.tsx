@@ -11,7 +11,7 @@ import { AnimatedDashboard } from "@/components/landing/AnimatedDashboard";
 
 import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
 import { DigestPreview } from "@/components/landing/DigestPreview";
-import { Testimonials } from "@/components/landing/Testimonials";
+
 import { Faq } from "@/components/landing/Faq";
 
 
