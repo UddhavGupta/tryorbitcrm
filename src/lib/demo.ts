@@ -26,8 +26,26 @@ const GROUP_COLORS = [
   "#ef4444", "#10b981", "#8b5cf6",
 ];
 
-export async function seedDemo(userId: string) {
-  // Clear existing data for this user (anonymous demo session)
+export async function seedDemo(
+  userId: string,
+  opts: { requireAnonymous?: boolean } = {},
+) {
+  // Safety: verify the userId matches the active session, and (optionally)
+  // that the session is anonymous. seedDemo destructively wipes contacts,
+  // groups, reminders, and interactions — never run it against the wrong user.
+  const { data: sess } = await supabase.auth.getUser();
+  const current = sess.user;
+  if (!current || current.id !== userId) {
+    throw new Error("Refusing to seed demo data: session does not match target user.");
+  }
+  const isAnon =
+    (current as any).is_anonymous === true ||
+    (current.app_metadata as any)?.provider === "anonymous";
+  if (opts.requireAnonymous && !isAnon) {
+    throw new Error("Refusing to seed demo data onto a non-anonymous account.");
+  }
+
+  // Clear existing data for this user
   await supabase.from("reminders").delete().eq("user_id", userId);
   await supabase.from("interactions").delete().eq("user_id", userId);
   await supabase.from("contact_groups").delete().eq("user_id", userId);
