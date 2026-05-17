@@ -323,6 +323,15 @@ const FOREIGN_WORDS: Array<[string, number]> = [
   ["semua orang", 1],
   ["每个人", 1],
 ];
+// On very narrow viewports, multi-word phrases would force the headline to 3 lines
+// and cause layout shift as the word rotates. Swap them for short single-word
+// variants from the same languages.
+const FOREIGN_WORDS_NARROW: Array<[string, number]> = [
+  ["सबको", 1],
+  ["tous", 1],
+  ["kawan", 1],
+  ["每个人", 1],
+];
 
 function pickWeighted(pool: Array<[string, number]>, exclude: string[] = []): string {
   const excludeSet = new Set(exclude);
@@ -343,6 +352,15 @@ const FOREIGN_MEMORY = 2;
 const RotatingWord = () => {
   const [word, setWord] = useState("everyone");
   const [visible, setVisible] = useState(true);
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 380px)");
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     let isForeignNext = true;
@@ -359,7 +377,8 @@ const RotatingWord = () => {
       setTimeout(() => {
         let next: string;
         if (isForeignNext) {
-          next = pickWeighted(FOREIGN_WORDS, recentForeign);
+          const pool = isNarrow ? FOREIGN_WORDS_NARROW : FOREIGN_WORDS;
+          next = pickWeighted(pool, recentForeign);
           remember(recentForeign, next, FOREIGN_MEMORY);
         } else {
           next = pickWeighted(ENGLISH_WORDS, recentEnglish);
@@ -371,12 +390,12 @@ const RotatingWord = () => {
       }, 450);
     }, 2600);
     return () => clearInterval(swap);
-  }, []);
+  }, [isNarrow]);
 
   return (
     <span
       key={word}
-      className={`italic text-primary will-change-transform transition-[opacity,transform,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`italic text-primary whitespace-nowrap will-change-transform transition-[opacity,transform,filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
         visible
           ? "opacity-100 translate-y-0 blur-0"
           : "opacity-0 translate-y-2 blur-[2px]"
