@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send } from "lucide-react";
+import { ArrowRight, PlayCircle, Github, Linkedin, Globe } from "lucide-react";
+import { AddPersonHand, NotebookHand, SendHand } from "@/components/landing/HandDrawnIcons";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
