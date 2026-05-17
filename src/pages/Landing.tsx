@@ -318,7 +318,10 @@ const priorityDot: Record<"high" | "med" | "low", string> = {
   low: "bg-muted-foreground/40",
 };
 
-const DashboardPreview = () => (
+const DashboardPreview = () => {
+  const h = new Date().getHours();
+  const greeting = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  return (
   <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden max-w-5xl mx-auto">
     {/* Window chrome */}
     <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background/60">
@@ -332,7 +335,7 @@ const DashboardPreview = () => (
       <div className="flex items-baseline justify-between mb-5">
         <div>
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Dashboard</p>
-          <h3 className="font-display text-xl md:text-2xl mt-0.5">Good morning, Uddhav</h3>
+          <h3 className="font-display text-xl md:text-2xl mt-0.5">{greeting}, Uddhav</h3>
         </div>
         <span className="hidden sm:inline text-xs text-muted-foreground">{new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</span>
       </div>
