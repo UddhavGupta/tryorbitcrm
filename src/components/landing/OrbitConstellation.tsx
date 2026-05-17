@@ -30,9 +30,9 @@ type Contact = {
 
 const CONTACTS: Contact[] = [
   // Inner ring — closest
-  { id: "ma", initials: "MA", name: "Maya Chen", ring: 0, angle: 312, reason: "14 days since last note · say hi?" },
-  { id: "jl", initials: "JL", name: "Jordan Lee", ring: 0, angle: 70, reason: "Birthday next Tuesday 🎂" },
-  { id: "rs", initials: "RS", name: "Rohan Shah", ring: 0, angle: 190, reason: "Promised an intro 3 weeks ago" },
+  { id: "ma", initials: "MA", name: "Maya Chen", meta: "Mentor · NYC", ring: 0, angle: 312, reason: "It's been 14 days since your last note. A quick hello would land warm.", badge: "14d" },
+  { id: "jl", initials: "JL", name: "Jordan Lee", meta: "Friend · LA", ring: 0, angle: 70, reason: "Birthday next Tuesday — send something thoughtful.", badge: "🎂" },
+  { id: "rs", initials: "RS", name: "Rohan Shah", meta: "Classmate", ring: 0, angle: 190, reason: "You promised an intro 3 weeks ago. Still on?", badge: "Due" },
 
   // Middle ring
   { id: "pk", initials: "PK", name: "Priya Kapoor", ring: 1, angle: 25, reason: "Started a new role at Figma" },
