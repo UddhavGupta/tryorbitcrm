@@ -260,7 +260,7 @@ const Landing = () => {
 
         <div className="border-t border-border">
           <div className="container py-5">
-            <p className="text-xs text-muted-foreground max-w-3xl">{PORTFOLIO_DISCLAIMER}</p>
+            <p className="text-xs text-muted-foreground text-pretty">{PORTFOLIO_DISCLAIMER}</p>
           </div>
         </div>
 
