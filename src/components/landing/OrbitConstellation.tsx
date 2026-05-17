@@ -16,11 +16,15 @@ type Contact = {
   id: string;
   initials: string;
   name: string;
+  /** small grey eyebrow above the name, e.g. "Friend · NYC" */
+  meta?: string;
   ring: 0 | 1 | 2;
   /** angle in degrees on the ring, 0 = right, 90 = bottom */
   angle: number;
   /** short reason that appears in the callout when this contact is featured */
   reason: string;
+  /** small status chip in the top-right of the card, e.g. "14d", "Today" */
+  badge?: string;
   dim?: boolean;
 };
 
