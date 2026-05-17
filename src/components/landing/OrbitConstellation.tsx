@@ -290,7 +290,9 @@ export const OrbitConstellation = () => {
                       y={y}
                       visible={calloutVisible}
                       name={c.name}
+                      meta={c.meta}
                       reason={c.reason}
+                      badge={c.badge}
                       pinned={isPinned}
                       onClose={(e) => {
                         e.stopPropagation();
