@@ -167,10 +167,12 @@ const Landing = () => {
       <div className="container"><div className="divider-hairline" /></div>
 
       {/* FAQ */}
-      <section className="container py-20 md:py-28 bg-card-muted/30 -mx-[max(1rem,(100vw-1400px)/2)] px-[max(1rem,(100vw-1400px)/2)]">
-        <Reveal>
-          <Faq />
-        </Reveal>
+      <section className="bg-card-muted/30 py-20 md:py-28">
+        <div className="container">
+          <Reveal>
+            <Faq />
+          </Reveal>
+        </div>
       </section>
 
       {/* Final CTA */}
