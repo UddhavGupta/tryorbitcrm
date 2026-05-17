@@ -27,8 +27,8 @@ export const Testimonials = () => (
     <div className="text-center mb-10">
       <p className="eyebrow-primary">What it feels like to use</p>
       <h2 className="display-lg mt-3">Quiet wins, week after week.</h2>
-      <p className="text-sm text-muted-foreground mt-3 max-w-md mx-auto">
-        Scenarios drawn from real usage of the demo — not paid endorsements.
+      <p className="text-xs text-muted-foreground mt-3 max-w-md mx-auto">
+        Mock data. Product currently being tested.
       </p>
     </div>
     <div className="grid md:grid-cols-3 gap-4">
