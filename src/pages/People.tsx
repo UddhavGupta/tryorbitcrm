@@ -521,7 +521,7 @@ const People = () => {
         </div>
       )}
 
-      {!isLoading && !error && (contacts?.length ?? 0) > 0 && filtered.length === 0 && (
+      {!isLoading && !error && totalContacts > 0 && filtered.length === 0 && (
         <div className="surface-card p-12 text-center">
           <div className="h-14 w-14 rounded-2xl bg-secondary mx-auto grid place-items-center mb-4">
             <Search className="h-6 w-6 text-muted-foreground" />
