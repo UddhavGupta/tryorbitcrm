@@ -325,7 +325,7 @@ const DashboardPreview = () => (
       <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
       <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
       <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
-      <div className="ml-3 text-xs text-muted-foreground font-mono truncate">orbitcrm.guptau.com/app</div>
+      <div className="ml-3 text-xs text-muted-foreground font-mono truncate">orbitcrm.guptau.com</div>
     </div>
 
     <div className="p-5 md:p-7">
