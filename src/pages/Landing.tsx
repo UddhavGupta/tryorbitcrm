@@ -12,7 +12,7 @@ import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
 import { DigestPreview } from "@/components/landing/DigestPreview";
 import { Testimonials } from "@/components/landing/Testimonials";
 import { Faq } from "@/components/landing/Faq";
-import { BigStat } from "@/components/landing/BigStat";
+
 
 const Landing = () => {
   const [doc, setDoc] = useState<DocKey>(null);
@@ -137,10 +137,6 @@ const Landing = () => {
         </RevealStagger>
       </section>
 
-      {/* Big stat */}
-      <Reveal>
-        <BigStat />
-      </Reveal>
 
       {/* Weekly digest preview */}
       <section className="relative py-20 md:py-28 bg-card-muted/40">
