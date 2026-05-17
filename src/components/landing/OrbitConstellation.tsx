@@ -2,42 +2,53 @@ import { useEffect, useState } from "react";
 
 /**
  * OrbitConstellation — branded hero visual.
- * A you-in-the-center diagram with three rotating orbit rings of "contact"
- * dots. One contact (Maya) pulses with a callout: she's overdue for a note.
+ * A you-in-the-center diagram with three rotating orbit rings of contact
+ * dots. The "featured" contact rotates every few seconds — pulsing in primary
+ * with a callout describing why they need attention.
  *
- * Pure CSS animations (no JS RAF loop) — respects prefers-reduced-motion.
+ * Pure CSS animations for the orbits (no JS RAF loop) — respects
+ * prefers-reduced-motion.
  */
 
 type Contact = {
   id: string;
   initials: string;
+  name: string;
   ring: 0 | 1 | 2;
   /** angle in degrees on the ring, 0 = right, 90 = bottom */
   angle: number;
-  tone?: "default" | "muted" | "warm";
+  /** short reason that appears in the callout when this contact is featured */
+  reason: string;
+  dim?: boolean;
 };
 
 const CONTACTS: Contact[] = [
-  // Inner ring — closest, warmest
-  { id: "ma", initials: "MA", ring: 0, angle: 312, tone: "warm" }, // Maya — featured
-  { id: "jl", initials: "JL", ring: 0, angle: 70 },
-  { id: "rs", initials: "RS", ring: 0, angle: 190 },
+  // Inner ring — closest
+  { id: "ma", initials: "MA", name: "Maya Chen", ring: 0, angle: 312, reason: "14 days since last note · say hi?" },
+  { id: "jl", initials: "JL", name: "Jordan Lee", ring: 0, angle: 70, reason: "Birthday next Tuesday 🎂" },
+  { id: "rs", initials: "RS", name: "Rohan Shah", ring: 0, angle: 190, reason: "Promised an intro 3 weeks ago" },
 
   // Middle ring
-  { id: "pk", initials: "PK", ring: 1, angle: 25 },
-  { id: "an", initials: "AN", ring: 1, angle: 110 },
-  { id: "tc", initials: "TC", ring: 1, angle: 200, tone: "muted" },
-  { id: "ev", initials: "EV", ring: 1, angle: 290 },
+  { id: "pk", initials: "PK", name: "Priya Kapoor", ring: 1, angle: 25, reason: "Started a new role at Figma" },
+  { id: "an", initials: "AN", name: "Ana Navarro", ring: 1, angle: 110, reason: "Coffee chat overdue · 6 weeks" },
+  { id: "tc", initials: "TC", name: "Tomás Cruz", ring: 1, angle: 200, reason: "Mentioned hiring — follow up", dim: true },
+  { id: "ev", initials: "EV", name: "Elena Voss", ring: 1, angle: 290, reason: "Cooling off — last spoke Aug 12" },
 
   // Outer ring — looser orbit
-  { id: "ha", initials: "HA", ring: 2, angle: 15, tone: "muted" },
-  { id: "ds", initials: "DS", ring: 2, angle: 75 },
-  { id: "mo", initials: "MO", ring: 2, angle: 150 },
-  { id: "kn", initials: "KN", ring: 2, angle: 220, tone: "muted" },
-  { id: "sb", initials: "SB", ring: 2, angle: 300 },
+  { id: "ha", initials: "HA", name: "Hana Abe", ring: 2, angle: 15, reason: "Sent a deck — circle back", dim: true },
+  { id: "ds", initials: "DS", name: "Devon Sato", ring: 2, angle: 75, reason: "Anniversary at Stripe today" },
+  { id: "mo", initials: "MO", name: "Maya Okonkwo", ring: 2, angle: 150, reason: "Mentor — quarterly check-in" },
+  { id: "kn", initials: "KN", name: "Kenji Noma", ring: 2, angle: 220, reason: "Asked about Lagos trip", dim: true },
+  { id: "sb", initials: "SB", name: "Sara Bennett", ring: 2, angle: 300, reason: "Investor intro pending" },
 ];
 
-// Ring geometry (in % of the 600x600 viewBox space).
+// Which contacts cycle through the "featured" spotlight. Pick a varied set
+// across all three rings so the callout moves around the diagram.
+const FEATURED_ORDER = ["ma", "an", "ds", "jl", "ev", "mo", "rs", "pk", "sb"];
+const ROTATE_MS = 3200;
+const FADE_MS = 380;
+
+// Ring geometry (relative to the 600x600 viewBox).
 const RINGS = [
   { radius: 110, duration: 38, direction: 1 },
   { radius: 185, duration: 56, direction: -1 },
@@ -47,12 +58,28 @@ const RINGS = [
 const CENTER = 300;
 
 export const OrbitConstellation = () => {
-  // Animate the callout in after mount so it doesn't snap on first paint.
-  const [showCallout, setShowCallout] = useState(false);
+  const [featuredIdx, setFeaturedIdx] = useState(0);
+  const [calloutVisible, setCalloutVisible] = useState(false);
+
+  // Initial fade-in after mount.
   useEffect(() => {
-    const t = setTimeout(() => setShowCallout(true), 700);
+    const t = setTimeout(() => setCalloutVisible(true), 600);
     return () => clearTimeout(t);
   }, []);
+
+  // Rotate featured contact. Fade callout out, swap, fade in.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCalloutVisible(false);
+      setTimeout(() => {
+        setFeaturedIdx((i) => (i + 1) % FEATURED_ORDER.length);
+        setCalloutVisible(true);
+      }, FADE_MS);
+    }, ROTATE_MS);
+    return () => clearInterval(interval);
+  }, []);
+
+  const featuredId = FEATURED_ORDER[featuredIdx];
 
   return (
     <div className="relative mx-auto w-full max-w-3xl aspect-square">
@@ -70,7 +97,7 @@ export const OrbitConstellation = () => {
         viewBox="0 0 600 600"
         className="relative h-full w-full"
         role="img"
-        aria-label="Your network orbiting around you, with Maya highlighted as overdue for a follow-up"
+        aria-label="Your network orbiting around you, with one contact highlighted as needing attention"
       >
         <defs>
           <radialGradient id="orb-core" cx="50%" cy="50%" r="50%">
@@ -126,8 +153,7 @@ export const OrbitConstellation = () => {
           </text>
         </g>
 
-        {/* Rings of contacts. Each ring rotates as a group; each dot
-            counter-rotates to keep initials upright. */}
+        {/* Rings — each rotates as a group; dots counter-rotate to stay upright */}
         {RINGS.map((ring, ringIdx) => (
           <g
             key={ringIdx}
@@ -142,8 +168,7 @@ export const OrbitConstellation = () => {
               const rad = (c.angle * Math.PI) / 180;
               const x = CENTER + ring.radius * Math.cos(rad);
               const y = CENTER + ring.radius * Math.sin(rad);
-              const featured = c.tone === "warm";
-              const muted = c.tone === "muted";
+              const featured = c.id === featuredId;
               return (
                 <g
                   key={c.id}
@@ -173,18 +198,11 @@ export const OrbitConstellation = () => {
                     cx={x}
                     cy={y}
                     r={featured ? 18 : 15}
-                    fill={
-                      featured
-                        ? "hsl(var(--primary))"
-                        : "hsl(var(--card))"
-                    }
-                    stroke={
-                      featured
-                        ? "hsl(var(--primary))"
-                        : "hsl(var(--border))"
-                    }
+                    fill={featured ? "hsl(var(--primary))" : "hsl(var(--card))"}
+                    stroke={featured ? "hsl(var(--primary))" : "hsl(var(--border))"}
                     strokeWidth={1.25}
-                    className={muted ? "opacity-60" : ""}
+                    className={c.dim && !featured ? "opacity-60" : ""}
+                    style={{ transition: "all 400ms ease-out" }}
                   />
                   <text
                     x={x}
@@ -199,12 +217,19 @@ export const OrbitConstellation = () => {
                       fill: featured
                         ? "hsl(var(--primary-foreground))"
                         : "hsl(var(--muted-foreground))",
+                      transition: "fill 400ms ease-out",
                     }}
                   >
                     {c.initials}
                   </text>
                   {featured && (
-                    <CalloutAnchor x={x} y={y} visible={showCallout} />
+                    <CalloutAnchor
+                      x={x}
+                      y={y}
+                      visible={calloutVisible}
+                      name={c.name}
+                      reason={c.reason}
+                    />
                   )}
                 </g>
               );
@@ -240,26 +265,40 @@ export const OrbitConstellation = () => {
 };
 
 /**
- * SVG anchor that escapes the rotating SVG so the callout card lives in HTML
- * and gets crisp typography + shadows. We use foreignObject for the card body.
+ * Callout card pinned to the featured dot. Uses foreignObject so the card
+ * gets crisp HTML typography, then auto-flips its anchor based on where the
+ * dot sits in the viewBox so it never falls off-canvas.
  */
 const CalloutAnchor = ({
   x,
   y,
   visible,
+  name,
+  reason,
 }: {
   x: number;
   y: number;
   visible: boolean;
+  name: string;
+  reason: string;
 }) => {
-  // Line from the dot up-and-right into the callout.
-  const tx = x + 70;
-  const ty = y - 70;
+  // Flip the callout toward the center side so it stays inside the frame.
+  const flipX = x > CENTER ? -1 : 1;
+  const flipY = y > CENTER ? -1 : 1;
+  const offset = 70;
+  const tx = x + offset * flipX;
+  const ty = y + offset * flipY * -1; // prefer "up" off the dot
+
+  const cardW = 210;
+  const cardH = 64;
+  const cardX = flipX === 1 ? tx - 4 : tx - cardW + 4;
+  const cardY = ty - cardH / 2;
+
   return (
     <g
       style={{
         opacity: visible ? 1 : 0,
-        transition: "opacity 600ms ease-out",
+        transition: `opacity ${FADE_MS}ms ease-out`,
       }}
     >
       <line
@@ -272,17 +311,16 @@ const CalloutAnchor = ({
         strokeWidth={1}
         strokeDasharray="2 3"
       />
-      <foreignObject x={tx - 4} y={ty - 46} width={210} height={64}>
+      <foreignObject x={cardX} y={cardY} width={cardW} height={cardH}>
         <div
           className="rounded-xl border border-border bg-card/95 px-3 py-2 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.35)] backdrop-blur"
           style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}
         >
-          <p className="text-[11px] font-semibold tracking-tight text-foreground">
-            Maya Chen
+          <p className="text-[11px] font-semibold tracking-tight text-foreground truncate">
+            {name}
           </p>
-          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">
-            14 days since last note ·{" "}
-            <span className="text-primary font-medium">say hi?</span>
+          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5 line-clamp-2">
+            {reason}
           </p>
         </div>
       </foreignObject>
