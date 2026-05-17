@@ -59,18 +59,61 @@ const People = () => {
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const qc = useQueryClient();
 
+  // Debounce the search input so we don't hit the backend on every keystroke.
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQ(q.trim()), 250);
+    return () => clearTimeout(id);
+  }, [q]);
+
   const { data: allGroups } = useQuery({
     queryKey: ["all-groups"],
     queryFn: async () => (await supabase.from("groups").select("*").order("name")).data ?? [],
   });
 
-  const { data: contacts, isLoading, error } = useQuery({
-    queryKey: ["contacts"],
+  // Total contacts (unfiltered) — for the "X of Y match" summary.
+  const { data: totalContacts = 0 } = useQuery({
+    queryKey: ["contacts-total"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contacts")
-        .select("*, contact_groups(group_id, groups(name, color))")
-        .order("name");
+      const { count } = await supabase.from("contacts").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
+  const { data: contacts, isLoading, error } = useQuery({
+    queryKey: ["contacts", { q: debouncedQ, groupFilter, companyFilter }],
+    queryFn: async () => {
+      // Inner join when filtering by group so Postgres restricts rows server-side.
+      const selectExpr = groupFilter !== "all"
+        ? "*, contact_groups!inner(group_id, groups(name, color))"
+        : "*, contact_groups(group_id, groups(name, color))";
+
+      let query = supabase.from("contacts").select(selectExpr);
+
+      if (groupFilter !== "all") {
+        query = query.eq("contact_groups.group_id", groupFilter);
+      }
+      if (companyFilter !== "all") {
+        query = query.eq("company", companyFilter);
+      }
+      if (debouncedQ) {
+        // PostgREST `.or()` treats commas/parens/* specially, so strip them.
+        const sanitized = debouncedQ.replace(/[,()*%]/g, " ").replace(/\s+/g, " ").trim();
+        if (sanitized) {
+          const pattern = `*${sanitized}*`;
+          query = query.or(
+            [
+              `name.ilike.${pattern}`,
+              `last_name.ilike.${pattern}`,
+              `title.ilike.${pattern}`,
+              `company.ilike.${pattern}`,
+              `city.ilike.${pattern}`,
+              `notes.ilike.${pattern}`,
+            ].join(","),
+          );
+        }
+      }
+
+      const { data, error } = await query.order("name");
       if (error) throw error;
       return data ?? [];
     },
