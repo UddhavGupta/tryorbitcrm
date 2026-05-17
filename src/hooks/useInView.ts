@@ -24,6 +24,20 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(options?: {
       setInView(true);
       return;
     }
+    // If the element is already inside the viewport on mount (above the fold,
+    // or page was loaded scrolled), flip immediately so we don't wait for an
+    // IO tick that may never fire.
+    const rect = el.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.top < vh && rect.bottom > 0) {
+      setInView(true);
+      if (once) return;
+    }
+    // Safety net: if IO never fires (rare environments, screenshot capture,
+    // etc.), reveal the content after a short delay so nothing is ever stuck
+    // invisible.
+    const safety = window.setTimeout(() => setInView(true), 1200);
+
     const obs = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
@@ -38,7 +52,10 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(options?: {
       { rootMargin, threshold },
     );
     obs.observe(el);
-    return () => obs.disconnect();
+    return () => {
+      window.clearTimeout(safety);
+      obs.disconnect();
+    };
   }, [rootMargin, threshold, once]);
 
   return { ref, inView };
