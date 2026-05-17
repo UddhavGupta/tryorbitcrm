@@ -323,6 +323,15 @@ const FOREIGN_WORDS: Array<[string, number]> = [
   ["semua orang", 1],
   ["每个人", 1],
 ];
+// On very narrow viewports, multi-word phrases would force the headline to 3 lines
+// and cause layout shift as the word rotates. Swap them for short single-word
+// variants from the same languages.
+const FOREIGN_WORDS_NARROW: Array<[string, number]> = [
+  ["सबको", 1],
+  ["tous", 1],
+  ["kawan", 1],
+  ["每个人", 1],
+];
 
 function pickWeighted(pool: Array<[string, number]>, exclude: string[] = []): string {
   const excludeSet = new Set(exclude);
