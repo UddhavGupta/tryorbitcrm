@@ -138,17 +138,26 @@ const People = () => {
     },
   });
 
-  const companies = useMemo(() => {
-    const set = new Set<string>();
-    (contacts ?? []).forEach((c: any) => { if (c.company) set.add(c.company); });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [contacts]);
-
-  const allTags = useMemo(() => {
-    const flat: string[] = [];
-    (contacts ?? []).forEach((c: any) => (c.tags ?? []).forEach((t: string) => flat.push(t)));
-    return dedupeTags(flat);
-  }, [contacts]);
+  // Distinct companies + tags pulled separately so filter dropdowns stay
+  // stable regardless of which search/filter is currently active.
+  const { data: companies = [] } = useQuery({
+    queryKey: ["contact-companies"],
+    queryFn: async () => {
+      const { data } = await supabase.from("contacts").select("company");
+      const set = new Set<string>();
+      (data ?? []).forEach((r: any) => { if (r.company) set.add(r.company); });
+      return Array.from(set).sort((a, b) => a.localeCompare(b));
+    },
+  });
+  const { data: allTags = [] } = useQuery({
+    queryKey: ["contact-tags"],
+    queryFn: async () => {
+      const { data } = await supabase.from("contacts").select("tags");
+      const flat: string[] = [];
+      (data ?? []).forEach((r: any) => (r.tags ?? []).forEach((t: string) => flat.push(t)));
+      return dedupeTags(flat);
+    },
+  });
 
   const filtered = useMemo(() => {
     let list = contacts ?? [];
