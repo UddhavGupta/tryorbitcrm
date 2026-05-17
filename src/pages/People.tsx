@@ -507,7 +507,7 @@ const People = () => {
 
       {error && <ErrorState title="Couldn't load contacts" message={(error as Error).message} />}
 
-      {!isLoading && !error && (contacts?.length ?? 0) === 0 && (
+      {!isLoading && !error && totalContacts === 0 && (
         <div className="surface-card p-12 text-center">
           <div className="h-14 w-14 rounded-2xl gradient-primary mx-auto grid place-items-center mb-4">
             <UserPlus className="h-6 w-6 text-primary-foreground" />
