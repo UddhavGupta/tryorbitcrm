@@ -483,8 +483,7 @@ const CalloutAnchor = ({
   meta,
   reason,
   badge,
-  pinned = false,
-  onClose,
+  onOpen,
 }: {
   x: number;
   y: number;
@@ -493,11 +492,9 @@ const CalloutAnchor = ({
   meta?: string;
   reason: string;
   badge?: string;
-  pinned?: boolean;
-  onClose?: (e: React.MouseEvent) => void;
+  onOpen?: () => void;
 }) => {
   // Flip the callout toward the center side so it stays inside the frame.
-  // A bit more breathing room from the dot than before.
   const flipX = x > CENTER ? -1 : 1;
   const offsetX = 92;
   const offsetY = 92;
@@ -505,7 +502,7 @@ const CalloutAnchor = ({
   const ty = y - offsetY;
 
   const cardW = 232;
-  const cardH = pinned ? 116 : 86;
+  const cardH = 96;
   const cardX = flipX === 1 ? tx - 6 : tx - cardW + 6;
   const cardY = ty - cardH / 2;
 
@@ -517,7 +514,6 @@ const CalloutAnchor = ({
         pointerEvents: visible ? "auto" : "none",
       }}
     >
-      {/* connector: thin dashed line + a tiny anchor dot on the card side */}
       <line
         x1={x}
         y1={y}
@@ -547,38 +543,184 @@ const CalloutAnchor = ({
                 {name}
               </p>
             </div>
-            <div className="flex items-center gap-1 shrink-0">
-              {badge && (
-                <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold leading-none">
-                  {badge}
-                </span>
-              )}
-              {pinned && onClose && (
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="Close preview"
-                  className="text-muted-foreground hover:text-foreground text-[14px] leading-none px-1"
-                >
-                  ×
-                </button>
-              )}
-            </div>
+            {badge && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[9px] font-semibold leading-none shrink-0">
+                {badge}
+              </span>
+            )}
           </div>
           <p className="text-[10.5px] text-muted-foreground leading-snug mt-1.5 line-clamp-2">
             {reason}
           </p>
-          {pinned && (
-            <Link
-              to="/demo"
-              onClick={(e) => e.stopPropagation()}
-              className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
+          {onOpen && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpen();
+              }}
+              className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
             >
               Open profile <ArrowRight className="h-3 w-3" />
-            </Link>
+            </button>
           )}
         </div>
       </foreignObject>
     </g>
   );
 };
+
+// ============================================================
+// Contact Profile Dialog
+// ============================================================
+
+const KIND_LABEL: Record<Interaction["kind"], string> = {
+  note: "Note",
+  meeting: "Meeting",
+  call: "Call",
+  email: "Email",
+  intro: "Intro",
+  text: "Text",
+};
+
+const ContactProfileDialog = ({
+  contact,
+  onOpenChange,
+}: {
+  contact: Contact | null;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  return (
+    <Dialog open={!!contact} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg p-0 overflow-hidden">
+        {contact && (
+          <>
+            {/* Header */}
+            <div className="bg-gradient-to-br from-primary/10 via-card to-card px-6 pt-6 pb-5 border-b border-border">
+              <DialogHeader className="space-y-0 text-left">
+                <div className="flex items-start gap-4">
+                  <div className="h-14 w-14 rounded-full bg-primary text-primary-foreground grid place-items-center font-semibold text-base shrink-0 shadow-sm">
+                    {contact.initials}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    {contact.meta && (
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-medium">
+                        {contact.meta}
+                      </p>
+                    )}
+                    <DialogTitle className="font-display text-xl tracking-tight leading-tight mt-0.5">
+                      {contact.name}
+                    </DialogTitle>
+                    {contact.status && (
+                      <span className="inline-flex items-center mt-2 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-semibold">
+                        {contact.status}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <DialogDescription className="mt-3 text-sm text-foreground/80 leading-relaxed">
+                  {contact.reason}
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            {/* Details */}
+            <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm border-b border-border">
+              {(contact.title || contact.company) && (
+                <DetailRow
+                  icon={<Briefcase className="h-3.5 w-3.5" />}
+                  label="Role"
+                  value={[contact.title, contact.company].filter(Boolean).join(" · ")}
+                />
+              )}
+              {contact.city && (
+                <DetailRow
+                  icon={<MapPin className="h-3.5 w-3.5" />}
+                  label="Location"
+                  value={contact.city}
+                />
+              )}
+              {contact.email && (
+                <DetailRow
+                  icon={<Mail className="h-3.5 w-3.5" />}
+                  label="Email"
+                  value={contact.email}
+                />
+              )}
+              {contact.interactions?.[0] && (
+                <DetailRow
+                  icon={<Calendar className="h-3.5 w-3.5" />}
+                  label="Last touch"
+                  value={contact.interactions[0].when}
+                />
+              )}
+            </div>
+
+            {/* Interaction history */}
+            <div className="px-6 py-5 max-h-[280px] overflow-y-auto">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-medium mb-3">
+                Interaction history
+              </p>
+              {contact.interactions && contact.interactions.length > 0 ? (
+                <ol className="relative border-l border-border ml-1.5 space-y-4">
+                  {contact.interactions.map((it, i) => (
+                    <li key={i} className="pl-4 relative">
+                      <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary/80 ring-2 ring-card" />
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                          {KIND_LABEL[it.kind]}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {it.when}
+                        </span>
+                      </div>
+                      <p className="text-sm text-foreground/85 mt-1 leading-relaxed">
+                        {it.text}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  No interactions logged yet.
+                </p>
+              )}
+            </div>
+
+            {/* Footer CTA */}
+            <div className="px-6 py-4 bg-card-muted/40 border-t border-border flex items-center justify-between gap-3">
+              <p className="text-[11px] text-muted-foreground italic">
+                Sample contact — try it with your own people.
+              </p>
+              <Button asChild size="sm" className="gradient-primary">
+                <Link to="/demo">
+                  Try the demo <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const DetailRow = ({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) => (
+  <div className="flex items-start gap-2.5 min-w-0">
+    <span className="text-muted-foreground mt-0.5 shrink-0">{icon}</span>
+    <div className="min-w-0">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+        {label}
+      </p>
+      <p className="text-sm text-foreground truncate">{value}</p>
+    </div>
+  </div>
+);
