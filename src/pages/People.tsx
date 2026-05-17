@@ -164,9 +164,8 @@ const People = () => {
     const today = new Date();
     const todayStr = todayLocalISO();
 
-    if (groupFilter !== "all") {
-      list = list.filter((c: any) => c.contact_groups?.some((cg: any) => cg.group_id === groupFilter));
-    }
+    // Group, company, and text search applied server-side; see contacts query.
+
     if (priority !== "all") {
       list = list.filter((c: any) => (c.priority ?? "medium") === priority);
     }
