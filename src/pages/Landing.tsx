@@ -139,24 +139,6 @@ const Landing = () => {
       </section>
 
 
-      {/* Weekly digest preview */}
-      <section className="relative py-20 md:py-28 bg-card-muted/40">
-        <div className="container">
-          <Reveal>
-            <div className="text-left max-w-2xl mb-10">
-              <p className="eyebrow-primary">Monday mornings</p>
-              <h2 className="display-lg mt-3">A weekly digest that does the thinking.</h2>
-              <p className="text-muted-foreground mt-3 text-sm leading-relaxed max-w-lg">
-                Every Monday at 7am, OrbitCRM emails you the people most worth a message this week. No dashboard required.
-              </p>
-            </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <DigestPreview />
-          </Reveal>
-        </div>
-      </section>
-
       {/* Who it's for */}
       <section className="container py-20 md:py-28">
         <Reveal>
