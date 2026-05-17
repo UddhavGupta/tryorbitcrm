@@ -220,15 +220,6 @@ const People = () => {
         return tagFilter.every((t) => tags.includes(t.toLowerCase()));
       });
     }
-    if (q) {
-      const t = q.toLowerCase();
-      list = list.filter((c: any) =>
-        [c.name, c.last_name, c.title, c.company, c.city, c.email, c.notes,
-         ...(c.contact_groups?.map((cg: any) => cg.groups?.name) ?? []),
-         ...((c.tags ?? []) as string[])]
-          .filter(Boolean).join(" ").toLowerCase().includes(t)
-      );
-    }
 
     const priorityRank = (p: string) => (p === "high" ? 0 : p === "medium" ? 1 : 2);
     const sorted = [...list];
