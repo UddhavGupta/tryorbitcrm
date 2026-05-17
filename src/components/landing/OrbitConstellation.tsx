@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 /**
  * OrbitConstellation — branded hero visual.
@@ -60,6 +62,8 @@ const CENTER = 300;
 export const OrbitConstellation = () => {
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [calloutVisible, setCalloutVisible] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [pinnedId, setPinnedId] = useState<string | null>(null);
 
   // Initial fade-in after mount.
   useEffect(() => {
@@ -67,8 +71,9 @@ export const OrbitConstellation = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // Rotate featured contact. Fade callout out, swap, fade in.
+  // Auto-rotate featured contact, unless the user has pinned or is hovering one.
   useEffect(() => {
+    if (pinnedId || hoveredId) return;
     const interval = setInterval(() => {
       setCalloutVisible(false);
       setTimeout(() => {
@@ -77,12 +82,31 @@ export const OrbitConstellation = () => {
       }, FADE_MS);
     }, ROTATE_MS);
     return () => clearInterval(interval);
-  }, []);
+  }, [pinnedId, hoveredId]);
 
-  const featuredId = FEATURED_ORDER[featuredIdx];
+  // Make the callout snap visible when the active contact comes from
+  // a hover or pin (instead of the timed fade).
+  useEffect(() => {
+    if (pinnedId || hoveredId) setCalloutVisible(true);
+  }, [pinnedId, hoveredId]);
+
+  // The active contact: pinned beats hovered beats the rotation.
+  const activeId = pinnedId ?? hoveredId ?? FEATURED_ORDER[featuredIdx];
+  // Pause orbit rotation while the user is interacting so dots stay clickable.
+  const paused = !!hoveredId || !!pinnedId;
 
   return (
     <div className="relative mx-auto w-full max-w-3xl aspect-square">
+      {/* Click-away layer: when a contact is pinned, clicking the empty
+          backdrop unpins. Doesn't block dot clicks because it sits below the SVG. */}
+      {pinnedId && (
+        <button
+          type="button"
+          aria-label="Close contact preview"
+          onClick={() => setPinnedId(null)}
+          className="absolute inset-0 z-0 cursor-default"
+        />
+      )}
       {/* Soft aurora wash behind the orbits */}
       <div
         aria-hidden
@@ -162,13 +186,16 @@ export const OrbitConstellation = () => {
               transformOrigin: `${CENTER}px ${CENTER}px`,
               animation: `orbit-spin ${ring.duration}s linear infinite`,
               animationDirection: ring.direction === 1 ? "normal" : "reverse",
+              animationPlayState: paused ? "paused" : "running",
             }}
           >
             {CONTACTS.filter((c) => c.ring === ringIdx).map((c) => {
               const rad = (c.angle * Math.PI) / 180;
               const x = CENTER + ring.radius * Math.cos(rad);
               const y = CENTER + ring.radius * Math.sin(rad);
-              const featured = c.id === featuredId;
+              const featured = c.id === activeId;
+              const isHovered = c.id === hoveredId;
+              const isPinned = c.id === pinnedId;
               return (
                 <g
                   key={c.id}
@@ -177,8 +204,34 @@ export const OrbitConstellation = () => {
                     animation: `orbit-counter ${ring.duration}s linear infinite`,
                     animationDirection:
                       ring.direction === 1 ? "reverse" : "normal",
+                    animationPlayState: paused ? "paused" : "running",
+                    cursor: "pointer",
                   }}
+                  onMouseEnter={() => setHoveredId(c.id)}
+                  onMouseLeave={() =>
+                    setHoveredId((prev) => (prev === c.id ? null : prev))
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPinnedId((prev) => (prev === c.id ? null : c.id));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setPinnedId((prev) => (prev === c.id ? null : c.id));
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${c.name}. ${c.reason}. Click to ${
+                    isPinned ? "close" : "pin"
+                  } preview.`}
+                  aria-pressed={isPinned}
+                  className="focus:outline-none focus-visible:[&>circle:nth-of-type(1)]:stroke-primary"
                 >
+                  {/* Larger invisible hit target — orbit dots are small */}
+                  <circle cx={x} cy={y} r={22} fill="transparent" />
+
                   {featured && (
                     <>
                       <circle cx={x} cy={y} r={36} fill="url(#orb-warm)" />
@@ -197,12 +250,16 @@ export const OrbitConstellation = () => {
                   <circle
                     cx={x}
                     cy={y}
-                    r={featured ? 18 : 15}
+                    r={featured ? 18 : isHovered ? 17 : 15}
                     fill={featured ? "hsl(var(--primary))" : "hsl(var(--card))"}
-                    stroke={featured ? "hsl(var(--primary))" : "hsl(var(--border))"}
-                    strokeWidth={1.25}
-                    className={c.dim && !featured ? "opacity-60" : ""}
-                    style={{ transition: "all 400ms ease-out" }}
+                    stroke={
+                      featured || isHovered
+                        ? "hsl(var(--primary))"
+                        : "hsl(var(--border))"
+                    }
+                    strokeWidth={isHovered && !featured ? 1.75 : 1.25}
+                    className={c.dim && !featured && !isHovered ? "opacity-60" : ""}
+                    style={{ transition: "all 240ms ease-out" }}
                   />
                   <text
                     x={x}
@@ -217,7 +274,8 @@ export const OrbitConstellation = () => {
                       fill: featured
                         ? "hsl(var(--primary-foreground))"
                         : "hsl(var(--muted-foreground))",
-                      transition: "fill 400ms ease-out",
+                      transition: "fill 240ms ease-out",
+                      pointerEvents: "none",
                     }}
                   >
                     {c.initials}
@@ -229,6 +287,12 @@ export const OrbitConstellation = () => {
                       visible={calloutVisible}
                       name={c.name}
                       reason={c.reason}
+                      pinned={isPinned}
+                      onClose={(e) => {
+                        e.stopPropagation();
+                        setPinnedId(null);
+                        setHoveredId(null);
+                      }}
                     />
                   )}
                 </g>
@@ -265,9 +329,10 @@ export const OrbitConstellation = () => {
 };
 
 /**
- * Callout card pinned to the featured dot. Uses foreignObject so the card
- * gets crisp HTML typography, then auto-flips its anchor based on where the
- * dot sits in the viewBox so it never falls off-canvas.
+ * Callout card pinned to the active dot. Uses foreignObject so the card
+ * gets crisp HTML typography. Auto-flips its anchor based on where the
+ * dot sits in the viewBox so it never falls off-canvas. When `pinned`,
+ * grows to show a "View profile" CTA + close button.
  */
 const CalloutAnchor = ({
   x,
@@ -275,22 +340,25 @@ const CalloutAnchor = ({
   visible,
   name,
   reason,
+  pinned = false,
+  onClose,
 }: {
   x: number;
   y: number;
   visible: boolean;
   name: string;
   reason: string;
+  pinned?: boolean;
+  onClose?: (e: React.MouseEvent) => void;
 }) => {
   // Flip the callout toward the center side so it stays inside the frame.
   const flipX = x > CENTER ? -1 : 1;
-  const flipY = y > CENTER ? -1 : 1;
   const offset = 70;
   const tx = x + offset * flipX;
-  const ty = y + offset * flipY * -1; // prefer "up" off the dot
+  const ty = y - offset;
 
-  const cardW = 210;
-  const cardH = 64;
+  const cardW = 220;
+  const cardH = pinned ? 96 : 64;
   const cardX = flipX === 1 ? tx - 4 : tx - cardW + 4;
   const cardY = ty - cardH / 2;
 
@@ -299,6 +367,7 @@ const CalloutAnchor = ({
       style={{
         opacity: visible ? 1 : 0,
         transition: `opacity ${FADE_MS}ms ease-out`,
+        pointerEvents: visible ? "auto" : "none",
       }}
     >
       <line
@@ -315,13 +384,35 @@ const CalloutAnchor = ({
         <div
           className="rounded-xl border border-border bg-card/95 px-3 py-2 shadow-[0_10px_30px_-12px_hsl(var(--primary)/0.35)] backdrop-blur"
           style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif" }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <p className="text-[11px] font-semibold tracking-tight text-foreground truncate">
-            {name}
-          </p>
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-[11px] font-semibold tracking-tight text-foreground truncate">
+              {name}
+            </p>
+            {pinned && onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close preview"
+                className="text-muted-foreground hover:text-foreground text-[14px] leading-none -mt-0.5 -mr-1 px-1"
+              >
+                ×
+              </button>
+            )}
+          </div>
           <p className="text-[10px] text-muted-foreground leading-tight mt-0.5 line-clamp-2">
             {reason}
           </p>
+          {pinned && (
+            <Link
+              to="/demo"
+              onClick={(e) => e.stopPropagation()}
+              className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-primary hover:underline"
+            >
+              Open profile <ArrowRight className="h-3 w-3" />
+            </Link>
+          )}
         </div>
       </foreignObject>
     </g>
