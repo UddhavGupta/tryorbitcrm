@@ -90,9 +90,6 @@ const Landing = () => {
       {/* Animated dashboard preview */}
       <section className="container pb-12 md:pb-16 animate-fade-up-delay-2">
         <AnimatedDashboard />
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Live preview · pauses when offscreen
-        </p>
       </section>
 
       {/* Product tour — moved up so visitors see real screens right under the hero */}
