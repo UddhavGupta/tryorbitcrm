@@ -141,6 +141,23 @@ const RELEASES: Release[] = [
     ],
   },
   {
+    version: "v1.1",
+    title: "Account Controls, Search & New Hero",
+    date: "May 2026",
+    status: "shipped",
+    items: [
+      "Account menu: export all data (contacts, groups, reminders, interactions, dates) as CSV",
+      "Account menu: self-serve account deletion via a server-side edge function",
+      "Backend-powered People search with filters for name, title, company, group, city, and notes",
+      "Landing-page hero replaced with an orbit constellation: contacts orbit a center \"you\", with a rotating spotlight callout",
+      "Orbit dots are interactive — hover shows a preview card, click pins the contact and links to the demo",
+      "Removed the testimonials section and the \"Built for the people we know best\" trust strip",
+      "Fixed FAQ section alignment with the rest of the landing page",
+      "Smoother fade-in transitions between routes (respects prefers-reduced-motion)",
+      "Hardened demo isolation: starting the demo while signed in no longer wipes real account data; demo seeding only runs on anonymous sessions",
+    ],
+  },
+  {
     version: "vNext",
     title: "On the roadmap",
     status: "next",

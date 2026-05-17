@@ -17,6 +17,8 @@ const MVP_SCOPE = [
   { t: "Reminders", d: "Lightweight follow-up tasks tied to specific contacts." },
   { t: "Dashboard", d: "Today's reach-outs, upcoming birthdays, cooling relationships." },
   { t: "Dates", d: "Birthdays and anniversaries surfaced ahead of time." },
+  { t: "CSV import", d: "Bring in an existing contact list with header detection and group auto-creation." },
+  { t: "Account controls", d: "Export all data as CSV or delete the account from the user menu." },
   { t: "Demo mode", d: "One-click seeded fictional data so the app is reviewable instantly." },
 ];
 
@@ -24,6 +26,7 @@ const DECISIONS = [
   "Kept v1 narrow instead of building Gmail, LinkedIn, or Calendar integrations.",
   "Focused on the follow-up workflow first — capture, remind, complete.",
   "Used demo data to make the app reviewable without exposing real contacts.",
+  "Demo runs only in anonymous sessions so it can never overwrite a real account's data.",
   "Treated this as an AI-assisted product/building exercise, end-to-end.",
 ];
 
@@ -36,11 +39,11 @@ const LIMITATIONS = [
 ];
 
 const ROADMAP = [
-  "CSV import",
   "AI follow-up suggestions",
   "Contact freshness score",
   "Calendar integration",
   "Email reminders",
+  "Bulk actions on contacts",
   "Better mobile experience",
 ];
 
