@@ -20,6 +20,13 @@ import { Button } from "@/components/ui/button";
  * prefers-reduced-motion.
  */
 
+type Interaction = {
+  /** Human-readable relative date, e.g. "14 days ago", "Last Tue", "Aug 12" */
+  when: string;
+  kind: "note" | "meeting" | "call" | "email" | "intro" | "text";
+  text: string;
+};
+
 type Contact = {
   id: string;
   initials: string;
@@ -34,26 +41,149 @@ type Contact = {
   /** small status chip in the top-right of the card, e.g. "14d", "Today" */
   badge?: string;
   dim?: boolean;
+  // ---- Profile details surfaced in the contact modal
+  title?: string;
+  company?: string;
+  city?: string;
+  email?: string;
+  /** Status pill in the modal header */
+  status?: string;
+  /** Most-recent-first list of interactions */
+  interactions?: Interaction[];
 };
 
 const CONTACTS: Contact[] = [
   // Inner ring — closest
-  { id: "ma", initials: "MA", name: "Maya Chen", meta: "Mentor · NYC", ring: 0, angle: 312, reason: "It's been 14 days since your last note. A quick hello would land warm.", badge: "14d" },
-  { id: "jl", initials: "JL", name: "Jordan Lee", meta: "Friend · LA", ring: 0, angle: 70, reason: "Birthday next Tuesday — send something thoughtful.", badge: "🎂" },
-  { id: "rs", initials: "RS", name: "Rohan Shah", meta: "Classmate", ring: 0, angle: 190, reason: "You promised an intro 3 weeks ago. Still on?", badge: "Due" },
+  {
+    id: "ma", initials: "MA", name: "Maya Chen", meta: "Mentor · NYC",
+    ring: 0, angle: 312, badge: "14d",
+    reason: "It's been 14 days since your last note. A quick hello would land warm.",
+    title: "Design Director", company: "Lattice", city: "Brooklyn, NY",
+    email: "maya@example.com", status: "Cooling off",
+    interactions: [
+      { when: "14 days ago", kind: "note", text: "Sent her the portfolio review notes she asked for." },
+      { when: "Apr 22", kind: "meeting", text: "Coffee in Williamsburg — discussed her team's hiring plans for Q3." },
+      { when: "Mar 30", kind: "intro", text: "Introduced her to Devon at Stripe re: design ops role." },
+      { when: "Feb 14", kind: "email", text: "Birthday wishes + caught up on the new house." },
+    ],
+  },
+  {
+    id: "jl", initials: "JL", name: "Jordan Lee", meta: "Friend · LA",
+    ring: 0, angle: 70, badge: "🎂",
+    reason: "Birthday next Tuesday — send something thoughtful.",
+    title: "Founder", company: "Quill", city: "Los Angeles, CA",
+    email: "jordan@example.com", status: "Birthday soon",
+    interactions: [
+      { when: "Last Sat", kind: "text", text: "Sent the trail map for the Topanga hike." },
+      { when: "May 3", kind: "call", text: "30 min on fundraising — they're closing a small seed." },
+      { when: "Apr 11", kind: "meeting", text: "Lunch at Gjelina with Kenji." },
+    ],
+  },
+  {
+    id: "rs", initials: "RS", name: "Rohan Shah", meta: "Classmate",
+    ring: 0, angle: 190, badge: "Due",
+    reason: "You promised an intro 3 weeks ago. Still on?",
+    title: "PM", company: "Notion", city: "San Francisco, CA",
+    email: "rohan@example.com", status: "Owed an intro",
+    interactions: [
+      { when: "3 weeks ago", kind: "note", text: "Promised to intro to Sara at Sequoia about the side project." },
+      { when: "Apr 28", kind: "call", text: "Catching up on b-school reunions." },
+      { when: "Mar 18", kind: "email", text: "He sent the deck for early feedback." },
+    ],
+  },
 
   // Middle ring
-  { id: "pk", initials: "PK", name: "Priya Kapoor", ring: 1, angle: 25, reason: "Started a new role at Figma" },
-  { id: "an", initials: "AN", name: "Ana Navarro", ring: 1, angle: 110, reason: "Coffee chat overdue · 6 weeks" },
-  { id: "tc", initials: "TC", name: "Tomás Cruz", ring: 1, angle: 200, reason: "Mentioned hiring — follow up", dim: true },
-  { id: "ev", initials: "EV", name: "Elena Voss", ring: 1, angle: 290, reason: "Cooling off — last spoke Aug 12" },
+  {
+    id: "pk", initials: "PK", name: "Priya Kapoor", meta: "Ex-colleague",
+    ring: 1, angle: 25, reason: "Started a new role at Figma.",
+    title: "Eng Manager", company: "Figma", city: "New York, NY",
+    email: "priya@example.com", status: "New role",
+    interactions: [
+      { when: "Mon", kind: "note", text: "Saw her LinkedIn post — congratulated her on the Figma role." },
+      { when: "Feb 9", kind: "meeting", text: "Coffee at Devoción — discussed her interview loops." },
+    ],
+  },
+  {
+    id: "an", initials: "AN", name: "Ana Navarro", meta: "Friend · CDMX",
+    ring: 1, angle: 110, reason: "Coffee chat overdue — 6 weeks.",
+    title: "Brand Strategist", company: "Independent", city: "Mexico City",
+    email: "ana@example.com", status: "Overdue",
+    interactions: [
+      { when: "6 weeks ago", kind: "call", text: "Caught up on her client roster and the move to CDMX." },
+      { when: "Feb 2", kind: "intro", text: "Connected her with Hana for a podcast collab." },
+    ],
+  },
+  {
+    id: "tc", initials: "TC", name: "Tomás Cruz", meta: "Recruiter",
+    ring: 1, angle: 200, dim: true,
+    reason: "Mentioned hiring — follow up.",
+    title: "Talent Partner", company: "Index Ventures", city: "London, UK",
+    email: "tomas@example.com", status: "Warm intro lead",
+    interactions: [
+      { when: "10 days ago", kind: "email", text: "Mentioned a portco hiring a head of design." },
+      { when: "Jan 25", kind: "meeting", text: "Coffee in Shoreditch — overview of their hiring slate." },
+    ],
+  },
+  {
+    id: "ev", initials: "EV", name: "Elena Voss", meta: "Investor",
+    ring: 1, angle: 290, reason: "Cooling off — last spoke Aug 12.",
+    title: "Partner", company: "Hawk Capital", city: "Berlin, DE",
+    email: "elena@example.com", status: "Cooling off",
+    interactions: [
+      { when: "Aug 12", kind: "call", text: "Quarterly check-in — she's leaning into developer tools." },
+      { when: "Jun 4", kind: "intro", text: "Introduced her to Devon's founder." },
+    ],
+  },
 
   // Outer ring — looser orbit
-  { id: "ha", initials: "HA", name: "Hana Abe", ring: 2, angle: 15, reason: "Sent a deck — circle back", dim: true },
-  { id: "ds", initials: "DS", name: "Devon Sato", ring: 2, angle: 75, reason: "Anniversary at Stripe today" },
-  { id: "mo", initials: "MO", name: "Maya Okonkwo", ring: 2, angle: 150, reason: "Mentor — quarterly check-in" },
-  { id: "kn", initials: "KN", name: "Kenji Noma", ring: 2, angle: 220, reason: "Asked about Lagos trip", dim: true },
-  { id: "sb", initials: "SB", name: "Sara Bennett", ring: 2, angle: 300, reason: "Investor intro pending" },
+  {
+    id: "ha", initials: "HA", name: "Hana Abe", meta: "Operator", ring: 2, angle: 15, dim: true,
+    reason: "Sent a deck — circle back.",
+    title: "Chief of Staff", company: "Loom", city: "Tokyo, JP",
+    email: "hana@example.com", status: "Awaiting response",
+    interactions: [
+      { when: "9 days ago", kind: "email", text: "Sent her the GTM deck for thoughts." },
+      { when: "Apr 1", kind: "meeting", text: "Dinner in Shibuya with the Loom team." },
+    ],
+  },
+  {
+    id: "ds", initials: "DS", name: "Devon Sato", meta: "Friend · Stripe", ring: 2, angle: 75,
+    reason: "Anniversary at Stripe today.",
+    title: "Staff PM", company: "Stripe", city: "San Francisco, CA",
+    email: "devon@example.com", status: "Milestone today",
+    interactions: [
+      { when: "Today", kind: "note", text: "5 years at Stripe — drop a quick congrats." },
+      { when: "Apr 30", kind: "meeting", text: "Lunch at Souvla." },
+    ],
+  },
+  {
+    id: "mo", initials: "MO", name: "Maya Okonkwo", meta: "Mentor", ring: 2, angle: 150,
+    reason: "Mentor — quarterly check-in.",
+    title: "VP Product", company: "Atlassian", city: "Lagos, NG",
+    email: "maya.o@example.com", status: "Quarterly cadence",
+    interactions: [
+      { when: "Last quarter", kind: "call", text: "Career retro — talked about staying technical as you grow." },
+    ],
+  },
+  {
+    id: "kn", initials: "KN", name: "Kenji Noma", meta: "Friend", ring: 2, angle: 220, dim: true,
+    reason: "Asked about the Lagos trip.",
+    title: "Photographer", company: "Independent", city: "Osaka, JP",
+    email: "kenji@example.com", status: "Awaiting reply",
+    interactions: [
+      { when: "5 days ago", kind: "text", text: "Asked how the Lagos trip went and if photos are up." },
+    ],
+  },
+  {
+    id: "sb", initials: "SB", name: "Sara Bennett", meta: "Investor", ring: 2, angle: 300,
+    reason: "Investor intro pending.",
+    title: "Partner", company: "Sequoia", city: "Menlo Park, CA",
+    email: "sara@example.com", status: "Pending intro",
+    interactions: [
+      { when: "2 weeks ago", kind: "email", text: "Confirmed she's open to an intro from Rohan." },
+      { when: "Mar 11", kind: "meeting", text: "Met at the Sequoia founder dinner." },
+    ],
+  },
 ];
 
 // Which contacts cycle through the "featured" spotlight. Pick a varied set
