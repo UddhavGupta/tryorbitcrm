@@ -1,13 +1,29 @@
 import { Link } from "react-router-dom";
-import { Bell, Calendar, Users, ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send, Cake, Flame, Sun, Zap, Lock, Sparkles, Check, Minus } from "lucide-react";
+import { ArrowRight, PlayCircle, Github, Linkedin, Globe, UserPlus, NotebookPen, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFooter";
 import { SEO } from "@/components/SEO";
+import { Reveal, RevealStagger } from "@/components/Reveal";
+import { AnimatedDashboard } from "@/components/landing/AnimatedDashboard";
+import { TrustedStrip } from "@/components/landing/TrustedStrip";
+import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
+import { DigestPreview } from "@/components/landing/DigestPreview";
+import { Testimonials } from "@/components/landing/Testimonials";
+import { Faq } from "@/components/landing/Faq";
+import { BigStat } from "@/components/landing/BigStat";
 
 const Landing = () => {
   const [doc, setDoc] = useState<DocKey>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,8 +41,14 @@ const Landing = () => {
           offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
         }}
       />
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 sm:h-16 items-center justify-between gap-2">
+      <header
+        className={`sticky top-0 z-50 border-b transition-all duration-300 ${
+          scrolled
+            ? "border-border bg-background/85 backdrop-blur-md shadow-[0_4px_20px_-12px_hsl(24_30%_12%/0.18)]"
+            : "border-transparent bg-background/60 backdrop-blur-sm"
+        }`}
+      >
+        <div className={`container flex items-center justify-between gap-2 transition-all ${scrolled ? "h-12 sm:h-14" : "h-14 sm:h-16"}`}>
           <div className="flex items-center min-w-0">
             <Logo className="text-xl sm:text-2xl" />
           </div>
@@ -37,49 +59,67 @@ const Landing = () => {
         </div>
       </header>
 
+      {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 gradient-soft pointer-events-none" />
+        <div aria-hidden className="absolute left-1/2 top-24 -translate-x-1/2 w-[800px] h-[480px] aurora-blob pointer-events-none -z-0" />
         <div className="container relative pt-16 sm:pt-24 md:pt-32 pb-10 md:pb-16 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground animate-fade-up">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Personal CRM, reimagined
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Personal CRM, reimagined
           </span>
           <h1 className="display-xl mt-6 md:text-7xl tracking-tight animate-fade-up">
             Remember <RotatingWord /> <br />
             <span className="italic text-primary">in your orbit.</span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2 animate-fade-up-delay-1">
-            A lightweight CRM for students, founders, operators, and job seekers. Track who you know, what matters, and when to reach out next.
+            A lightweight CRM built around relationships, not deals. Track who you know, what matters, and when to reach out next.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none animate-fade-up-delay-1">
             <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
               <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
             </Button>
-            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto">
+            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.5)] hover:shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.6)] transition-shadow">
               <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
-          
         </div>
       </section>
 
-      {/* Product preview */}
-      <section className="container pb-12 md:pb-20 animate-fade-up-delay-2">
-        <DashboardPreview />
-        <p className="text-center text-xs text-muted-foreground mt-4">
-          A glimpse of the dashboard. Explore the live version with seeded sample data.
+      {/* Animated dashboard preview */}
+      <section className="container pb-16 md:pb-24 animate-fade-up-delay-2">
+        <AnimatedDashboard />
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          Live preview · pauses when offscreen
         </p>
       </section>
 
+      <TrustedStrip />
+
+      {/* Product tour */}
+      <section className="container py-20 md:py-28">
+        <Reveal>
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <p className="eyebrow-primary">Product tour</p>
+            <h2 className="display-lg mt-3">Three surfaces, one calm loop.</h2>
+          </div>
+        </Reveal>
+        <Reveal delay={120}>
+          <ScreenshotCarousel />
+        </Reveal>
+      </section>
+
+      <div className="container"><div className="divider-hairline" /></div>
+
       {/* How it works */}
-      <section className="container py-20">
-        <div className="text-center max-w-2xl mx-auto">
-          <p className="eyebrow-primary">How it works</p>
-          <h2 className="display-lg mt-3">
-            Three steps to a warmer network.
-          </h2>
-        </div>
-        <div className="mt-12 grid md:grid-cols-3 gap-6">
+      <section className="container py-20 md:py-28">
+        <Reveal>
+          <div className="text-center max-w-2xl mx-auto">
+            <p className="eyebrow-primary">How it works</p>
+            <h2 className="display-lg mt-3">Three steps to a warmer network.</h2>
+          </div>
+        </Reveal>
+        <RevealStagger className="mt-12 grid md:grid-cols-3 gap-6" step={100}>
           {[
             { icon: UserPlus, num: "01", title: "Add people", desc: "Capture the contacts who matter — recruiters, alumni, investors, classmates, mentors." },
             { icon: NotebookPen, num: "02", title: "Capture context", desc: "Notes, groups, priorities, birthdays, and why each relationship matters." },
@@ -94,96 +134,44 @@ const Landing = () => {
               <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.desc}</p>
             </div>
           ))}
+        </RevealStagger>
+      </section>
+
+      {/* Big stat */}
+      <Reveal>
+        <BigStat />
+      </Reveal>
+
+      {/* Weekly digest preview */}
+      <section className="relative py-20 md:py-28 bg-card-muted/40">
+        <div className="container">
+          <Reveal>
+            <div className="text-left max-w-2xl mb-10">
+              <p className="eyebrow-primary">Monday mornings</p>
+              <h2 className="display-lg mt-3">A weekly digest that does the thinking.</h2>
+              <p className="text-muted-foreground mt-3 text-sm leading-relaxed max-w-lg">
+                Every Monday at 7am, OrbitCRM emails you the people most worth a message this week. No dashboard required.
+              </p>
+            </div>
+          </Reveal>
+          <Reveal delay={120}>
+            <DigestPreview />
+          </Reveal>
         </div>
       </section>
 
-      {/* KPI strip */}
-      <section className="container pb-2">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-          {[
-            { icon: Zap, label: "0 setup", desc: "Sign in and start adding people." },
-            { icon: Lock, label: "Private to you", desc: "Your contacts never leave your account." },
-            { icon: Sparkles, label: "Demo in 5 seconds", desc: "Load sample data with one click." },
-          ].map((k) => (
-            <div key={k.label} className="surface-card p-5 flex items-start gap-3 h-full">
-              <span className="h-9 w-9 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center shrink-0">
-                <k.icon className="h-4 w-4 text-primary" />
-              </span>
-              <div>
-                <p className="font-semibold text-sm">{k.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{k.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Comparison */}
-      <section className="container py-16">
-        <div className="text-center max-w-2xl mx-auto">
-          <p className="eyebrow-primary">Why OrbitCRM</p>
-          <h2 className="display-lg mt-3">Built for personal networks, not pipelines.</h2>
-        </div>
-        <div className="mt-10 grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-          {[
-            { title: "Spreadsheets", primary: false, items: [
-              { ok: false, t: "No reminders or cooling alerts" },
-              { ok: false, t: "Easy to forget follow-ups" },
-              { ok: true, t: "Free and familiar" },
-            ]},
-            { title: "Big CRMs", primary: false, items: [
-              { ok: false, t: "Built for sales pipelines, not people" },
-              { ok: false, t: "Heavy setup and noisy UI" },
-              { ok: true, t: "Powerful for teams of reps" },
-            ]},
-            { title: "OrbitCRM", primary: true, items: [
-              { ok: true, t: "Reach-outs surface automatically" },
-              { ok: true, t: "Calm UI that respects your time" },
-              { ok: true, t: "Built around relationships, not deals" },
-            ]},
-          ].map((col) => (
-            <div key={col.title} className={`surface-card p-6 h-full ${col.primary ? "border-primary/40 ring-1 ring-primary/20" : ""}`}>
-              <h3 className={`font-semibold ${col.primary ? "text-primary" : ""}`}>{col.title}</h3>
-              <ul className="mt-4 space-y-2.5 text-sm">
-                {col.items.map((i, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    {i.ok ? <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" /> : <Minus className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />}
-                    <span className={i.ok ? "text-foreground" : "text-muted-foreground"}>{i.t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Original feature highlights */}
-      <section id="features" className="container py-12 grid md:grid-cols-3 gap-6">
-        {[
-          { icon: Users, title: "Your people, organized", desc: "Group contacts by context — investors, friends, recruiters, classmates." },
-          { icon: Bell, title: "Never go cold", desc: "Cooling alerts surface relationships drifting out of touch." },
-          { icon: Calendar, title: "Birthdays & dates", desc: "Always be the one who remembers." },
-        ].map((f) => (
-          <div key={f.title} className="surface-card p-6 lift h-full">
-            <div className="h-10 w-10 rounded-xl bg-[hsl(var(--primary-soft))] grid place-items-center mb-4">
-              <f.icon className="h-5 w-5 text-primary" />
-            </div>
-            <h3 className="font-semibold text-lg">{f.title}</h3>
-            <p className="text-muted-foreground mt-1">{f.desc}</p>
+      {/* Who it's for */}
+      <section className="container py-20 md:py-28">
+        <Reveal>
+          <div className="text-center max-w-2xl mx-auto">
+            <p className="eyebrow-primary">Who it's for</p>
+            <h2 className="display-lg mt-3">Built for network-heavy people.</h2>
+            <p className="text-muted-foreground mt-3">
+              Designed for the people whose work depends on relationships staying warm.
+            </p>
           </div>
-        ))}
-      </section>
-
-      {/* Built for network-heavy people */}
-      <section className="container py-20">
-        <div className="text-center max-w-2xl mx-auto">
-          <p className="eyebrow-primary">Who it's for</p>
-          <h2 className="display-lg mt-3">Built for network-heavy people</h2>
-          <p className="text-muted-foreground mt-3">
-            Designed for the people whose work depends on relationships staying warm.
-          </p>
-        </div>
-        <div className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+        </Reveal>
+        <RevealStagger className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto" step={80}>
           {[
             { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities.", to: "/for/job-seekers" },
             { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles.", to: "/for/founders" },
@@ -198,15 +186,42 @@ const Landing = () => {
               <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{u.d}</p>
             </Link>
           ))}
-        </div>
-        <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-3">
-          <Button size="lg" asChild className="gradient-primary">
-            <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <Link to="/auth?mode=signup">Sign Up</Link>
-          </Button>
-        </div>
+        </RevealStagger>
+      </section>
+
+      <div className="container"><div className="divider-hairline" /></div>
+
+      {/* Testimonials */}
+      <section className="container py-20 md:py-28">
+        <Reveal>
+          <Testimonials />
+        </Reveal>
+      </section>
+
+      {/* FAQ */}
+      <section className="container py-20 md:py-28 bg-card-muted/30 -mx-[max(1rem,(100vw-1400px)/2)] px-[max(1rem,(100vw-1400px)/2)]">
+        <Reveal>
+          <Faq />
+        </Reveal>
+      </section>
+
+      {/* Final CTA */}
+      <section className="container py-24 md:py-32 text-center">
+        <Reveal>
+          <p className="eyebrow-primary">Stay in orbit</p>
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight mt-4 leading-[1.05]">
+            Everything in your circle,<br />
+            <span className="italic text-primary">always in motion.</span>
+          </h2>
+          <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none">
+            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
+              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
+            </Button>
+            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.5)]">
+              <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </div>
+        </Reveal>
       </section>
 
       {/* Portfolio disclaimer */}
@@ -231,7 +246,6 @@ const Landing = () => {
 
           <FooterCol title="Product">
             <FooterRoute to="/demo">Live Demo</FooterRoute>
-            <FooterAnchor href="#features">Features</FooterAnchor>
             <FooterRoute to="/auth?mode=signup">Sign Up</FooterRoute>
             <FooterRoute to="/auth">Sign In</FooterRoute>
           </FooterCol>
@@ -240,7 +254,6 @@ const Landing = () => {
             <FooterRoute to="/for/job-seekers">Job Seekers</FooterRoute>
             <FooterRoute to="/for/students">Students</FooterRoute>
             <FooterRoute to="/for/founders">Founders</FooterRoute>
-            <FooterAnchor href="#features">Operators</FooterAnchor>
           </FooterCol>
 
           <FooterCol title="Resources">
@@ -291,38 +304,11 @@ const linkBase = "text-muted-foreground hover:text-primary focus-visible:text-pr
 const FooterButton = ({ onClick, children }: { onClick: () => void; children: React.ReactNode }) => (
   <li><button onClick={onClick} className={linkBase}>{children}</button></li>
 );
-const FooterAnchor = ({ href, children }: { href: string; children: React.ReactNode }) => (
-  <li><a href={href} className={linkBase}>{children}</a></li>
-);
 const FooterRoute = ({ to, children }: { to: string; children: React.ReactNode }) => (
   <li><Link to={to} className={linkBase}>{children}</Link></li>
 );
 
-const TODAYS = [
-  { name: "Maya Ellis", ctx: "Product Strategy · Aster Vale Labs", tag: "Follow up on referral", priority: "high" as const },
-  { name: "Noah Raman", ctx: "Founder · Copperline Studio", tag: "Send updated deck", priority: "high" as const },
-  { name: "Leah Morrison", ctx: "Investor · Harborpoint Ventures", tag: "Coffee chat reply", priority: "med" as const },
-];
-const BIRTHDAYS = [
-  { name: "Sofia Park", when: "Today", role: "UX Researcher" },
-  { name: "Ethan Brooks", when: "in 3 days", role: "Growth Manager" },
-];
-const COOLING = [
-  { name: "Arjun Vale", days: 47, role: "Chief of Staff · Northbridge Systems" },
-  { name: "Priya Mehta", days: 62, role: "PM · Waypoint Cloud" },
-];
-
-const priorityDot: Record<"high" | "med" | "low", string> = {
-  high: "bg-primary",
-  med: "bg-amber-500",
-  low: "bg-muted-foreground/40",
-};
-
-// Rotating word in the hero. Alternates between English people-types and
-// translations of "everyone" so foreign words never cluster together.
-// Weighted pools. Higher weight = appears more often. Common, relatable roles
-// (friends, mentors, colleagues) surface more; niche ones (neighbors, alumni)
-// stay rare for variety.
+// ============ Rotating hero word ============
 const ENGLISH_WORDS: Array<[string, number]> = [
   ["everyone", 10],
   ["friends", 9],
@@ -335,19 +321,16 @@ const ENGLISH_WORDS: Array<[string, number]> = [
   ["alumni", 2],
   ["neighbors", 1],
 ];
-// Translations of "everyone" across many languages and scripts. Weighted so
-// widely-recognized languages appear more often, rarer scripts sprinkle in.
 const FOREIGN_WORDS: Array<[string, number]> = [
-  ["सबको", 1],          // Hindi
-  ["tout le monde", 1], // French
-  ["semua orang", 1],   // Bahasa Indonesia
-  ["每个人", 1],         // Mandarin
+  ["सबको", 1],
+  ["tout le monde", 1],
+  ["semua orang", 1],
+  ["每个人", 1],
 ];
 
 function pickWeighted(pool: Array<[string, number]>, exclude: string[] = []): string {
   const excludeSet = new Set(exclude);
   let choices = pool.filter(([w]) => !excludeSet.has(w));
-  // Safety: if exclusions wipe out the pool, fall back to the full pool.
   if (choices.length === 0) choices = pool;
   const total = choices.reduce((sum, [, w]) => sum + w, 0);
   let r = Math.random() * total;
@@ -358,8 +341,6 @@ function pickWeighted(pool: Array<[string, number]>, exclude: string[] = []): st
   return choices[choices.length - 1][0];
 }
 
-// How many recent picks to avoid repeating, per pool. Sized to roughly half
-// the pool so rotation stays fresh without exhausting variety.
 const ENGLISH_MEMORY = 5;
 const FOREIGN_MEMORY = 2;
 
@@ -372,8 +353,8 @@ const RotatingWord = () => {
     const recentEnglish: string[] = ["everyone"];
     const recentForeign: string[] = [];
 
-    const remember = (list: string[], word: string, max: number) => {
-      list.push(word);
+    const remember = (list: string[], w: string, max: number) => {
+      list.push(w);
       while (list.length > max) list.shift();
     };
 
@@ -409,89 +390,5 @@ const RotatingWord = () => {
     </span>
   );
 };
-
-const DashboardPreview = () => {
-  const h = new Date().getHours();
-  const greeting = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-  return (
-  <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden max-w-5xl mx-auto">
-    {/* Window chrome */}
-    <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background/60">
-      <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
-      <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
-      <span className="h-2.5 w-2.5 rounded-full bg-muted-foreground/30" />
-      <div className="ml-3 text-xs text-muted-foreground font-mono truncate">orbitcrm.guptau.com</div>
-    </div>
-
-    <div className="p-5 md:p-7">
-      <div className="flex items-baseline justify-between mb-5">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Dashboard</p>
-          <h3 className="font-display text-xl md:text-2xl mt-0.5">{greeting}, Uddhav</h3>
-        </div>
-        <span className="hidden sm:inline text-xs text-muted-foreground">{new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</span>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-4">
-        {/* Today's reach-outs */}
-        <PreviewPanel icon={<Sun className="h-3.5 w-3.5" />} title="Today's reach-outs" count={TODAYS.length}>
-          {TODAYS.map((t) => (
-            <li key={t.name} className="flex items-start gap-2.5 py-2 border-b border-border/60 last:border-0">
-              <span className={`mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${priorityDot[t.priority]}`} />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium truncate">{t.name}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{t.ctx}</p>
-                <p className="text-[11px] text-foreground/70 mt-0.5 truncate">{t.tag}</p>
-              </div>
-            </li>
-          ))}
-        </PreviewPanel>
-
-        {/* Birthdays */}
-        <PreviewPanel icon={<Cake className="h-3.5 w-3.5" />} title="Birthdays" count={BIRTHDAYS.length}>
-          {BIRTHDAYS.map((b) => (
-            <li key={b.name} className="flex items-center justify-between py-2 border-b border-border/60 last:border-0">
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{b.name}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{b.role}</p>
-              </div>
-              <span className="text-[11px] text-primary font-medium shrink-0 ml-2">{b.when}</span>
-            </li>
-          ))}
-          <li className="pt-2 text-[11px] text-muted-foreground">+2 more this month</li>
-        </PreviewPanel>
-
-        {/* Cooling */}
-        <PreviewPanel icon={<Flame className="h-3.5 w-3.5" />} title="Cooling alerts" count={COOLING.length}>
-          {COOLING.map((c) => (
-            <li key={c.name} className="flex items-center justify-between py-2 border-b border-border/60 last:border-0">
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{c.name}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{c.role}</p>
-              </div>
-              <span className="text-[11px] text-muted-foreground shrink-0 ml-2">{c.days}d cold</span>
-            </li>
-          ))}
-        </PreviewPanel>
-      </div>
-    </div>
-  </div>
-  );
-};
-
-const PreviewPanel = ({
-  icon, title, count, children,
-}: { icon: React.ReactNode; title: string; count: number; children: React.ReactNode }) => (
-  <div className="rounded-xl border border-border bg-background/40 p-4">
-    <div className="flex items-center justify-between mb-2">
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-        <span className="text-primary">{icon}</span>
-        {title}
-      </div>
-      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{count}</span>
-    </div>
-    <ul>{children}</ul>
-  </div>
-);
 
 export default Landing;

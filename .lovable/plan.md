@@ -1,32 +1,89 @@
-## Replace image logo with text wordmark
+# Landing v2 — "Quietly Premium"
 
-Remove the `orbitcrm-logo.png` image from every surface and replace it with a text-based wordmark: the word **OrbitCRM** set in Didot (with Bodoni as fallback), black color.
+Goal: same warm/editorial soul, but with depth, motion, and proof. Notion/Superhuman energy.
 
-### Approach
+## 1. Hero + live dashboard preview
 
-1. **Add the font** — Didot/Bodoni aren't web-safe, so load Bodoni Moda from Google Fonts in `index.html` as a reliable web-available stand-in for Didot's high-contrast serif look. Define a `font-logo` family in `tailwind.config.ts` with the stack: `"Didot", "Bodoni Moda", "Bodoni 72", serif`. Native Didot/Bodoni will be used on macOS/iOS; Bodoni Moda on every other device.
+**Headline area**
+- Keep the rotating word, add a soft animated aurora-style gradient blob behind the headline (very low opacity, slow drift). Adds depth without noise.
+- Tighten the CTA row: primary button gets a 1px gradient border + subtle inner glow on hover. Secondary stays ghost.
+- Add a thin "trusted by" strip under the CTAs — 4–5 monospaced labels ("Students at Stanford, NYU, BITS · Founders in YC, On Deck") instead of fake logos (honest for a portfolio project).
 
-2. **Create a `<Logo />` component** at `src/components/Logo.tsx` — a single source of truth that renders:
-   ```tsx
-   <span className="font-logo font-semibold tracking-tight text-foreground">OrbitCRM</span>
-   ```
-   Accepts a `className` prop so each call site can size it (e.g. `text-xl`, `text-2xl`). Uses `text-foreground` (near-black in the current theme) so it adapts cleanly; if you'd rather force pure `#000`, swap to `text-black`.
+**Dashboard mock → alive**
+- Wrap in a tilted/floating container with a soft radial gradient halo behind it.
+- Animate on a 3–4s loop:
+  - "Today's reach-outs" count ticks 3 → 4 with a new row sliding in.
+  - A birthday row flips "Today" → "🎉 sent" after a beat.
+  - Cooling counter increments "47d cold" → "48d cold" with a subtle pulse.
+- Add scroll-parallax: dashboard lifts ~20px as user scrolls past hero.
+- Reflection/fade at the bottom edge so it looks like it's floating on a surface.
 
-3. **Replace every `<img src={logo} />`** in these files with `<Logo className="..." />`, sized to roughly match the current image height:
-   - `src/pages/Landing.tsx` (header + footer)
-   - `src/pages/Auth.tsx`
-   - `src/pages/Demo.tsx`
-   - `src/pages/Changelog.tsx`
-   - `src/pages/ProjectNotes.tsx`
-   - `src/pages/Press.tsx`
-   - `src/components/AppLayout.tsx` (sidebar)
-   - `src/components/MarketingPage.tsx`
-   Remove the `import logo from "@/assets/orbitcrm-logo.png"` line in each.
+## 2. Scroll-reveal & micro-animations (page-wide)
 
-4. **Delete the asset** `src/assets/orbitcrm-logo.png` once no references remain.
+- Every section: fade-up + 16px translate on enter, staggered for grids (50ms between cards). Use IntersectionObserver, one shared hook.
+- Cards (`surface-card`): tilt-on-hover (max 4° via CSS transform), shadow expands, primary tint warms.
+- Number/stat moments: count-up animation when scrolled into view.
+- Sticky header already done — add a subtle shadow + tighter padding once scrolled >40px.
+- All animations respect `prefers-reduced-motion`.
 
-5. **Leave favicon/OG image alone** unless you want those swapped too — those live in `public/` and `index.html` and aren't part of the in-app logo.
+## 3. Restructure content (proof + trust)
 
-### Open question
+Current page has redundancy. New order:
 
-Pure black (`text-black`) or theme foreground (near-black, `text-foreground`)? I'll default to `text-foreground` for consistency with the rest of the design system unless you say otherwise.
+```text
+Hero (animated dashboard)
+  ↓
+Trusted-by strip (honest labels)
+  ↓
+Product tour — 3-screenshot carousel
+   (People view · Contact detail · Reminders)
+  ↓
+"Three steps to a warmer network" (keep, polish icons)
+  ↓
+Weekly digest preview
+   ("This is what lands in your inbox Monday morning")
+   — mock email card with 3 reach-outs, 1 birthday, 1 cooling alert
+  ↓
+"Built for network-heavy people" (keep)
+  ↓
+Testimonials — 3 portfolio quotes, framed as honest
+   ("Used during my MBA recruiting — Anya, '26")
+  ↓
+FAQ — 5 questions
+   (Is my data private? · Can I import contacts? · Is it really free?
+    · Does it sync with LinkedIn? · Why not just a spreadsheet?)
+  ↓
+Final CTA + footer
+```
+
+**Dropped:** Comparison table (Spreadsheets / Big CRMs / OrbitCRM) — duplicates "Why OrbitCRM" message. Merge its best line ("Built around relationships, not deals") into hero subtitle area.
+
+**Dropped:** The 3 KPI strip ("0 setup / Private / Demo in 5s") — moves into FAQ answers where it belongs.
+
+## 4. Typography & visual system polish
+
+- **One oversized stat moment** between sections: "Remember 12,400 birthdays. Never miss one again." Set in display serif at ~96px, centered, lots of whitespace.
+- **Vary section rhythm**: alternate eyebrow placement (centered, then left-aligned, then no eyebrow at all). Stops the templated feel.
+- **Custom duotone icons** for the 3 "how it works" steps — hand-styled SVGs in primary + primary-soft, not Lucide. Same for feature grid.
+- **Section dividers**: thin gradient hairlines instead of hard borders.
+- **Card depth tokens**: add `--shadow-lift-sm` and `--shadow-lift-md` to index.css. Replace ad-hoc shadows.
+- **Footer**: add a final big serif sign-off ("Stay in orbit.") above the columns.
+
+## Technical notes
+
+- New hook: `useInView` (IntersectionObserver wrapper) — used by all reveal components.
+- New component: `AnimatedDashboard` — replaces current `DashboardPreview`. Uses `useState` + `setInterval` for the loop; pauses when off-screen.
+- New components: `ScreenshotCarousel`, `DigestPreview`, `Testimonials`, `Faq`, `BigStat`, `RevealOnScroll`.
+- All animations use Tailwind classes + CSS keyframes already in `tailwind.config.ts`; no new deps.
+- Mocked screenshots for the carousel: build them as React components (same approach as current dashboard mock) so they stay crisp and themable.
+- All copy stays honest about being a portfolio project — testimonials labeled as scenarios, not real users.
+
+## What I'm explicitly NOT changing
+
+- Brand colors, fonts, or the rotating-word component (already working).
+- Routing, auth, or any app functionality.
+- The portfolio disclaimer (kept prominent).
+
+## Rollout
+
+Single PR replacing `src/pages/Landing.tsx` plus the new components above. Existing visual regression test (`landing-headline.test.tsx`) keeps passing — extended with one new check that the hero dashboard renders without `overflow-hidden` ancestors clipping it.

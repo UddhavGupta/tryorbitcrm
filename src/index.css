@@ -132,4 +132,34 @@
   .animate-fade-up { animation: fade-up 0.4s ease-out both; }
   .animate-fade-up-delay-1 { animation: fade-up 0.4s ease-out 60ms both; }
   .animate-fade-up-delay-2 { animation: fade-up 0.4s ease-out 120ms both; }
+
+  /* Slow-drifting aurora blob behind the hero headline. */
+  .aurora-blob {
+    background:
+      radial-gradient(40% 60% at 30% 40%, hsl(var(--primary) / 0.18), transparent 65%),
+      radial-gradient(35% 50% at 70% 60%, hsl(var(--primary) / 0.12), transparent 65%);
+    filter: blur(40px);
+    animation: aurora-drift 14s ease-in-out infinite alternate;
+  }
+  @keyframes aurora-drift {
+    0%   { transform: translate3d(-3%, -2%, 0) scale(1); }
+    100% { transform: translate3d(3%, 2%, 0) scale(1.05); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .aurora-blob { animation: none; }
+  }
+
+  /* Soft hairline divider, primary-tinted. */
+  .divider-hairline {
+    height: 1px;
+    background: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
+  }
+
+  /* Larger lift used on hero-grade cards. */
+  .shadow-lift {
+    box-shadow:
+      0 30px 60px -30px hsl(24 30% 12% / 0.28),
+      0 2px 8px -2px hsl(24 30% 12% / 0.08);
+  }
 }
+
