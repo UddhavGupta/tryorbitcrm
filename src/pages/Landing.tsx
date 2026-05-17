@@ -391,8 +391,8 @@ const RotatingWord = () => {
         isForeignNext = !isForeignNext;
         setWord(next);
         setVisible(true);
-      }, 280);
-    }, 2200);
+      }, 450);
+    }, 2600);
     return () => clearInterval(swap);
   }, []);
 
