@@ -235,16 +235,16 @@ const TourOverlay = ({ step, stepIndex, totalSteps, rect, seeding, onSkip, onPre
           ))}
         </div>
 
-        <div className="flex items-center justify-between gap-2 mt-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
           <Button variant="ghost" size="sm" onClick={onSkip}>Skip</Button>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             {!isFirst && (
               <Button variant="outline" size="sm" onClick={onPrev}>Back</Button>
             )}
             {isLast ? (
               <>
                 <Button variant="outline" size="sm" onClick={onLoadSample} disabled={seeding}>
-                  {seeding ? "Loading…" : "Load sample data"}
+                  {seeding ? "Loading…" : "Load sample"}
                 </Button>
                 <Button size="sm" className="gradient-primary" onClick={onDone}>Start fresh</Button>
               </>
