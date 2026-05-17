@@ -284,28 +284,26 @@ export const OrbitConstellation = () => {
                   >
                     {c.initials}
                   </text>
+                  {featured && (
+                    <CalloutAnchor
+                      x={x}
+                      y={y}
+                      visible={calloutVisible}
+                      name={c.name}
+                      reason={c.reason}
+                      pinned={isPinned}
+                      onClose={(e) => {
+                        e.stopPropagation();
+                        setPinnedId(null);
+                        setHoveredId(null);
+                      }}
+                    />
+                  )}
                 </g>
               );
             })}
           </g>
         ))}
-
-        {/* Single callout that follows the active contact. Rendered outside
-            the rotating rings so it stays upright and readable. Position is
-            recomputed from the contact's static angle + current ring rotation
-            inside CalloutForActive. */}
-        {activeContact && (
-          <CalloutForActive
-            contact={activeContact}
-            visible={calloutVisible}
-            pinned={!!pinnedId && pinnedId === activeContact.id}
-            paused={paused}
-            onClose={() => {
-              setPinnedId(null);
-              setHoveredId(null);
-            }}
-          />
-        )}
       </svg>
 
       <style>{`
