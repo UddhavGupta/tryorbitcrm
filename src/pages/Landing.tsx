@@ -221,7 +221,7 @@ const Landing = () => {
           <div className="col-span-1 sm:col-span-2 md:col-span-1">
             <Logo className="text-2xl" />
             <p className="mt-4 text-sm text-muted-foreground max-w-xs">
-              Everything in your circle, always in motion.
+              Everything in your circle,<br />always in motion.
             </p>
             <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
               <li>Built by Uddhav Gupta</li>
