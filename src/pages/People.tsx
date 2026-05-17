@@ -489,7 +489,7 @@ const People = () => {
 
       {(activeFilterCount > 0 || q) && (
         <div className="flex flex-wrap items-center gap-2 mb-4 text-sm">
-          <span className="text-muted-foreground">{filtered.length} of {contacts?.length ?? 0} match</span>
+          <span className="text-muted-foreground">{filtered.length} of {totalContacts} match</span>
           {q && <Chip onClear={() => setQ("")}>Search: "{q}"</Chip>}
           {activeGroupName && <Chip onClear={() => setGroupFilter("all")}>Group: {activeGroupName}</Chip>}
           {priority !== "all" && <Chip onClear={() => setPriority("all")}>Priority: {priority}</Chip>}
