@@ -36,6 +36,7 @@ type ActionFilter = "all" | SuggestedAction;
 
 const People = () => {
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<any>(null);
@@ -58,18 +59,61 @@ const People = () => {
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const qc = useQueryClient();
 
+  // Debounce the search input so we don't hit the backend on every keystroke.
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQ(q.trim()), 250);
+    return () => clearTimeout(id);
+  }, [q]);
+
   const { data: allGroups } = useQuery({
     queryKey: ["all-groups"],
     queryFn: async () => (await supabase.from("groups").select("*").order("name")).data ?? [],
   });
 
-  const { data: contacts, isLoading, error } = useQuery({
-    queryKey: ["contacts"],
+  // Total contacts (unfiltered) — for the "X of Y match" summary.
+  const { data: totalContacts = 0 } = useQuery({
+    queryKey: ["contacts-total"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("contacts")
-        .select("*, contact_groups(group_id, groups(name, color))")
-        .order("name");
+      const { count } = await supabase.from("contacts").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+  });
+
+  const { data: contacts, isLoading, error } = useQuery({
+    queryKey: ["contacts", { q: debouncedQ, groupFilter, companyFilter }],
+    queryFn: async () => {
+      // Inner join when filtering by group so Postgres restricts rows server-side.
+      const selectExpr = groupFilter !== "all"
+        ? "*, contact_groups!inner(group_id, groups(name, color))"
+        : "*, contact_groups(group_id, groups(name, color))";
+
+      let query = supabase.from("contacts").select(selectExpr);
+
+      if (groupFilter !== "all") {
+        query = query.eq("contact_groups.group_id", groupFilter);
+      }
+      if (companyFilter !== "all") {
+        query = query.eq("company", companyFilter);
+      }
+      if (debouncedQ) {
+        // PostgREST `.or()` treats commas/parens/* specially, so strip them.
+        const sanitized = debouncedQ.replace(/[,()*%]/g, " ").replace(/\s+/g, " ").trim();
+        if (sanitized) {
+          const pattern = `*${sanitized}*`;
+          query = query.or(
+            [
+              `name.ilike.${pattern}`,
+              `last_name.ilike.${pattern}`,
+              `title.ilike.${pattern}`,
+              `company.ilike.${pattern}`,
+              `city.ilike.${pattern}`,
+              `notes.ilike.${pattern}`,
+            ].join(","),
+          );
+        }
+      }
+
+      const { data, error } = await query.order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -94,31 +138,36 @@ const People = () => {
     },
   });
 
-  const companies = useMemo(() => {
-    const set = new Set<string>();
-    (contacts ?? []).forEach((c: any) => { if (c.company) set.add(c.company); });
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [contacts]);
-
-  const allTags = useMemo(() => {
-    const flat: string[] = [];
-    (contacts ?? []).forEach((c: any) => (c.tags ?? []).forEach((t: string) => flat.push(t)));
-    return dedupeTags(flat);
-  }, [contacts]);
+  // Distinct companies + tags pulled separately so filter dropdowns stay
+  // stable regardless of which search/filter is currently active.
+  const { data: companies = [] } = useQuery({
+    queryKey: ["contact-companies"],
+    queryFn: async () => {
+      const { data } = await supabase.from("contacts").select("company");
+      const set = new Set<string>();
+      (data ?? []).forEach((r: any) => { if (r.company) set.add(r.company); });
+      return Array.from(set).sort((a, b) => a.localeCompare(b));
+    },
+  });
+  const { data: allTags = [] } = useQuery({
+    queryKey: ["contact-tags"],
+    queryFn: async () => {
+      const { data } = await supabase.from("contacts").select("tags");
+      const flat: string[] = [];
+      (data ?? []).forEach((r: any) => (r.tags ?? []).forEach((t: string) => flat.push(t)));
+      return dedupeTags(flat);
+    },
+  });
 
   const filtered = useMemo(() => {
     let list = contacts ?? [];
     const today = new Date();
     const todayStr = todayLocalISO();
 
-    if (groupFilter !== "all") {
-      list = list.filter((c: any) => c.contact_groups?.some((cg: any) => cg.group_id === groupFilter));
-    }
+    // Group, company, and text search applied server-side; see contacts query.
+
     if (priority !== "all") {
       list = list.filter((c: any) => (c.priority ?? "medium") === priority);
-    }
-    if (companyFilter !== "all") {
-      list = list.filter((c: any) => c.company === companyFilter);
     }
     if (openReminder !== "all") {
       list = list.filter((c: any) => {
@@ -171,15 +220,6 @@ const People = () => {
         return tagFilter.every((t) => tags.includes(t.toLowerCase()));
       });
     }
-    if (q) {
-      const t = q.toLowerCase();
-      list = list.filter((c: any) =>
-        [c.name, c.last_name, c.title, c.company, c.city, c.email, c.notes,
-         ...(c.contact_groups?.map((cg: any) => cg.groups?.name) ?? []),
-         ...((c.tags ?? []) as string[])]
-          .filter(Boolean).join(" ").toLowerCase().includes(t)
-      );
-    }
 
     const priorityRank = (p: string) => (p === "high" ? 0 : p === "medium" ? 1 : 2);
     const sorted = [...list];
@@ -204,7 +244,7 @@ const People = () => {
       return 0;
     });
     return sorted;
-  }, [contacts, q, groupFilter, priority, companyFilter, lastRange, followUp, openReminder, openReminders, statusFilter, actionFilter, sortBy, tagFilter]);
+  }, [contacts, priority, lastRange, followUp, openReminder, openReminders, statusFilter, actionFilter, sortBy, tagFilter]);
 
   const fullName = (c: any) => [c.name, c.last_name].filter(Boolean).join(" ");
   const activeGroupName = allGroups?.find((g: any) => g.id === groupFilter)?.name;
@@ -269,7 +309,7 @@ const People = () => {
       <PageHeader
         title="People"
         description="Search, filter, and manage the relationships in your orbit."
-        meta={`${contacts?.length ?? 0} contacts`}
+        meta={`${totalContacts} contacts`}
         actions={
           <>
             <Button variant="outline" onClick={() => setImportOpen(true)} className="flex-1 sm:flex-none"><Upload className="h-4 w-4 mr-2" />Import CSV</Button>
@@ -449,7 +489,7 @@ const People = () => {
 
       {(activeFilterCount > 0 || q) && (
         <div className="flex flex-wrap items-center gap-2 mb-4 text-sm">
-          <span className="text-muted-foreground">{filtered.length} of {contacts?.length ?? 0} match</span>
+          <span className="text-muted-foreground">{filtered.length} of {totalContacts} match</span>
           {q && <Chip onClear={() => setQ("")}>Search: "{q}"</Chip>}
           {activeGroupName && <Chip onClear={() => setGroupFilter("all")}>Group: {activeGroupName}</Chip>}
           {priority !== "all" && <Chip onClear={() => setPriority("all")}>Priority: {priority}</Chip>}
@@ -467,7 +507,7 @@ const People = () => {
 
       {error && <ErrorState title="Couldn't load contacts" message={(error as Error).message} />}
 
-      {!isLoading && !error && (contacts?.length ?? 0) === 0 && (
+      {!isLoading && !error && totalContacts === 0 && (
         <div className="surface-card p-12 text-center">
           <div className="h-14 w-14 rounded-2xl gradient-primary mx-auto grid place-items-center mb-4">
             <UserPlus className="h-6 w-6 text-primary-foreground" />
@@ -481,7 +521,7 @@ const People = () => {
         </div>
       )}
 
-      {!isLoading && !error && (contacts?.length ?? 0) > 0 && filtered.length === 0 && (
+      {!isLoading && !error && totalContacts > 0 && filtered.length === 0 && (
         <div className="surface-card p-12 text-center">
           <div className="h-14 w-14 rounded-2xl bg-secondary mx-auto grid place-items-center mb-4">
             <Search className="h-6 w-6 text-muted-foreground" />
