@@ -88,17 +88,15 @@ const Landing = () => {
       </section>
 
       {/* Animated dashboard preview */}
-      <section className="container pb-16 md:pb-24 animate-fade-up-delay-2">
+      <section className="container pb-12 md:pb-16 animate-fade-up-delay-2">
         <AnimatedDashboard />
         <p className="text-center text-xs text-muted-foreground mt-6">
           Live preview · pauses when offscreen
         </p>
       </section>
 
-      <TrustedStrip />
-
-      {/* Product tour */}
-      <section className="container py-20 md:py-28">
+      {/* Product tour — moved up so visitors see real screens right under the hero */}
+      <section className="container pb-20 md:pb-28">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto mb-12">
             <p className="eyebrow-primary">Product tour</p>
@@ -109,6 +107,8 @@ const Landing = () => {
           <ScreenshotCarousel />
         </Reveal>
       </section>
+
+      <TrustedStrip />
 
       <div className="container"><div className="divider-hairline" /></div>
 
