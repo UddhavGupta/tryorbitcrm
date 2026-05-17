@@ -11,7 +11,7 @@ import { AnimatedDashboard } from "@/components/landing/AnimatedDashboard";
 
 import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
 import { DigestPreview } from "@/components/landing/DigestPreview";
-import { Testimonials } from "@/components/landing/Testimonials";
+
 import { Faq } from "@/components/landing/Faq";
 
 
@@ -165,13 +165,6 @@ const Landing = () => {
       </section>
 
       <div className="container"><div className="divider-hairline" /></div>
-
-      {/* Testimonials */}
-      <section className="container py-20 md:py-28">
-        <Reveal>
-          <Testimonials />
-        </Reveal>
-      </section>
 
       {/* FAQ */}
       <section className="container py-20 md:py-28 bg-card-muted/30 -mx-[max(1rem,(100vw-1400px)/2)] px-[max(1rem,(100vw-1400px)/2)]">
