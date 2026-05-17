@@ -44,7 +44,7 @@ const Landing = () => {
             <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Personal CRM, reimagined
           </span>
           <h1 className="display-xl mt-6 md:text-7xl tracking-tight animate-fade-up">
-            Remember <span className="inline-block w-[7em] sm:w-[8em] text-left align-baseline"><RotatingWord /></span><br />
+            Remember <RotatingWord /> <br />
             <span className="italic text-primary">in your orbit.</span>
           </h1>
           <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2 animate-fade-up-delay-1">
