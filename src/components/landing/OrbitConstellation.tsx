@@ -200,15 +200,12 @@ const RINGS = [
 ];
 
 // The SVG is wider than tall so the rotating callout cards never get cropped
-// on the left/right edges. The orbits themselves stay centered at (CENTER_X,
-// CENTER_Y) and keep their original vertical footprint.
+// on the left/right edges. Orbits stay centered at (CENTER_X, CENTER_Y); the
+// vertical footprint is unchanged from the original 600x600 layout.
 const CENTER_X = 460;
 const CENTER_Y = 300;
 const VIEW_W = 920;
 const VIEW_H = 600;
-// Back-compat alias for code paths that only care about the vertical center
-// (which still matches the original 600x600 layout).
-const CENTER = CENTER_Y;
 
 export const OrbitConstellation = () => {
   const [featuredIdx, setFeaturedIdx] = useState(0);
