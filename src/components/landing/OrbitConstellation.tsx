@@ -199,7 +199,13 @@ const RINGS = [
   { radius: 260, duration: 78, direction: 1 },
 ];
 
-const CENTER = 300;
+// The SVG is wider than tall so the rotating callout cards never get cropped
+// on the left/right edges. Orbits stay centered at (CENTER_X, CENTER_Y); the
+// vertical footprint is unchanged from the original 600x600 layout.
+const CENTER_X = 460;
+const CENTER_Y = 300;
+const VIEW_W = 920;
+const VIEW_H = 600;
 
 export const OrbitConstellation = () => {
   const [featuredIdx, setFeaturedIdx] = useState(0);
@@ -239,7 +245,7 @@ export const OrbitConstellation = () => {
   const openContact = CONTACTS.find((c) => c.id === openId) ?? null;
 
   return (
-    <div className="relative mx-auto w-full max-w-3xl aspect-square">
+    <div className="relative mx-auto w-full max-w-6xl" style={{ aspectRatio: `${VIEW_W} / ${VIEW_H}` }}>
       {/* Soft aurora wash behind the orbits */}
       <div
         aria-hidden
@@ -260,7 +266,7 @@ export const OrbitConstellation = () => {
       />
 
       <svg
-        viewBox="0 0 600 600"
+        viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
         className="relative h-full w-full"
         role="img"
         aria-label="Your network orbiting around you, with one contact highlighted as needing attention"
@@ -281,8 +287,8 @@ export const OrbitConstellation = () => {
         {RINGS.map((r, i) => (
           <circle
             key={i}
-            cx={CENTER}
-            cy={CENTER}
+            cx={CENTER_X}
+            cy={CENTER_Y}
             r={r.radius}
             fill="none"
             stroke="hsl(var(--border))"
@@ -294,18 +300,18 @@ export const OrbitConstellation = () => {
 
         {/* Center: you */}
         <g>
-          <circle cx={CENTER} cy={CENTER} r={70} fill="url(#orb-core)" />
+          <circle cx={CENTER_X} cy={CENTER_Y} r={70} fill="url(#orb-core)" />
           <circle
-            cx={CENTER}
-            cy={CENTER}
+            cx={CENTER_X}
+            cy={CENTER_Y}
             r={26}
             fill="hsl(var(--background))"
             stroke="hsl(var(--primary))"
             strokeWidth={1.5}
           />
           <text
-            x={CENTER}
-            y={CENTER + 5}
+            x={CENTER_X}
+            y={CENTER_Y + 5}
             textAnchor="middle"
             className="fill-primary"
             style={{
@@ -325,7 +331,7 @@ export const OrbitConstellation = () => {
             key={ringIdx}
             className="orbit-ring"
             style={{
-              transformOrigin: `${CENTER}px ${CENTER}px`,
+              transformOrigin: `${CENTER_X}px ${CENTER_Y}px`,
               animation: `orbit-spin ${ring.duration}s linear infinite`,
               animationDirection: ring.direction === 1 ? "normal" : "reverse",
               animationPlayState: paused ? "paused" : "running",
@@ -333,8 +339,8 @@ export const OrbitConstellation = () => {
           >
             {CONTACTS.filter((c) => c.ring === ringIdx).map((c) => {
               const rad = (c.angle * Math.PI) / 180;
-              const x = CENTER + ring.radius * Math.cos(rad);
-              const y = CENTER + ring.radius * Math.sin(rad);
+              const x = CENTER_X + ring.radius * Math.cos(rad);
+              const y = CENTER_Y + ring.radius * Math.sin(rad);
               const featured = c.id === activeId;
               const isHovered = c.id === hoveredId;
               return (
@@ -495,7 +501,7 @@ const CalloutAnchor = ({
   onOpen?: () => void;
 }) => {
   // Flip the callout toward the center side so it stays inside the frame.
-  const flipX = x > CENTER ? -1 : 1;
+  const flipX = x > CENTER_X ? -1 : 1;
   const offsetX = 92;
   const offsetY = 92;
   const tx = x + offsetX * flipX;
