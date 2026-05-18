@@ -80,6 +80,7 @@ export const UserMenu = () => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
+          data-tour="account"
           className="flex items-center gap-2 rounded-full pl-1 pr-2 py-1 hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="Account menu"
         >
