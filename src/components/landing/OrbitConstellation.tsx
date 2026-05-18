@@ -245,7 +245,7 @@ export const OrbitConstellation = () => {
   const openContact = CONTACTS.find((c) => c.id === openId) ?? null;
 
   return (
-    <div className="relative mx-auto w-full max-w-3xl aspect-square">
+    <div className="relative mx-auto w-full max-w-6xl" style={{ aspectRatio: `${VIEW_W} / ${VIEW_H}` }}>
       {/* Soft aurora wash behind the orbits */}
       <div
         aria-hidden
