@@ -266,7 +266,7 @@ export const OrbitConstellation = () => {
       />
 
       <svg
-        viewBox="0 0 600 600"
+        viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
         className="relative h-full w-full"
         role="img"
         aria-label="Your network orbiting around you, with one contact highlighted as needing attention"
