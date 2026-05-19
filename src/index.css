@@ -191,17 +191,32 @@
     .aurora-blob { animation: none; }
   }
 
-  /* Soft hairline divider, primary-tinted. */
+  /* Editorial brass divider — short, left-aligned by default. */
   .divider-hairline {
     height: 1px;
-    background: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
+    width: 64px;
+    background: hsl(var(--brass) / 0.55);
   }
+  .divider-hairline-center { margin-left: auto; margin-right: auto; }
 
   /* Larger lift used on hero-grade cards. */
   .shadow-lift {
     box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.7),
       0 30px 60px -30px hsl(24 30% 12% / 0.28),
       0 2px 8px -2px hsl(24 30% 12% / 0.08);
   }
+
+  /* Brass dot — small punctuation mark between words. */
+  .brass-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: hsl(var(--brass));
+    vertical-align: middle;
+    margin: 0 0.35em;
+  }
 }
+
 
