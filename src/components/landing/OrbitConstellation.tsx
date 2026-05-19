@@ -381,11 +381,11 @@ export const OrbitConstellation = () => {
                       <circle
                         cx={x}
                         cy={y}
-                        r={20}
+                        r={22}
                         fill="none"
-                        stroke="hsl(var(--primary))"
-                        strokeOpacity={0.6}
-                        strokeWidth={1.5}
+                        stroke="hsl(var(--brass))"
+                        strokeOpacity={0.75}
+                        strokeWidth={1}
                         className="orbit-pulse"
                       />
                     </>
@@ -394,14 +394,16 @@ export const OrbitConstellation = () => {
                     cx={x}
                     cy={y}
                     r={featured ? 18 : isHovered ? 17 : 15}
-                    fill={featured ? "hsl(var(--primary))" : "hsl(var(--card))"}
+                    fill={featured ? "hsl(var(--primary))" : "hsl(var(--card-elevated))"}
                     stroke={
-                      featured || isHovered
+                      featured
                         ? "hsl(var(--primary))"
-                        : "hsl(var(--border))"
+                        : isHovered
+                        ? "hsl(var(--primary))"
+                        : "hsl(var(--brass) / 0.6)"
                     }
-                    strokeWidth={isHovered && !featured ? 1.75 : 1.25}
-                    className={c.dim && !featured && !isHovered ? "opacity-60" : ""}
+                    strokeWidth={isHovered && !featured ? 1.5 : 1}
+                    className={c.dim && !featured && !isHovered ? "opacity-70" : ""}
                     style={{ transition: "all 240ms ease-out" }}
                   />
                   <text
