@@ -304,9 +304,9 @@ export const OrbitConstellation = () => {
             cx={CENTER_X}
             cy={CENTER_Y}
             r={26}
-            fill="hsl(var(--background))"
-            stroke="hsl(var(--primary))"
-            strokeWidth={1.5}
+            fill="hsl(var(--card-elevated))"
+            stroke="hsl(var(--brass))"
+            strokeWidth={1}
           />
           <text
             x={CENTER_X}
