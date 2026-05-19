@@ -102,7 +102,7 @@
   .font-display {
     font-family: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
     font-optical-sizing: auto;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.018em;
   }
 
   /* Soft accent chip used for selected filters / tags */
@@ -115,19 +115,51 @@
 
   /* Typography utilities */
   .eyebrow {
-    @apply text-[11px] uppercase tracking-[0.16em] font-semibold text-muted-foreground;
+    @apply text-[11px] uppercase tracking-[0.22em] font-medium text-muted-foreground;
   }
   .eyebrow-primary { @apply eyebrow; color: hsl(var(--primary)); }
-  .display-xl { @apply font-display text-4xl sm:text-5xl md:text-6xl font-medium leading-[1.05]; }
-  .display-lg { @apply font-display text-3xl md:text-4xl font-medium tracking-tight; }
-  .display-md { @apply font-display text-2xl md:text-3xl font-medium tracking-tight; }
+  /* Editorial small-caps eyebrow — used on marketing section openers */
+  .eyebrow-serif {
+    font-family: "Newsreader", ui-serif, Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    color: hsl(var(--primary-ink));
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+  .eyebrow-serif::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: hsl(var(--brass));
+    display: inline-block;
+  }
+  .display-xl { @apply font-display text-4xl sm:text-5xl md:text-6xl font-medium leading-[1.04]; letter-spacing: -0.025em; }
+  .display-lg { @apply font-display text-3xl md:text-4xl font-medium tracking-tight; letter-spacing: -0.022em; }
+  .display-md { @apply font-display text-2xl md:text-3xl font-medium tracking-tight; letter-spacing: -0.02em; }
   .num-tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
 
-  /* Soft hover lift used on interactive surface cards */
-  .lift {
-    @apply transition-all duration-200 ease-out;
+  /* Section opener: left-aligned eyebrow + headline with brass rule, editorial. */
+  .section-opener { max-width: 42rem; }
+  .section-opener .section-rule {
+    width: 48px;
+    height: 1px;
+    background: hsl(var(--brass));
+    margin-bottom: 1.25rem;
   }
-  .lift:hover { transform: translateY(-1px); box-shadow: var(--shadow-elevated); }
+
+  /* Soft hover lift used on interactive surface cards — quieter, no translate */
+  .lift {
+    @apply transition-[box-shadow,border-color] duration-300 ease-out;
+  }
+  .lift:hover {
+    box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--brass) / 0.45);
+  }
+
 
   /* Soft date / status pills */
   .pill {
