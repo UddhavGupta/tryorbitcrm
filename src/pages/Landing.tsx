@@ -63,29 +63,36 @@ const Landing = () => {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 gradient-soft pointer-events-none" />
-        <div aria-hidden className="absolute left-1/2 top-24 -translate-x-1/2 w-[800px] h-[480px] aurora-blob pointer-events-none -z-0" />
+        <div aria-hidden className="absolute left-1/2 top-24 -translate-x-1/2 w-[800px] h-[480px] aurora-blob opacity-[0.45] pointer-events-none -z-0" />
         <div className="container relative pt-16 sm:pt-24 md:pt-32 pb-10 md:pb-16 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground animate-fade-up">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Personal CRM, reimagined
-          </span>
-          <h1 className="display-xl mt-6 md:text-7xl tracking-tight animate-fade-up">
+          <span className="eyebrow-serif justify-center animate-fade-up">A personal CRM, reimagined</span>
+          <h1 className="display-xl mt-6 md:text-7xl animate-fade-up" style={{ color: "hsl(var(--primary-ink))" }}>
             Remember <RotatingWord /> <br />
-            <span className="italic text-primary">in your orbit.</span>
+            <span className="italic" style={{ color: "hsl(var(--primary))" }}>in your orbit.</span>
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2 animate-fade-up-delay-1">
-            A lightweight CRM built around relationships, not deals. Track who you know, what matters, and when to reach out next.
+          <p className="mt-7 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2 animate-fade-up-delay-1 leading-relaxed">
+            A lightweight CRM built around relationships, not deals. Track <em>who</em> you know, <em>what</em> matters, and <em>when</em> to reach out next.
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none animate-fade-up-delay-1">
-            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
+          <div className="mt-9 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none animate-fade-up-delay-1">
+            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto border-border hover:border-[hsl(var(--brass))] hover:bg-transparent hover:text-foreground transition-colors">
+              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Enter the demo</Link>
             </Button>
-            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.5)] hover:shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.6)] transition-shadow">
-              <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Button
+              size="lg"
+              asChild
+              className="w-full sm:w-auto text-primary-foreground hover:opacity-95 transition-opacity"
+              style={{
+                background: "hsl(var(--primary-ink))",
+                boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.12), 0 8px 24px -10px hsl(var(--primary) / 0.45)",
+              }}
+            >
+              <Link to="/auth?mode=signup">Begin — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
+          <p className="mt-5 text-xs text-muted-foreground italic">The demo loads sample contacts — no signup needed to look around.</p>
         </div>
       </section>
+
 
       {/* Orbit constellation — branded hero visual */}
       <section className="container pb-12 md:pb-16 animate-fade-up-delay-2">
