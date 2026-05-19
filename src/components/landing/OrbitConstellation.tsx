@@ -283,7 +283,7 @@ export const OrbitConstellation = () => {
           </radialGradient>
         </defs>
 
-        {/* Orbit rings — faint guides */}
+        {/* Orbit rings — brass hairline guides */}
         {RINGS.map((r, i) => (
           <circle
             key={i}
@@ -291,10 +291,9 @@ export const OrbitConstellation = () => {
             cy={CENTER_Y}
             r={r.radius}
             fill="none"
-            stroke="hsl(var(--border))"
+            stroke="hsl(var(--brass))"
+            strokeOpacity={0.28}
             strokeWidth={1}
-            strokeDasharray="2 6"
-            className="opacity-60"
           />
         ))}
 
