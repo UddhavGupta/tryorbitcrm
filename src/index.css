@@ -5,11 +5,12 @@
 @layer base {
   :root {
     /* Surfaces */
-    --background: 24 25% 97%;       /* #FAF8F6 warm off-white */
-    --foreground: 24 14% 8%;        /* #171412 near-black */
+    --background: 30 22% 96%;       /* warm cream */
+    --foreground: 24 14% 8%;        /* near-black */
 
     --card: 0 0% 100%;              /* pure white surface */
     --card-foreground: 24 14% 8%;
+    --card-elevated: 32 30% 98%;    /* bone-white, hero tiles & modals */
     --card-muted: 28 22% 94%;       /* #F5F1ED muted surface */
 
     --popover: 0 0% 100%;
