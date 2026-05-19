@@ -63,29 +63,36 @@ const Landing = () => {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 gradient-soft pointer-events-none" />
-        <div aria-hidden className="absolute left-1/2 top-24 -translate-x-1/2 w-[800px] h-[480px] aurora-blob pointer-events-none -z-0" />
+        <div aria-hidden className="absolute left-1/2 top-24 -translate-x-1/2 w-[800px] h-[480px] aurora-blob opacity-[0.45] pointer-events-none -z-0" />
         <div className="container relative pt-16 sm:pt-24 md:pt-32 pb-10 md:pb-16 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground animate-fade-up">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Personal CRM, reimagined
-          </span>
-          <h1 className="display-xl mt-6 md:text-7xl tracking-tight animate-fade-up">
+          <span className="eyebrow-serif justify-center animate-fade-up">A personal CRM, reimagined</span>
+          <h1 className="display-xl mt-6 md:text-7xl animate-fade-up" style={{ color: "hsl(var(--primary-ink))" }}>
             Remember <RotatingWord /> <br />
-            <span className="italic text-primary">in your orbit.</span>
+            <span className="italic" style={{ color: "hsl(var(--primary))" }}>in your orbit.</span>
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2 animate-fade-up-delay-1">
-            A lightweight CRM built around relationships, not deals. Track who you know, what matters, and when to reach out next.
+          <p className="mt-7 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto px-2 animate-fade-up-delay-1 leading-relaxed">
+            A lightweight CRM built around relationships, not deals. Track <em>who</em> you know, <em>what</em> matters, and <em>when</em> to reach out next.
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none animate-fade-up-delay-1">
-            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
+          <div className="mt-9 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none animate-fade-up-delay-1">
+            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto border-border hover:border-[hsl(var(--brass))] hover:bg-transparent hover:text-foreground transition-colors">
+              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Enter the demo</Link>
             </Button>
-            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.5)] hover:shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.6)] transition-shadow">
-              <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Button
+              size="lg"
+              asChild
+              className="w-full sm:w-auto text-primary-foreground hover:opacity-95 transition-opacity"
+              style={{
+                background: "hsl(var(--primary-ink))",
+                boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.12), 0 8px 24px -10px hsl(var(--primary) / 0.45)",
+              }}
+            >
+              <Link to="/auth?mode=signup">Begin — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">Demo loads sample contacts — no signup needed to look around.</p>
+          <p className="mt-5 text-xs text-muted-foreground italic">The demo loads sample contacts — no signup needed to look around.</p>
         </div>
       </section>
+
 
       {/* Orbit constellation — branded hero visual */}
       <section className="container pb-12 md:pb-16 animate-fade-up-delay-2">
@@ -95,25 +102,41 @@ const Landing = () => {
       {/* Product tour — moved up so visitors see real screens right under the hero */}
       <section className="container pb-20 md:pb-28">
         <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="eyebrow-primary">Product tour</p>
-            <h2 className="display-lg mt-3">Three surfaces, one calm loop.</h2>
+          <div className="section-opener mb-12">
+            <div className="section-rule" />
+            <p className="eyebrow-serif">Product tour</p>
+            <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
+              Three surfaces, <span className="italic" style={{ color: "hsl(var(--primary))" }}>one calm loop.</span>
+            </h2>
           </div>
         </Reveal>
         <Reveal delay={120}>
-          <ScreenshotCarousel />
+          {/* Gallery matte frame around the carousel */}
+          <div
+            className="rounded-2xl p-3 sm:p-4"
+            style={{
+              background: "hsl(var(--card-elevated))",
+              border: "1px solid hsl(var(--brass) / 0.35)",
+              boxShadow: "var(--shadow-elevated)",
+            }}
+          >
+            <ScreenshotCarousel />
+          </div>
         </Reveal>
       </section>
 
 
-      <div className="container"><div className="divider-hairline" /></div>
+      <div className="container"><div className="divider-hairline divider-hairline-center" /></div>
 
       {/* How it works */}
       <section className="container py-20 md:py-28">
         <Reveal>
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="eyebrow-primary">How it works</p>
-            <h2 className="display-lg mt-3">Three steps to a warmer network.</h2>
+          <div className="section-opener">
+            <div className="section-rule" />
+            <p className="eyebrow-serif">How it works</p>
+            <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
+              Three steps to a <span className="italic" style={{ color: "hsl(var(--primary))" }}>warmer network.</span>
+            </h2>
           </div>
         </Reveal>
         <RevealStagger className="mt-12 grid md:grid-cols-3 gap-6" step={100}>
@@ -123,11 +146,11 @@ const Landing = () => {
             { icon: SendHand, num: "03", title: "Follow up at the right time", desc: "Reminders and cooling alerts surface who needs attention today." },
           ].map((s) => (
             <div key={s.title} className="surface-card p-7 lift relative h-full">
-              <span className="text-[10px] font-mono tracking-widest text-primary/70 num-tabular">{s.num}</span>
+              <span className="font-display italic text-3xl num-tabular" style={{ color: "hsl(var(--brass))" }}>{s.num}</span>
               <div className="h-14 w-14 rounded-2xl bg-[hsl(var(--primary-soft))] grid place-items-center mt-3 mb-4">
                 <s.icon className="h-9 w-9" />
               </div>
-              <h3 className="font-semibold text-lg">{s.title}</h3>
+              <h3 className="font-display text-xl font-medium tracking-tight" style={{ color: "hsl(var(--primary-ink))" }}>{s.title}</h3>
               <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.desc}</p>
             </div>
           ))}
@@ -138,15 +161,18 @@ const Landing = () => {
       {/* Who it's for */}
       <section className="container py-20 md:py-28">
         <Reveal>
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="eyebrow-primary">Who it's for</p>
-            <h2 className="display-lg mt-3">Built for network-heavy people.</h2>
-            <p className="text-muted-foreground mt-3">
+          <div className="section-opener">
+            <div className="section-rule" />
+            <p className="eyebrow-serif">Who it's for</p>
+            <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
+              Built for <span className="italic" style={{ color: "hsl(var(--primary))" }}>network-heavy</span> people.
+            </h2>
+            <p className="text-muted-foreground mt-3 leading-relaxed">
               Designed for the people whose work depends on relationships staying warm.
             </p>
           </div>
         </Reveal>
-        <RevealStagger className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto" step={80}>
+        <RevealStagger className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl" step={80}>
           {[
             { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities.", to: "/for/job-seekers" },
             { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles.", to: "/for/founders" },
@@ -155,7 +181,7 @@ const Landing = () => {
           ].map((u) => (
             <Link key={u.t} to={u.to} className="surface-card p-5 lift block group h-full">
               <div className="flex items-center justify-between">
-                <p className="font-semibold text-foreground">{u.t}</p>
+                <p className="font-display text-lg font-medium" style={{ color: "hsl(var(--primary-ink))" }}>{u.t}</p>
                 <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition" />
               </div>
               <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{u.d}</p>
@@ -164,7 +190,7 @@ const Landing = () => {
         </RevealStagger>
       </section>
 
-      <div className="container"><div className="divider-hairline" /></div>
+      <div className="container"><div className="divider-hairline divider-hairline-center" /></div>
 
       {/* FAQ */}
       <section className="bg-card-muted/30 py-20 md:py-28">
@@ -178,21 +204,30 @@ const Landing = () => {
       {/* Final CTA */}
       <section className="container py-24 md:py-32 text-center">
         <Reveal>
-          <p className="eyebrow-primary">Stay in orbit</p>
-          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight mt-4 leading-[1.05]">
+          <p className="eyebrow-serif justify-center">Stay in orbit</p>
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight mt-5 leading-[1.04]" style={{ color: "hsl(var(--primary-ink))", letterSpacing: "-0.025em" }}>
             Everything in your circle,<br />
-            <span className="italic text-primary">always in motion.</span>
+            <span className="italic" style={{ color: "hsl(var(--primary))" }}>always in motion.</span>
           </h2>
           <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm mx-auto sm:max-w-none">
-            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
-              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Try the demo</Link>
+            <Button size="lg" variant="outline" asChild className="w-full sm:w-auto border-border hover:border-[hsl(var(--brass))] hover:bg-transparent hover:text-foreground transition-colors">
+              <Link to="/demo"><PlayCircle className="mr-2 h-4 w-4" />Enter the demo</Link>
             </Button>
-            <Button size="lg" asChild className="gradient-primary w-full sm:w-auto shadow-[0_8px_24px_-8px_hsl(var(--primary)/0.5)]">
-              <Link to="/auth?mode=signup">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Button
+              size="lg"
+              asChild
+              className="w-full sm:w-auto text-primary-foreground hover:opacity-95 transition-opacity"
+              style={{
+                background: "hsl(var(--primary-ink))",
+                boxShadow: "inset 0 1px 0 hsl(0 0% 100% / 0.12), 0 8px 24px -10px hsl(var(--primary) / 0.45)",
+              }}
+            >
+              <Link to="/auth?mode=signup">Begin — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
         </Reveal>
       </section>
+
 
       {/* Portfolio disclaimer */}
       <section className="container pb-16">
