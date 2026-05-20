@@ -187,7 +187,6 @@ const Landing = () => {
         </RevealStagger>
       </section>
 
-      <div className="container"><div className="divider-hairline divider-hairline-center" /></div>
 
       {/* FAQ */}
       <section className="bg-card-muted/30 py-20 md:py-28">
