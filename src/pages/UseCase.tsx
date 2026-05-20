@@ -45,6 +45,22 @@ const CONTENT: Record<string, UseCaseContent> = {
     ],
     outcome: "Your network becomes a real asset — not a screenshot folder of LinkedIn profiles you'll never open again.",
   },
+  "operators": {
+    audience: "Operators",
+    seoTitle: "OrbitCRM for operators — track partners, vendors, cross-functional contacts",
+    seoDesc: "A personal CRM for operators managing cross-functional partners, vendors, and external relationships across teams.",
+    hero: <>The relationships <span className="italic text-primary">behind every shipped thing.</span></>,
+    subtitle: "Operators live at the intersection of teams, vendors, and partners. OrbitCRM keeps the working relationships that make execution possible in one calm place.",
+    problem:
+      "A senior operator might coordinate with 50+ external partners in a quarter — agencies, contractors, vendors, finance counterparties, cross-org stakeholders. The relationships are the work, but they live in scattered Slack DMs, forwarded emails, and a memory that doesn't scale.",
+    workflow: [
+      { step: "Catalog every working relationship", detail: "Agency leads, vendor reps, finance partners, cross-functional stakeholders. Each gets a card with the project, contract, and context." },
+      { step: "Group by function or project", detail: "Filter by vendor type, project, or org. See who you need to brief before the next planning cycle." },
+      { step: "Reminders tied to deliverables", detail: "Renewal coming up? Quarterly review? OrbitCRM surfaces the partners that need a touch before the deadline finds you." },
+      { step: "Notes that survive role changes", detail: "When the agency PM rotates or the vendor rep leaves, the relationship history is yours — not lost in their inbox." },
+    ],
+    outcome: "You stop being the bottleneck. Partners feel managed, not ignored. And when something breaks, you know exactly who to call.",
+  },
   "students": {
     audience: "Students",
     seoTitle: "OrbitCRM for students — track alumni, mentors, classmates",
