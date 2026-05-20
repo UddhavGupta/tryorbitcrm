@@ -125,7 +125,7 @@ const Landing = () => {
       </section>
 
 
-      <div className="container"><div className="divider-hairline divider-hairline-center" /></div>
+      
 
       {/* How it works */}
       <section className="container py-20 md:py-28">
