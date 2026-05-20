@@ -174,7 +174,7 @@ const Landing = () => {
             { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities.", to: "/for/job-seekers" },
             { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles.", to: "/for/founders" },
             { t: "Students", d: "Managing classmates, alumni, and mentors as you build a long-term network.", to: "/for/students" },
-            { t: "Operators", d: "Managing cross-functional partners and external relationships across teams.", to: "/for/job-seekers" },
+            { t: "Operators", d: "Managing cross-functional partners and external relationships across teams.", to: "/for/operators" },
           ].map((u) => (
             <Link key={u.t} to={u.to} className="surface-card p-5 lift block group h-full">
               <div className="flex items-center justify-between">
