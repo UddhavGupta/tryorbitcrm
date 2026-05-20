@@ -102,9 +102,8 @@ const Landing = () => {
       {/* Product tour — moved up so visitors see real screens right under the hero */}
       <section className="container pb-20 md:pb-28">
         <Reveal>
-          <div className="section-opener mb-12">
-            <div className="section-rule" />
-            <p className="eyebrow-serif">Product tour</p>
+          <div className="section-opener section-opener-center mb-12 text-center mx-auto">
+            <p className="eyebrow-serif justify-center">Product tour</p>
             <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
               Three surfaces, <span className="italic" style={{ color: "hsl(var(--primary))" }}>one calm loop.</span>
             </h2>
