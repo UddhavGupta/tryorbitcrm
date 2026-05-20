@@ -397,28 +397,39 @@ const Dashboard = () => {
 };
 
 const StatCard = ({ label, value, icon: Icon, to, tone, hint, progress, progressLabel }: any) => {
+  const accent =
+    tone === "destructive"
+      ? "hsl(var(--destructive))"
+      : tone === "primary"
+      ? "hsl(var(--primary))"
+      : "hsl(var(--brass))";
   const iconWrap =
     tone === "destructive"
-      ? "bg-[hsl(var(--destructive-soft))] text-destructive"
+      ? "text-destructive"
       : tone === "primary"
-      ? "bg-[hsl(var(--primary-soft))] text-primary"
-      : "bg-secondary text-muted-foreground";
+      ? "text-primary"
+      : "text-[hsl(var(--brass))]";
   return (
-    <Link to={to} className="surface-card p-4 lift hover:border-primary/40 block">
-      <div className="flex items-center justify-between">
-        <span className="eyebrow">{label}</span>
-        <span className={`h-7 w-7 rounded-lg grid place-items-center ${iconWrap}`}>
-          <Icon className="h-3.5 w-3.5" />
-        </span>
+    <Link
+      to={to}
+      className="dossier-card group relative block p-4 md:p-5 overflow-hidden"
+      style={{ ["--accent" as any]: accent }}
+    >
+      <span className="dossier-rule" aria-hidden />
+      <div className="flex items-start justify-between gap-3">
+        <span className="eyebrow-serif text-[11px]">{label}</span>
+        <Icon className={`h-3.5 w-3.5 ${iconWrap} opacity-70 group-hover:opacity-100 transition-opacity`} />
       </div>
-      <p className={`text-3xl font-semibold mt-3 num-tabular ${tone === "destructive" ? "text-destructive" : ""}`}>{value}</p>
-      {hint && <p className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">{hint}</p>}
+      <p className={`font-display text-[2rem] leading-none font-medium mt-4 num-tabular tracking-tight ${tone === "destructive" ? "text-destructive" : "text-[hsl(var(--primary-ink))]"}`}>
+        {value}
+      </p>
+      {hint && <p className="mt-2 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium tracking-wide">{hint}</p>}
       {typeof progress === "number" && progress > 0 && (
-        <div className="mt-2">
-          <div className="h-1 rounded-full bg-secondary overflow-hidden">
+        <div className="mt-3">
+          <div className="h-px bg-border overflow-hidden">
             <div className="h-full bg-destructive/70" style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
-          {progressLabel && <p className="mt-1 text-[10px] text-muted-foreground">{progressLabel}</p>}
+          {progressLabel && <p className="mt-1.5 text-[10px] text-muted-foreground uppercase tracking-[0.08em]">{progressLabel}</p>}
         </div>
       )}
     </Link>
@@ -426,15 +437,17 @@ const StatCard = ({ label, value, icon: Icon, to, tone, hint, progress, progress
 };
 
 const Section = ({ title, icon: Icon, count, children }: any) => (
-  <div className="surface-card p-5 md:p-6 h-full">
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-2">
-        <span className="h-7 w-7 rounded-lg grid place-items-center bg-[hsl(var(--primary-soft))] text-primary">
-          <Icon className="h-3.5 w-3.5" />
-        </span>
-        <h2 className="font-semibold">{title}</h2>
+  <div
+    className="dossier-card p-5 md:p-6 h-full relative"
+    style={{ ["--accent" as any]: "hsl(var(--brass))" }}
+  >
+    <span className="dossier-rule" aria-hidden />
+    <div className="flex items-center justify-between mb-4 pb-3 border-b border-[hsl(var(--brass)/0.25)]">
+      <div className="flex items-center gap-2.5">
+        <Icon className="h-3.5 w-3.5 text-[hsl(var(--brass))]" />
+        <h2 className="font-display text-base font-medium tracking-tight text-[hsl(var(--primary-ink))]">{title}</h2>
       </div>
-      <span className="text-xs text-muted-foreground bg-secondary rounded-full px-2 py-0.5 num-tabular">{count}</span>
+      <span className="text-[11px] text-muted-foreground num-tabular tracking-[0.08em] uppercase">{count}</span>
     </div>
     {children}
   </div>
