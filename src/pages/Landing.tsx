@@ -159,9 +159,8 @@ const Landing = () => {
       {/* Who it's for */}
       <section className="container py-20 md:py-28">
         <Reveal>
-          <div className="section-opener">
-            <div className="section-rule" />
-            <p className="eyebrow-serif">Who it's for</p>
+          <div className="section-opener text-center mx-auto">
+            <p className="eyebrow-serif justify-center">Who it's for</p>
             <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
               Built for <span className="italic" style={{ color: "hsl(var(--primary))" }}>network-heavy</span> people.
             </h2>
