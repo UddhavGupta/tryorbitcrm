@@ -7,11 +7,11 @@ interface LogoProps {
 export const Logo = ({ className }: LogoProps) => (
   <span
     className={cn(
-      "font-logo font-semibold tracking-tight text-foreground leading-none whitespace-nowrap inline-flex items-baseline",
+      "font-logo font-semibold tracking-tight text-foreground leading-none whitespace-nowrap",
       className
     )}
   >
-    Orbit<span aria-hidden className="brass-dot" />CRM
+    OrbitCRM
   </span>
 );
 

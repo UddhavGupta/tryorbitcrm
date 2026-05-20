@@ -102,9 +102,8 @@ const Landing = () => {
       {/* Product tour — moved up so visitors see real screens right under the hero */}
       <section className="container pb-20 md:pb-28">
         <Reveal>
-          <div className="section-opener mb-12">
-            <div className="section-rule" />
-            <p className="eyebrow-serif">Product tour</p>
+          <div className="section-opener section-opener-center mb-12 text-center mx-auto">
+            <p className="eyebrow-serif justify-center">Product tour</p>
             <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
               Three surfaces, <span className="italic" style={{ color: "hsl(var(--primary))" }}>one calm loop.</span>
             </h2>
@@ -126,14 +125,13 @@ const Landing = () => {
       </section>
 
 
-      <div className="container"><div className="divider-hairline divider-hairline-center" /></div>
+      
 
       {/* How it works */}
       <section className="container py-20 md:py-28">
         <Reveal>
-          <div className="section-opener">
-            <div className="section-rule" />
-            <p className="eyebrow-serif">How it works</p>
+          <div className="section-opener text-center mx-auto">
+            <p className="eyebrow-serif justify-center">How it works</p>
             <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
               Three steps to a <span className="italic" style={{ color: "hsl(var(--primary))" }}>warmer network.</span>
             </h2>
@@ -161,9 +159,8 @@ const Landing = () => {
       {/* Who it's for */}
       <section className="container py-20 md:py-28">
         <Reveal>
-          <div className="section-opener">
-            <div className="section-rule" />
-            <p className="eyebrow-serif">Who it's for</p>
+          <div className="section-opener text-center mx-auto">
+            <p className="eyebrow-serif justify-center">Who it's for</p>
             <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
               Built for <span className="italic" style={{ color: "hsl(var(--primary))" }}>network-heavy</span> people.
             </h2>
@@ -172,7 +169,7 @@ const Landing = () => {
             </p>
           </div>
         </Reveal>
-        <RevealStagger className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl" step={80}>
+        <RevealStagger className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto" step={80}>
           {[
             { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities.", to: "/for/job-seekers" },
             { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles.", to: "/for/founders" },
@@ -190,7 +187,6 @@ const Landing = () => {
         </RevealStagger>
       </section>
 
-      <div className="container"><div className="divider-hairline divider-hairline-center" /></div>
 
       {/* FAQ */}
       <section className="bg-card-muted/30 py-20 md:py-28">
