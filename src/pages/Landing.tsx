@@ -169,7 +169,7 @@ const Landing = () => {
             </p>
           </div>
         </Reveal>
-        <RevealStagger className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl" step={80}>
+        <RevealStagger className="mt-10 grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto" step={80}>
           {[
             { t: "Job seekers", d: "Managing recruiter and alumni conversations across active opportunities.", to: "/for/job-seekers" },
             { t: "Founders", d: "Tracking investors, operators, and candidates through long fundraising and hiring cycles.", to: "/for/founders" },
