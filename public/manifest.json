@@ -1,0 +1,19 @@
+{
+  "name": "OrbitCRM",
+  "short_name": "OrbitCRM",
+  "description": "A personal CRM for people whose work depends on relationships staying warm.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F5",
+  "theme_color": "#4A1520",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
