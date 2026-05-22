@@ -40,6 +40,81 @@
   </head>
 
   <body>
+    <style>
+      #orbit-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        color: #E8DCC4;
+        font-family: 'Bodoni Moda', 'Newsreader', Georgia, serif;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        opacity: 1;
+        transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: opacity;
+      }
+      #orbit-splash.is-hiding { opacity: 0; pointer-events: none; }
+      #orbit-splash .orbit-splash-inner {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: clamp(2rem, 7vw, 3.25rem);
+        transform: translateY(4px) scale(0.985);
+        opacity: 0;
+        animation: orbit-splash-in 700ms cubic-bezier(0.22, 1, 0.36, 1) 60ms forwards;
+      }
+      #orbit-splash .orbit-splash-dot {
+        width: 0.55em;
+        height: 0.55em;
+        border-radius: 999px;
+        border: 1.5px solid #E8DCC4;
+        position: relative;
+        display: inline-block;
+      }
+      #orbit-splash .orbit-splash-dot::after {
+        content: '';
+        position: absolute;
+        width: 0.18em;
+        height: 0.18em;
+        background: #E8DCC4;
+        border-radius: 999px;
+        top: -0.09em;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      @keyframes orbit-splash-in {
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #orbit-splash, #orbit-splash .orbit-splash-inner { transition: opacity 200ms linear; animation: none; opacity: 1; transform: none; }
+      }
+    </style>
+    <div id="orbit-splash" aria-hidden="true">
+      <div class="orbit-splash-inner">
+        <span class="orbit-splash-dot"></span>
+        <span>OrbitCRM</span>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var MIN_MS = 650;
+        var start = Date.now();
+        function hide() {
+          var el = document.getElementById('orbit-splash');
+          if (!el) return;
+          var wait = Math.max(0, MIN_MS - (Date.now() - start));
+          setTimeout(function () {
+            el.classList.add('is-hiding');
+            setTimeout(function () { el.parentNode && el.parentNode.removeChild(el); }, 700);
+          }, wait);
+        }
+        window.__hideOrbitSplash = hide;
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
