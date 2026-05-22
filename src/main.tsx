@@ -8,3 +8,11 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </HelmetProvider>,
 );
+
+// Dismiss splash once React has painted the first frame
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    (window as unknown as { __hideOrbitSplash?: () => void }).__hideOrbitSplash?.();
+  });
+});
+
