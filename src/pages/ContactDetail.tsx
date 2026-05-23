@@ -43,6 +43,7 @@ const ContactDetail = () => {
   const [interactionDraft, setInteractionDraft] = useState<string | undefined>(undefined);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<any>(null);
+  const [prepOpen, setPrepOpen] = useState(false);
 
   const { data: contact, isLoading, error } = useQuery({
     queryKey: ["contact", id],
