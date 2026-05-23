@@ -23,6 +23,9 @@ import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, intelRationale,
 } from "@/lib/relationshipIntel";
+import { RelationshipBrief } from "@/components/RelationshipBrief";
+import { PrepMeetingDialog } from "@/components/PrepMeetingDialog";
+import { Calendar } from "lucide-react";
 
 const shortText = z.string().max(255, "Keep under 255 characters");
 const longText = z.string().max(2000, "Keep under 2000 characters");
