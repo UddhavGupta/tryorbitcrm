@@ -23,6 +23,9 @@ import {
   getRelationshipStatus, getSuggestedAction, STATUS_LABEL, STATUS_CLASSES,
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, intelRationale,
 } from "@/lib/relationshipIntel";
+import { RelationshipBrief } from "@/components/RelationshipBrief";
+import { PrepMeetingDialog } from "@/components/PrepMeetingDialog";
+import { Calendar } from "lucide-react";
 
 const shortText = z.string().max(255, "Keep under 255 characters");
 const longText = z.string().max(2000, "Keep under 2000 characters");
@@ -40,6 +43,7 @@ const ContactDetail = () => {
   const [interactionDraft, setInteractionDraft] = useState<string | undefined>(undefined);
   const [reminderOpen, setReminderOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<any>(null);
+  const [prepOpen, setPrepOpen] = useState(false);
 
   const { data: contact, isLoading, error } = useQuery({
     queryKey: ["contact", id],
@@ -270,6 +274,9 @@ const ContactDetail = () => {
             >
               <Sparkles className="h-3.5 w-3.5 mr-1.5" />Draft a reach-out
             </Button>
+            <Button size="sm" variant="outline" className="mt-2 w-full" onClick={() => setPrepOpen(true)}>
+              <Calendar className="h-3.5 w-3.5 mr-1.5" />Prepare for meeting
+            </Button>
             <p className="mt-3 text-[10px] text-muted-foreground italic leading-relaxed">{INTEL_DISCLAIMER}</p>
           </div>
 
@@ -322,6 +329,7 @@ const ContactDetail = () => {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
+          <RelationshipBrief contactId={id!} />
           <Timeline
             contact={contact}
             interactions={interactions ?? []}
@@ -368,6 +376,12 @@ const ContactDetail = () => {
           qc.invalidateQueries({ queryKey: ["reminders"] });
           qc.invalidateQueries({ queryKey: ["reminders-today"] });
         }}
+      />
+      <PrepMeetingDialog
+        open={prepOpen}
+        onOpenChange={setPrepOpen}
+        contactId={id!}
+        contactName={[contact.name, contact.last_name].filter(Boolean).join(" ")}
       />
     </AppLayout>
   );
