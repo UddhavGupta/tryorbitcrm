@@ -167,6 +167,22 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
               ))}
             </nav>
             <div className="flex items-center gap-1 md:gap-2 shrink-0">
+              <AskOrbitDialog
+                trigger={
+                  <Button variant="outline" size="sm" className="gap-1.5 hidden sm:inline-flex">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    <span className="hidden md:inline">Ask Orbit</span>
+                    <span className="md:hidden">Ask</span>
+                  </Button>
+                }
+              />
+              <AskOrbitDialog
+                trigger={
+                  <Button variant="ghost" size="icon" className="sm:hidden h-9 w-9" aria-label="Ask Orbit">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                  </Button>
+                }
+              />
               <UserMenu />
             </div>
           </div>
