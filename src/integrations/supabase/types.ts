@@ -253,6 +253,42 @@ export type Database = {
         }
         Relationships: []
       }
+      relationship_briefs: {
+        Row: {
+          contact_id: string
+          content: Json
+          created_at: string
+          edited: boolean
+          generated_at: string
+          id: string
+          model: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          content: Json
+          created_at?: string
+          edited?: boolean
+          generated_at?: string
+          id?: string
+          model?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          content?: Json
+          created_at?: string
+          edited?: boolean
+          generated_at?: string
+          id?: string
+          model?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reminders: {
         Row: {
           completed: boolean
