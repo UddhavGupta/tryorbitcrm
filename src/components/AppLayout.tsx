@@ -15,6 +15,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { loadSampleDataForCurrentUser } from "@/lib/sampleData";
 import { useToast } from "@/hooks/use-toast";
 import { Logo } from "@/components/Logo";
+import { AskOrbitDialog } from "@/components/AskOrbitDialog";
+import { Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const links = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, end: true, tour: "dashboard", prefetch: ["reminders-today", "dashboard-contacts"] },
