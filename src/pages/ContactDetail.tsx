@@ -329,6 +329,7 @@ const ContactDetail = () => {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
+          <RelationshipBrief contactId={id!} />
           <Timeline
             contact={contact}
             interactions={interactions ?? []}
