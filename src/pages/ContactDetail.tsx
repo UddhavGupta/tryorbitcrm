@@ -377,6 +377,12 @@ const ContactDetail = () => {
           qc.invalidateQueries({ queryKey: ["reminders-today"] });
         }}
       />
+      <PrepMeetingDialog
+        open={prepOpen}
+        onOpenChange={setPrepOpen}
+        contactId={id!}
+        contactName={[contact.name, contact.last_name].filter(Boolean).join(" ")}
+      />
     </AppLayout>
   );
 };
