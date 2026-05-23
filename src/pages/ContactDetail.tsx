@@ -274,6 +274,9 @@ const ContactDetail = () => {
             >
               <Sparkles className="h-3.5 w-3.5 mr-1.5" />Draft a reach-out
             </Button>
+            <Button size="sm" variant="outline" className="mt-2 w-full" onClick={() => setPrepOpen(true)}>
+              <Calendar className="h-3.5 w-3.5 mr-1.5" />Prepare for meeting
+            </Button>
             <p className="mt-3 text-[10px] text-muted-foreground italic leading-relaxed">{INTEL_DISCLAIMER}</p>
           </div>
 
