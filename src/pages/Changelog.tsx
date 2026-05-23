@@ -158,6 +158,22 @@ const RELEASES: Release[] = [
     ],
   },
   {
+    version: "v1.2",
+    title: "Gemini Relationship Intelligence Layer",
+    date: "May 2026",
+    status: "shipped",
+    items: [
+      "Added Gemini-powered Relationship Briefs on contact profiles",
+      "Added AI-generated summaries for how I know someone, last interaction, key details, open loops, and suggested next step",
+      "Added 60-second Pre-Meeting Prep cards using contact notes, interaction history, and available calendar context",
+      "Added natural language search across contacts, notes, tags, relationship history, and AI briefs",
+      "Added suggested search prompts such as \"Who should I reconnect with this week?\" and \"Who did I meet who works in fintech?\"",
+      "Added source-aware AI output labels so it's always clear what data the AI used",
+      "Kept all AI actions user-approved and non-automatic",
+      "Preserved the premium, minimal OrbitCRM design language while embedding AI into the relationship workflow",
+    ],
+  },
+  {
     version: "vNext",
     title: "On the roadmap",
     status: "next",
