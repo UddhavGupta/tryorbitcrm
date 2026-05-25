@@ -240,6 +240,8 @@ const Dashboard = () => {
         }
       />
 
+      <InstallAppCard />
+
       {isEmpty && (
         <div className="surface-card p-10 text-center mb-8 animate-fade-up">
           <h3 className="text-lg font-semibold">Your orbit is empty</h3>
