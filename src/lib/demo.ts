@@ -86,13 +86,22 @@ export async function seedDemo(
 
   if (!contacts) return;
 
-  // Group memberships
-  const cgPayload = contacts
-    .map((c, i) => {
-      const groupName = rows[i].group;
-      const gid = groupName ? groupByName.get(groupName) : null;
-      if (!gid) return null;
-      return { contact_id: c.id, group_id: gid, user_id: userId };
+  // Group memberships — match by name+last_name+company rather than array index,
+  // since Supabase doesn't guarantee returned row order matches input order.
+  const contactByKey = new Map<string, string>(
+    (contacts as any[]).map((c) => [
+      `${c.name ?? ""}|${c.last_name ?? ""}|${c.company ?? ""}`,
+      c.id,
+    ]),
+  );
+  const cgPayload = rows
+    .map((r) => {
+      const gid = r.group ? groupByName.get(r.group) : null;
+      const cid = contactByKey.get(
+        `${r.first_name}|${r.last_name ?? ""}|${r.company ?? ""}`,
+      );
+      if (!gid || !cid) return null;
+      return { contact_id: cid, group_id: gid, user_id: userId };
     })
     .filter(Boolean) as any[];
   if (cgPayload.length) await supabase.from("contact_groups").insert(cgPayload);
