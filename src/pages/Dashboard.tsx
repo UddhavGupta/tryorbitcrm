@@ -19,6 +19,7 @@ import {
   ACTION_LABEL, ACTION_CLASSES, INTEL_DISCLAIMER, intelRationale,
 } from "@/lib/relationshipIntel";
 import { ReminderDialog } from "@/components/ReminderDialog";
+import { InstallAppCard } from "@/components/InstallAppCard";
 
 function nextOccurrence(dateStr: string) {
   const d = parseISO(dateStr);
