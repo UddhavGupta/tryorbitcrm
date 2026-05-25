@@ -169,7 +169,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
             <div className="flex items-center gap-1 md:gap-2 shrink-0">
               <AskOrbitDialog
                 trigger={
-                  <Button variant="outline" size="sm" className="gap-1.5 hidden sm:inline-flex">
+                  <Button variant="outline" size="sm" data-tour="ask-orbit" className="gap-1.5 hidden sm:inline-flex">
                     <Sparkles className="h-3.5 w-3.5 text-primary" />
                     <span className="hidden md:inline">Ask Orbit</span>
                     <span className="md:hidden">Ask</span>
