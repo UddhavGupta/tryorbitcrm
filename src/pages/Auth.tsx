@@ -92,6 +92,23 @@ const Auth = () => {
     }
   };
 
+  const signInWithApple = async () => {
+    setLoading(true);
+    try {
+      if (isAnon(user)) await supabase.auth.signOut();
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: window.location.origin + safeRedirect,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      navigate(safeRedirect, { replace: true });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Couldn't sign in with Apple");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SEO
@@ -171,6 +188,18 @@ const Auth = () => {
                     <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4 5.5l6.5 5.3C41.6 35.8 44 30.3 44 24c0-1.2-.1-2.4-.4-3.5z"/>
                   </svg>
                   Continue with Google
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-3 w-full"
+                  onClick={signInWithApple}
+                  disabled={loading}
+                >
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M16.365 1.43c0 1.14-.42 2.21-1.26 3.06-.83.84-1.83 1.34-2.92 1.27-.07-1.11.38-2.27 1.24-3.13.86-.86 2.05-1.27 2.94-1.2zM20.6 17.27c-.49 1.13-.72 1.63-1.36 2.62-.88 1.36-2.13 3.06-3.67 3.07-1.37.02-1.72-.89-3.58-.88-1.86.01-2.25.9-3.62.88-1.55-.02-2.73-1.55-3.62-2.91-2.47-3.81-2.74-8.28-1.21-10.66 1.09-1.7 2.81-2.7 4.42-2.7 1.65 0 2.68.9 4.04.9 1.32 0 2.13-.9 4.03-.9 1.43 0 2.94.78 4.02 2.13-3.54 1.94-2.97 7.01.55 8.45z"/>
+                  </svg>
+                  Continue with Apple
                 </Button>
                 <div className="mt-6 flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="h-px flex-1 bg-border" />

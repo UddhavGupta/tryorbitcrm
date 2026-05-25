@@ -55,6 +55,24 @@ const STEPS: Step[] = [
     body: "Set follow-ups tied to a person with a due date and a one-line nudge. Overdue and due-today reminders surface on your dashboard so nothing slips.",
   },
   {
+    target: "reminders",
+    title: "Reminders — never drop the ball",
+    body: "Set follow-ups tied to a person with a due date and a one-line nudge. Overdue and due-today reminders surface on your dashboard so nothing slips.",
+  },
+  {
+    target: "ask-orbit",
+    title: "Ask Orbit — AI relationship intelligence",
+    body: (
+      <>
+        Click <span className="font-medium text-foreground">Ask Orbit</span> in the header to search your network in plain English — try
+        <span className="italic"> "Who should I reconnect with this week?"</span> or
+        <span className="italic"> "Who do I know in fintech?"</span> Open any contact to generate an AI{" "}
+        <span className="font-medium text-foreground">Relationship Brief</span> or a 60-second{" "}
+        <span className="font-medium text-foreground">Pre-Meeting Prep</span> card. All AI output is a draft you can edit — nothing is sent or saved automatically.
+      </>
+    ),
+  },
+  {
     target: "account",
     title: "Account menu — exports & settings",
     body: "Edit your profile, export every contact, group, reminder, and date as CSV, or restart this tour anytime from here.",

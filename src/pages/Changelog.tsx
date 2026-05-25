@@ -174,6 +174,27 @@ const RELEASES: Release[] = [
     ],
   },
   {
+    version: "v1.3",
+    title: "Onboarding refresh + Apple sign-in",
+    date: "May 2026",
+    status: "shipped",
+    items: [
+      "Redefined the new-user onboarding flow with a dedicated Ask Orbit / AI step in the guided tour",
+      "Added Sign in / Sign up with Apple alongside Google and email",
+    ],
+  },
+  {
+    version: "v1.4",
+    title: "Demo polish + AI surfacing",
+    date: "May 2026",
+    status: "shipped",
+    items: [
+      "Fixed contact assignment to groups in demo mode so seeded contacts land in the right circles",
+      "Demo mode updated to highlight AI features (Relationship Briefs, Pre-Meeting Prep, Ask Orbit)",
+      "Added an Add-to-Home-Screen guide on mobile so the app installs like a native PWA",
+    ],
+  },
+  {
     version: "vNext",
     title: "On the roadmap",
     status: "next",

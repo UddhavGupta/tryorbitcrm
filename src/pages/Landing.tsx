@@ -155,6 +155,42 @@ const Landing = () => {
         </RevealStagger>
       </section>
 
+      {/* AI intelligence */}
+      <section className="container py-20 md:py-28">
+        <Reveal>
+          <div className="section-opener text-center mx-auto">
+            <p className="eyebrow-serif justify-center">Relationship intelligence</p>
+            <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
+              Now with <span className="italic" style={{ color: "hsl(var(--primary))" }}>Gemini-powered</span> AI on every contact.
+            </h2>
+            <p className="text-muted-foreground mt-3 leading-relaxed max-w-2xl mx-auto">
+              OrbitCRM uses Google's Gemini to read your own notes and history, then drafts briefs you can edit. Nothing is auto-sent, nothing leaves your orbit without your say-so.
+            </p>
+          </div>
+        </Reveal>
+        <RevealStagger className="mt-12 grid md:grid-cols-3 gap-6" step={100}>
+          {[
+            { t: "Relationship Briefs", d: "An at-a-glance summary of how you know someone, what matters to them, and what's open — generated from your notes and interactions." },
+            { t: "60-second Pre-Meeting Prep", d: "Before a call, get talking points, smart questions, and the latest context — distilled into a card you can skim in a minute." },
+            { t: "Ask Orbit, in plain English", d: "Search your network like you'd ask a friend: \"Who should I reconnect with this week?\" or \"Who do I know in fintech?\"" },
+          ].map((s) => (
+            <div key={s.t} className="surface-card p-7 lift h-full">
+              <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-medium text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> AI
+              </span>
+              <h3 className="font-display text-xl font-medium tracking-tight mt-3" style={{ color: "hsl(var(--primary-ink))" }}>{s.t}</h3>
+              <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.d}</p>
+            </div>
+          ))}
+        </RevealStagger>
+        <p className="text-center text-xs text-muted-foreground mt-8 italic">
+          Every AI output is a draft. You stay in the loop, always.
+        </p>
+      </section>
+
+
+
+
 
       {/* Who it's for */}
       <section className="container py-20 md:py-28">
