@@ -92,6 +92,23 @@ const Auth = () => {
     }
   };
 
+  const signInWithApple = async () => {
+    setLoading(true);
+    try {
+      if (isAnon(user)) await supabase.auth.signOut();
+      const result = await lovable.auth.signInWithOAuth("apple", {
+        redirect_uri: window.location.origin + safeRedirect,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      navigate(safeRedirect, { replace: true });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Couldn't sign in with Apple");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SEO
