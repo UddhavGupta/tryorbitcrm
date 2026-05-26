@@ -251,6 +251,21 @@ const ContactDetail = () => {
           </div>
 
           <div className="surface-card p-6">
+            <h3 className="font-semibold mb-2">Why they matter</h3>
+            <div className="text-sm text-muted-foreground">
+              <InlineField
+                value={contact.why_matters}
+                schema={longText}
+                multiline
+                placeholder="What makes this person important to you?"
+                emptyLabel="Add a short note about why this person matters"
+                onSave={(v) => saveField("why_matters", v)}
+                renderDisplay={(v) => <span className="whitespace-pre-wrap text-foreground">{v}</span>}
+              />
+            </div>
+          </div>
+
+          <div className="surface-card p-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Relationship intel</h3>
               <span className={`text-[10px] uppercase tracking-wide font-medium px-2 py-0.5 rounded-full border ${STATUS_CLASSES[status]}`}>{STATUS_LABEL[status]}</span>
@@ -297,20 +312,6 @@ const ContactDetail = () => {
             </div>
           </div>
 
-          <div className="surface-card p-6">
-            <h3 className="font-semibold mb-2">Why they matter</h3>
-            <div className="text-sm text-muted-foreground">
-              <InlineField
-                value={contact.why_matters}
-                schema={longText}
-                multiline
-                placeholder="What makes this person important to you?"
-                emptyLabel="Add a short note about why this person matters"
-                onSave={(v) => saveField("why_matters", v)}
-                renderDisplay={(v) => <span className="whitespace-pre-wrap text-foreground">{v}</span>}
-              />
-            </div>
-          </div>
 
           <div className="surface-card p-6">
             <h3 className="font-semibold mb-2">Notes</h3>
