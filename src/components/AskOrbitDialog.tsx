@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, Search, ArrowRight } from "lucide-react";
+import { Sparkles, Loader2, Search, ArrowRight, Bell, MessageSquare, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { tagClasses } from "@/lib/tags";
+import { ReminderDialog } from "@/components/ReminderDialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Result = {
   id: string;
