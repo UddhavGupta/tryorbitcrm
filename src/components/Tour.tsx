@@ -12,97 +12,34 @@ type Step = {
 
 const STEPS: Step[] = [
   {
-    title: "Welcome to OrbitCRM 👋",
-    body: (
-      <>
-        A quick tour of your relationship system. We'll walk through each tab
-        in the header from left to right, then point out the account menu and
-        a few keyboard shortcuts. Takes about 60 seconds — use{" "}
-        <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[10px] font-mono">
-          ←
-        </kbd>{" "}
-        /{" "}
-        <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[10px] font-mono">
-          →
-        </kbd>{" "}
-        to navigate, or <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[10px] font-mono">Esc</kbd> to skip.
-      </>
-    ),
-  },
-  {
     target: "dashboard",
     title: "Dashboard — your daily glance",
-    body: "Opens to today's reminders, who's cooling off, and a quick view of contacts that need attention. This is the screen to start your day on.",
+    body: "Today's reminders, who's cooling off, and contacts that need attention. Start your day here.",
   },
   {
     target: "people",
     title: "People — your full orbit",
-    body: "Every contact lives here. Search by name, title, company, group, city, or notes. Filter by priority or group, then bulk-tag, archive, or export from the action bar that appears when you select rows.",
+    body: "Every contact lives here. Search, filter by priority or group, and open a profile for full context.",
   },
   {
-    target: "groups",
-    title: "Groups — the circles you organize by",
-    body: "Bundle contacts into circles like Mentors, Investors, or College — whatever makes sense for you. Open a group to see everyone in it and reach out as a cohort.",
-  },
-  {
-    target: "dates",
-    title: "Dates — birthdays & anniversaries",
-    body: "OrbitCRM tracks birthdays and key anniversaries so you never miss the moment. Upcoming dates surface here and on your dashboard before they arrive.",
+    title: "Contact profile — the full picture",
+    body: "Each profile collects why they matter, notes, interactions, open reminders, and a smart Relationship Brief — all in one calm view.",
   },
   {
     target: "reminders",
     title: "Reminders — never drop the ball",
-    body: "Set follow-ups tied to a person with a due date and a one-line nudge. Overdue and due-today reminders surface on your dashboard so nothing slips.",
-  },
-  {
-    target: "reminders",
-    title: "Reminders — never drop the ball",
-    body: "Set follow-ups tied to a person with a due date and a one-line nudge. Overdue and due-today reminders surface on your dashboard so nothing slips.",
+    body: "Follow-ups tied to a person with a due date. Overdue and due-today reminders bubble up on your dashboard.",
   },
   {
     target: "ask-orbit",
-    title: "Ask Orbit — AI relationship intelligence",
+    title: "Ask Orbit — search your network in plain English",
     body: (
       <>
-        Click <span className="font-medium text-foreground">Ask Orbit</span> in the header to search your network in plain English — try
-        <span className="italic"> "Who should I reconnect with this week?"</span> or
-        <span className="italic"> "Who do I know in fintech?"</span> Open any contact to generate an AI{" "}
-        <span className="font-medium text-foreground">Relationship Brief</span> or a 60-second{" "}
-        <span className="font-medium text-foreground">Pre-Meeting Prep</span> card. All AI output is a draft you can edit — nothing is sent or saved automatically.
+        Try <span className="italic">"Who should I reconnect with this week?"</span> or
+        <span className="italic"> "Who do I know in fintech?"</span> Open any contact for a smart
+        Relationship Brief or a 60-second Pre-Meeting Prep. All AI output is a draft you can edit.
       </>
     ),
-  },
-  {
-    target: "account",
-    title: "Account menu — exports & settings",
-    body: "Edit your profile, export every contact, group, reminder, and date as CSV, or restart this tour anytime from here.",
-  },
-  {
-    title: "A few keyboard shortcuts",
-    body: (
-      <ul className="space-y-1.5">
-        <li>
-          <kbd className="px-1.5 py-0.5 rounded border border-border bg-card text-[10px] font-mono">n</kbd>{" "}
-          — new contact
-        </li>
-        <li>
-          <kbd className="px-1.5 py-0.5 rounded border border-border bg-card text-[10px] font-mono">r</kbd>{" "}
-          — new reminder
-        </li>
-        <li>
-          <kbd className="px-1.5 py-0.5 rounded border border-border bg-card text-[10px] font-mono">/</kbd>{" "}
-          — focus search
-        </li>
-        <li>
-          <kbd className="px-1.5 py-0.5 rounded border border-border bg-card text-[10px] font-mono">?</kbd>{" "}
-          — show all shortcuts
-        </li>
-      </ul>
-    ),
-  },
-  {
-    title: "You're set",
-    body: "Want to play with realistic data first? Load a sample orbit — or jump straight in and add your first contact.",
   },
 ];
 
