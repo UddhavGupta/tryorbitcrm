@@ -195,6 +195,22 @@ const RELEASES: Release[] = [
     ],
   },
   {
+    version: "v1.5",
+    title: "Demo depth + AI clarity",
+    date: "May 2026",
+    status: "shipped",
+    items: [
+      "Slightly longer splash on first load for a calmer launch feel",
+      "Groups page now shows accurate counts and a few member names per group in demo mode",
+      "Seeded demo contacts now ship with why-they-matter notes, tags, richer interaction history, and open reminders",
+      "Moved \"Why they matter\" higher on the contact profile so the relationship context leads",
+      "Pre-generated Smart Relationship Briefs for every demo contact — quick summary, how I know them, what matters, open loops, suggested next action, and a draft follow-up message",
+      "Clarified AI wording across the app — demo briefs are labeled \"AI-style demo\"; live briefs labeled \"AI\"; landing now reads \"AI-powered\" instead of name-dropping a specific model",
+      "Ask Orbit results are now ranked cards with Open profile, Add reminder, and Draft message actions",
+      "Shortened the onboarding tour from 11 steps to 5 core steps (Dashboard, People, Contact profile, Reminders, Ask Orbit)",
+    ],
+  },
+  {
     version: "vNext",
     title: "On the roadmap",
     status: "next",

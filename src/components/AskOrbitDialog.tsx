@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, Search, ArrowRight } from "lucide-react";
+import { Sparkles, Loader2, Search, ArrowRight, Bell, MessageSquare, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { tagClasses } from "@/lib/tags";
+import { ReminderDialog } from "@/components/ReminderDialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Result = {
   id: string;
@@ -27,11 +29,21 @@ const STARTERS = [
 ];
 
 export const AskOrbitDialog = ({ trigger }: { trigger: React.ReactNode }) => {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Result[] | null>(null);
   const [summary, setSummary] = useState("");
+  const [reminderForId, setReminderForId] = useState<string | null>(null);
+
+  const draftMessage = (r: Result) => {
+    const first = r.name.split(" ")[0];
+    const text = `Hey ${first} — been a minute. Wanted to check in and see how things are going${r.company ? ` at ${r.company}` : ""}. Any chance you have 20 minutes next week to catch up?`;
+    navigator.clipboard.writeText(text);
+    toast.success("Draft copied to clipboard");
+  };
 
   const run = async (q: string) => {
     if (!q.trim()) return;
@@ -108,18 +120,17 @@ export const AskOrbitDialog = ({ trigger }: { trigger: React.ReactNode }) => {
               <p className="text-sm text-muted-foreground text-center py-6">No matches in your network for this question.</p>
             )}
             {results.map((r) => (
-              <Link
-                key={r.id}
-                to={`/app/people/${r.id}`}
-                onClick={() => setOpen(false)}
-                className="block surface-card p-4 hover:border-primary/40 transition-colors group"
-              >
+              <div key={r.id} className="surface-card p-4 hover:border-primary/40 transition-colors">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground">{r.name}</p>
+                  <button
+                    type="button"
+                    onClick={() => { navigate(`/app/people/${r.id}`); setOpen(false); }}
+                    className="min-w-0 text-left group"
+                  >
+                    <p className="font-medium text-foreground group-hover:text-primary transition-colors">{r.name}</p>
                     <p className="text-xs text-muted-foreground">{[r.title, r.company].filter(Boolean).join(" · ") || "—"}</p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
+                  </button>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
                 </div>
                 <p className="text-sm text-foreground/85 mt-2">{r.reason}</p>
                 {(r.tags?.length ?? 0) > 0 && (
@@ -129,11 +140,34 @@ export const AskOrbitDialog = ({ trigger }: { trigger: React.ReactNode }) => {
                     ))}
                   </div>
                 )}
-              </Link>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  <Button size="sm" variant="outline" onClick={() => { navigate(`/app/people/${r.id}`); setOpen(false); }}>
+                    <ExternalLink className="h-3 w-3 mr-1.5" />Open profile
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setReminderForId(r.id)}>
+                    <Bell className="h-3 w-3 mr-1.5" />Add reminder
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => draftMessage(r)}>
+                    <MessageSquare className="h-3 w-3 mr-1.5" />Draft message
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         )}
       </DialogContent>
+      <ReminderDialog
+        open={reminderForId !== null}
+        onOpenChange={(o) => { if (!o) setReminderForId(null); }}
+        reminder={null}
+        defaultContactId={reminderForId ?? undefined}
+        lockContact
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ["reminders"] });
+          qc.invalidateQueries({ queryKey: ["reminders-today"] });
+          setReminderForId(null);
+        }}
+      />
     </Dialog>
   );
 };

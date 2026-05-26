@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Sparkles, RefreshCw, Loader2, Pencil, Check, X } from "lucide-react";
+import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 type BriefContent = {
+  summary?: string;
   how_i_know: string;
   last_interaction: string;
   key_details: string[];
@@ -15,12 +16,14 @@ type BriefContent = {
   open_loops: string[];
   suggested_next_step: string;
   suggested_followup_timing: string;
+  draft_message?: string;
 };
 
 type BriefRow = {
   id: string;
   content: BriefContent;
   edited: boolean;
+  model: string | null;
   generated_at: string;
   updated_at: string;
 };
@@ -36,12 +39,14 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
     queryFn: async () => {
       const { data } = await supabase
         .from("relationship_briefs")
-        .select("id, content, edited, generated_at, updated_at")
+        .select("id, content, edited, model, generated_at, updated_at")
         .eq("contact_id", contactId)
         .maybeSingle();
       return (data ?? null) as BriefRow | null;
     },
   });
+
+  const isDemoSeed = brief?.model === "demo-seed" && !brief.edited;
 
   const generate = async () => {
     setGenerating(true);
@@ -52,7 +57,7 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       qc.invalidateQueries({ queryKey: ["relationship-brief", contactId] });
-      toast.success(brief ? "Brief refreshed" : "Brief generated");
+      toast.success(brief ? "Brief regenerated" : "Brief generated");
     } catch (e: any) {
       toast.error(e.message ?? "Couldn't generate brief");
     } finally {
@@ -93,22 +98,28 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
   return (
     <div className="surface-card p-6">
       <div className="flex items-center justify-between gap-3 mb-1">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Sparkles className="h-4 w-4 text-primary" />
-          <h3 className="font-serif text-lg tracking-tight">Relationship brief</h3>
-          <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/15">AI</span>
+          <h3 className="font-serif text-lg tracking-tight">
+            {isDemoSeed ? "Smart relationship brief" : "Relationship brief"}
+          </h3>
+          <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/15">
+            {isDemoSeed ? "AI-style demo" : "AI"}
+          </span>
         </div>
         {brief && !editing && (
           <div className="flex items-center gap-1">
             <Button size="sm" variant="ghost" onClick={startEdit} title="Edit"><Pencil className="h-3.5 w-3.5" /></Button>
-            <Button size="sm" variant="ghost" onClick={generate} disabled={generating} title="Refresh brief">
+            <Button size="sm" variant="ghost" onClick={generate} disabled={generating} title="Regenerate brief">
               {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
             </Button>
           </div>
         )}
       </div>
       <p className="text-[11px] text-muted-foreground italic mb-4">
-        Generated from this contact's profile, notes, interactions, and follow-ups. AI uses your selected CRM data only — you stay in control.
+        {isDemoSeed
+          ? "Sample brief generated from this demo contact's profile and history — regenerate to call the live AI model."
+          : "Generated from this contact's profile, notes, interactions, and follow-ups. AI uses your selected CRM data only — you stay in control."}
       </p>
 
       {!brief && !generating && (
@@ -140,7 +151,7 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
 
       {brief && !editing && (
         <p className="mt-4 text-[10px] text-muted-foreground">
-          {brief.edited ? "Edited by you · " : "AI draft · "}
+          {brief.edited ? "Edited by you · " : isDemoSeed ? "Demo sample · " : "AI draft · "}
           last updated {format(parseISO(brief.updated_at), "MMM d, yyyy")}
         </p>
       )}
@@ -150,13 +161,35 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
 
 const BriefView = ({ content }: { content: BriefContent }) => (
   <div className="space-y-4 text-sm">
+    {content.summary && (
+      <Section label="Quick summary"><p className="text-foreground/90">{content.summary}</p></Section>
+    )}
     <Section label="How I know them"><p className="text-foreground/90">{content.how_i_know}</p></Section>
-    <Section label="Last interaction"><p className="text-foreground/90">{content.last_interaction}</p></Section>
-    <BulletSection label="Key details" items={content.key_details} />
+    <Section label="Last meaningful interaction"><p className="text-foreground/90">{content.last_interaction}</p></Section>
+    <BulletSection label="What matters" items={content.key_details} />
     <BulletSection label="Recent topics" items={content.recent_topics} />
     <BulletSection label="Open loops" items={content.open_loops} />
-    <Section label="Suggested next step"><p className="text-foreground/90">{content.suggested_next_step}</p></Section>
+    <Section label="Suggested next action"><p className="text-foreground/90">{content.suggested_next_step}</p></Section>
     <Section label="Follow-up timing"><p className="text-foreground/90">{content.suggested_followup_timing}</p></Section>
+    {content.draft_message && (
+      <Section label="Draft follow-up message">
+        <div className="rounded-lg border border-border bg-secondary/40 p-3 text-foreground/90 whitespace-pre-wrap">
+          {content.draft_message}
+        </div>
+        <div className="mt-2 flex justify-end">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              navigator.clipboard.writeText(content.draft_message!);
+              toast.success("Draft copied");
+            }}
+          >
+            <Copy className="h-3 w-3 mr-1" />Copy draft
+          </Button>
+        </div>
+      </Section>
+    )}
   </div>
 );
 
@@ -195,13 +228,15 @@ const BriefEditor = ({
     upd(k, text.split("\n").map((s) => s.trim()).filter(Boolean));
   return (
     <div className="space-y-3 text-sm">
+      <EditField label="Quick summary" value={draft.summary ?? ""} onChange={(v) => upd("summary", v)} />
       <EditField label="How I know them" value={draft.how_i_know} onChange={(v) => upd("how_i_know", v)} />
-      <EditField label="Last interaction" value={draft.last_interaction} onChange={(v) => upd("last_interaction", v)} />
-      <EditField label="Key details (one per line)" value={draft.key_details.join("\n")} onChange={(v) => updList("key_details", v)} rows={4} />
+      <EditField label="Last meaningful interaction" value={draft.last_interaction} onChange={(v) => upd("last_interaction", v)} />
+      <EditField label="What matters (one per line)" value={draft.key_details.join("\n")} onChange={(v) => updList("key_details", v)} rows={4} />
       <EditField label="Recent topics (one per line)" value={draft.recent_topics.join("\n")} onChange={(v) => updList("recent_topics", v)} rows={3} />
       <EditField label="Open loops (one per line)" value={draft.open_loops.join("\n")} onChange={(v) => updList("open_loops", v)} rows={3} />
-      <EditField label="Suggested next step" value={draft.suggested_next_step} onChange={(v) => upd("suggested_next_step", v)} />
+      <EditField label="Suggested next action" value={draft.suggested_next_step} onChange={(v) => upd("suggested_next_step", v)} />
       <EditField label="Follow-up timing" value={draft.suggested_followup_timing} onChange={(v) => upd("suggested_followup_timing", v)} />
+      <EditField label="Draft follow-up message" value={draft.draft_message ?? ""} onChange={(v) => upd("draft_message", v)} rows={4} />
       <div className="flex justify-end gap-2 pt-1">
         <Button size="sm" variant="ghost" onClick={onCancel}><X className="h-3.5 w-3.5 mr-1" />Cancel</Button>
         <Button size="sm" onClick={onSave}><Check className="h-3.5 w-3.5 mr-1" />Save</Button>
