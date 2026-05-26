@@ -161,10 +161,10 @@ const Landing = () => {
           <div className="section-opener text-center mx-auto">
             <p className="eyebrow-serif justify-center">Relationship intelligence</p>
             <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
-              Now with <span className="italic" style={{ color: "hsl(var(--primary))" }}>Gemini-powered</span> AI on every contact.
+              <span className="italic" style={{ color: "hsl(var(--primary))" }}>AI-powered</span> intelligence on every contact.
             </h2>
             <p className="text-muted-foreground mt-3 leading-relaxed max-w-2xl mx-auto">
-              OrbitCRM uses Google's Gemini to read your own notes and history, then drafts briefs you can edit. Nothing is auto-sent, nothing leaves your orbit without your say-so.
+              OrbitCRM reads your own notes and history, then drafts briefs you can edit. Nothing is auto-sent, nothing leaves your orbit without your say-so.
             </p>
           </div>
         </Reveal>
