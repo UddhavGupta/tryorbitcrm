@@ -249,12 +249,7 @@ const TourOverlay = ({ step, stepIndex, totalSteps, rect, seeding, onSkip, onPre
               <Button variant="outline" size="sm" onClick={onPrev}>Back</Button>
             )}
             {isLast ? (
-              <>
-                <Button variant="outline" size="sm" onClick={onLoadSample} disabled={seeding}>
-                  {seeding ? "Loading…" : "Load sample"}
-                </Button>
-                <Button size="sm" className="gradient-primary" onClick={onDone}>Start fresh</Button>
-              </>
+              <Button size="sm" className="gradient-primary" onClick={onDone}>Done</Button>
             ) : (
               <Button size="sm" className="gradient-primary" onClick={onNext}>Next</Button>
             )}
