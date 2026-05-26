@@ -29,11 +29,21 @@ const STARTERS = [
 ];
 
 export const AskOrbitDialog = ({ trigger }: { trigger: React.ReactNode }) => {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Result[] | null>(null);
   const [summary, setSummary] = useState("");
+  const [reminderForId, setReminderForId] = useState<string | null>(null);
+
+  const draftMessage = (r: Result) => {
+    const first = r.name.split(" ")[0];
+    const text = `Hey ${first} — been a minute. Wanted to check in and see how things are going${r.company ? ` at ${r.company}` : ""}. Any chance you have 20 minutes next week to catch up?`;
+    navigator.clipboard.writeText(text);
+    toast.success("Draft copied to clipboard");
+  };
 
   const run = async (q: string) => {
     if (!q.trim()) return;
