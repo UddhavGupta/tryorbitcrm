@@ -28,6 +28,8 @@ const About = lazy(() => import("./pages/About"));
 const UseCase = lazy(() => import("./pages/UseCase"));
 const Press = lazy(() => import("./pages/Press"));
 const Demo = lazy(() => import("./pages/Demo"));
+const Integrations = lazy(() => import("./pages/Integrations"));
+
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background" aria-hidden="true" />
