@@ -211,19 +211,30 @@ const RELEASES: Release[] = [
     ],
   },
   {
+    version: "v1.6",
+    title: "Integrations + bulk + polish",
+    date: "May 2026",
+    status: "shipped",
+    items: [
+      "Evened out section padding across the landing page so the rhythm reads as one calm stack",
+      "New Integrations surface (Settings → Integrations) with opt-in early access for Gmail, Google Calendar, Outlook, and iCloud — strictly read-only, never automatic",
+      "Bulk actions on People: assign to group, set priority, mark contacted, add tag, and delete — surfaced once one or more contacts are selected",
+    ],
+  },
+  {
     version: "vNext",
     title: "On the roadmap",
     status: "next",
     items: [
       "AI-generated follow-up suggestions and message drafts",
       "Inline contact editing without opening a dialog",
-      "Bulk actions on People (assign group, set priority, delete)",
       "Recurring reminders and snooze options",
       "Keyboard shortcuts for power users",
-      "Email / Calendar integrations (read-only, opt-in)",
+      "Live OAuth for Gmail / Google Calendar (currently early-access opt-in)",
       "User testing log and accessibility audit",
     ],
   },
+
 ];
 
 
