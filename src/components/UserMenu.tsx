@@ -1,4 +1,4 @@
-import { LogOut, User as UserIcon, PlayCircle, ImagePlus, Download, Trash2 } from "lucide-react";
+import { LogOut, User as UserIcon, PlayCircle, ImagePlus, Download, Trash2, Plug } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
