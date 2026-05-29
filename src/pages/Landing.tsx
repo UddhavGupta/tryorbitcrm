@@ -95,12 +95,12 @@ const Landing = () => {
 
 
       {/* Orbit constellation — branded hero visual */}
-      <section className="container pb-12 md:pb-16 animate-fade-up-delay-2">
+      <section className="container py-12 md:py-16 animate-fade-up-delay-2">
         <OrbitConstellation />
       </section>
 
       {/* Product tour — moved up so visitors see real screens right under the hero */}
-      <section className="container pb-20 md:pb-28">
+      <section className="container py-20 md:py-28">
         <Reveal>
           <div className="section-opener section-opener-center mb-12 text-center mx-auto">
             <p className="eyebrow-serif justify-center">Product tour</p>
@@ -129,6 +129,7 @@ const Landing = () => {
 
       {/* How it works */}
       <section className="container py-20 md:py-28">
+
         <Reveal>
           <div className="section-opener text-center mx-auto">
             <p className="eyebrow-serif justify-center">How it works</p>
