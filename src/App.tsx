@@ -71,6 +71,8 @@ const App = () => (
                     <Route path="/app/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
                     <Route path="/app/dates" element={<ProtectedRoute><Dates /></ProtectedRoute>} />
                     <Route path="/app/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
+                    <Route path="/app/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
+
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AnimatedRoutes>
