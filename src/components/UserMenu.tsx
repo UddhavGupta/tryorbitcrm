@@ -1,4 +1,4 @@
-import { LogOut, User as UserIcon, PlayCircle, ImagePlus, Download, Trash2 } from "lucide-react";
+import { LogOut, User as UserIcon, PlayCircle, ImagePlus, Download, Trash2, Plug } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -107,11 +107,18 @@ export const UserMenu = () => {
             </DropdownMenuItem>
           )}
           {!isAnon && (
+            <DropdownMenuItem onClick={() => navigate("/app/integrations")}>
+              <Plug className="h-4 w-4 mr-2" />
+              Integrations
+            </DropdownMenuItem>
+          )}
+          {!isAnon && (
             <DropdownMenuItem onClick={() => startTour()}>
               <PlayCircle className="h-4 w-4 mr-2" />
               Replay tour
             </DropdownMenuItem>
           )}
+
           {!isAnon && (
             <DropdownMenuItem onClick={handleExport} disabled={exporting}>
               <Download className="h-4 w-4 mr-2" />

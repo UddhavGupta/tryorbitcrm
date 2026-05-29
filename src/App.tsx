@@ -28,6 +28,8 @@ const About = lazy(() => import("./pages/About"));
 const UseCase = lazy(() => import("./pages/UseCase"));
 const Press = lazy(() => import("./pages/Press"));
 const Demo = lazy(() => import("./pages/Demo"));
+const Integrations = lazy(() => import("./pages/Integrations"));
+
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background" aria-hidden="true" />
@@ -69,6 +71,8 @@ const App = () => (
                     <Route path="/app/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
                     <Route path="/app/dates" element={<ProtectedRoute><Dates /></ProtectedRoute>} />
                     <Route path="/app/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
+                    <Route path="/app/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
+
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AnimatedRoutes>
