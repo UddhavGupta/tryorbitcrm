@@ -189,6 +189,99 @@ const Landing = () => {
         </p>
       </section>
 
+      {/* Integrations */}
+      <section className="container py-20 md:py-28">
+        <Reveal>
+          <div className="section-opener text-center mx-auto">
+            <p className="eyebrow-serif justify-center">Integrations</p>
+            <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
+              Email and calendar context, <span className="italic" style={{ color: "hsl(var(--primary))" }}>read-only.</span>
+            </h2>
+            <p className="text-muted-foreground mt-3 leading-relaxed max-w-2xl mx-auto">
+              Opt into Gmail, Google Calendar, Outlook, or iCloud and Orbit will surface the last thread and upcoming meetings on each contact —
+              never sending, replying, or editing on your behalf.
+            </p>
+          </div>
+        </Reveal>
+        <RevealStagger className="mt-12 grid sm:grid-cols-2 md:grid-cols-3 gap-6" step={100}>
+          {[
+            { icon: Mail, t: "Gmail · Outlook", d: "See the last thread subject and date on every contact without leaving Orbit." },
+            { icon: Calendar, t: "Google · iCloud Calendar", d: "Upcoming meetings auto-match contacts so you can prep in one tap." },
+            { icon: ShieldCheck, t: "Read-only by design", d: "Scoped to metadata. Revoke any time — Orbit drops cached data within 24 hours." },
+          ].map((s) => (
+            <div key={s.t} className="surface-card p-7 lift h-full">
+              <div className="h-11 w-11 rounded-2xl bg-[hsl(var(--primary-soft))] grid place-items-center">
+                <s.icon className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="font-display text-xl font-medium tracking-tight mt-4" style={{ color: "hsl(var(--primary-ink))" }}>{s.t}</h3>
+              <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{s.d}</p>
+            </div>
+          ))}
+        </RevealStagger>
+        <p className="text-center text-xs text-muted-foreground mt-8 italic">
+          Try it in the <Link to="/demo" className="underline hover:text-primary">demo</Link> — Integrations live in the main nav, no signup required.
+        </p>
+      </section>
+
+      {/* Install on mobile */}
+      <section className="bg-card-muted/30 py-20 md:py-28">
+        <div className="container">
+          <Reveal>
+            <div className="section-opener text-center mx-auto">
+              <p className="eyebrow-serif justify-center"><Smartphone className="h-3 w-3" /> On your phone</p>
+              <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
+                Save it as a <span className="italic" style={{ color: "hsl(var(--primary))" }}>web app.</span>
+              </h2>
+              <p className="text-muted-foreground mt-3 leading-relaxed max-w-2xl mx-auto">
+                OrbitCRM runs full-screen with its own icon on iOS and Android — no app store, no install dialogs. Just two taps.
+              </p>
+            </div>
+          </Reveal>
+          <RevealStagger className="mt-12 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto" step={120}>
+            <div className="surface-card p-7 lift h-full">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider font-medium px-2 py-1 rounded-full bg-[hsl(var(--primary-soft))] text-primary">iPhone · iPad</span>
+                <span className="text-xs text-muted-foreground">Safari</span>
+              </div>
+              <ol className="mt-5 space-y-3 text-sm">
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold">1</span>
+                  <span>Tap the <span className="inline-flex items-center gap-1 font-medium text-foreground"><Share className="h-3.5 w-3.5" /> Share</span> button at the bottom of Safari.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold">2</span>
+                  <span>Scroll and tap <span className="inline-flex items-center gap-1 font-medium text-foreground"><Plus className="h-3.5 w-3.5" /> Add to Home Screen</span>.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold">3</span>
+                  <span>Tap <span className="font-medium text-foreground">Add</span>. OrbitCRM lands on your home screen.</span>
+                </li>
+              </ol>
+            </div>
+            <div className="surface-card p-7 lift h-full">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider font-medium px-2 py-1 rounded-full bg-[hsl(var(--primary-soft))] text-primary">Android</span>
+                <span className="text-xs text-muted-foreground">Chrome</span>
+              </div>
+              <ol className="mt-5 space-y-3 text-sm">
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold">1</span>
+                  <span>Tap the <span className="inline-flex items-center gap-1 font-medium text-foreground"><MoreVertical className="h-3.5 w-3.5" /> menu</span> (top-right of Chrome).</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold">2</span>
+                  <span>Tap <span className="font-medium text-foreground">Add to Home screen</span> (or <span className="font-medium text-foreground">Install app</span>).</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold">3</span>
+                  <span>Confirm <span className="font-medium text-foreground">Install</span> — the OrbitCRM icon appears alongside your apps.</span>
+                </li>
+              </ol>
+            </div>
+          </RevealStagger>
+        </div>
+      </section>
+
 
 
 

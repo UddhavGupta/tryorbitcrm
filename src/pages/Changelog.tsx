@@ -222,6 +222,18 @@ const RELEASES: Release[] = [
     ],
   },
   {
+    version: "v1.7",
+    title: "Share links, tighter demo, mobile install",
+    date: "May 2026",
+    status: "shipped",
+    items: [
+      "Public read-only share links for relationship briefs — generate a signed URL to hand off context without exporting",
+      "Compartmentalized demo and signed-in modes: client cache is wiped on every auth change so the other identity's data can never flash through",
+      "Promoted Integrations to the main app nav (now reachable inside the demo too)",
+      "Added Integrations and 'Save as a web app' sections to the landing page with iOS and Android install steps",
+    ],
+  },
+  {
     version: "vNext",
     title: "On the roadmap",
     status: "next",
@@ -231,6 +243,7 @@ const RELEASES: Release[] = [
       "Recurring reminders and snooze options",
       "Keyboard shortcuts for power users",
       "Live OAuth for Gmail / Google Calendar (currently early-access opt-in)",
+      "Revoke + audit history for public brief share links",
       "User testing log and accessibility audit",
     ],
   },
