@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, PlayCircle, Github, Linkedin, Globe } from "lucide-react";
+import { ArrowRight, PlayCircle, Github, Linkedin, Globe, Mail, Calendar, ShieldCheck, Smartphone, Share, Plus, MoreVertical } from "lucide-react";
 import { AddPersonHand, NotebookHand, SendHand } from "@/components/landing/HandDrawnIcons";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
