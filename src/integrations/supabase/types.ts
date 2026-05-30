@@ -262,6 +262,7 @@ export type Database = {
           generated_at: string
           id: string
           model: string | null
+          share_token: string | null
           updated_at: string
           user_id: string
         }
@@ -273,6 +274,7 @@ export type Database = {
           generated_at?: string
           id?: string
           model?: string | null
+          share_token?: string | null
           updated_at?: string
           user_id: string
         }
@@ -284,6 +286,7 @@ export type Database = {
           generated_at?: string
           id?: string
           model?: string | null
+          share_token?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -341,7 +344,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_shared_brief: { Args: { _token: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
