@@ -29,6 +29,7 @@ const UseCase = lazy(() => import("./pages/UseCase"));
 const Press = lazy(() => import("./pages/Press"));
 const Demo = lazy(() => import("./pages/Demo"));
 const Integrations = lazy(() => import("./pages/Integrations"));
+const PublicBrief = lazy(() => import("./pages/PublicBrief"));
 
 
 const RouteFallback = () => (
@@ -65,6 +66,7 @@ const App = () => (
                     <Route path="/about" element={<About />} />
                     <Route path="/for/:slug" element={<UseCase />} />
                     <Route path="/press" element={<Press />} />
+                    <Route path="/brief/:token" element={<PublicBrief />} />
                     <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                     <Route path="/app/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
                     <Route path="/app/people/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />

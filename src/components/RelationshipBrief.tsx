@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy } from "lucide-react";
+import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy, Share2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +26,7 @@ type BriefRow = {
   model: string | null;
   generated_at: string;
   updated_at: string;
+  share_token: string | null;
 };
 
 export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
@@ -39,12 +40,34 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
     queryFn: async () => {
       const { data } = await supabase
         .from("relationship_briefs")
-        .select("id, content, edited, model, generated_at, updated_at")
+        .select("id, content, edited, model, generated_at, updated_at, share_token")
         .eq("contact_id", contactId)
         .maybeSingle();
       return (data ?? null) as BriefRow | null;
     },
   });
+
+  const share = async () => {
+    if (!brief) return;
+    let token = brief.share_token;
+    if (!token) {
+      // Generate a URL-safe random token client-side; uniqueness enforced by DB UNIQUE constraint.
+      token = crypto.randomUUID().replace(/-/g, "") + Math.random().toString(36).slice(2, 8);
+      const { error } = await supabase
+        .from("relationship_briefs")
+        .update({ share_token: token })
+        .eq("id", brief.id);
+      if (error) return toast.error(error.message);
+      qc.invalidateQueries({ queryKey: ["relationship-brief", contactId] });
+    }
+    const url = `${window.location.origin}/brief/${token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Share link copied", { description: "Anyone with the link can view this brief (read-only)." });
+    } catch {
+      toast.success("Share link ready", { description: url });
+    }
+  };
 
   const isDemoSeed = brief?.model === "demo-seed" && !brief.edited;
 
@@ -109,6 +132,9 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
         </div>
         {brief && !editing && (
           <div className="flex items-center gap-1">
+            <Button size="sm" variant="ghost" onClick={share} title={brief.share_token ? "Copy share link" : "Create read-only share link"}>
+              <Share2 className="h-3.5 w-3.5" />
+            </Button>
             <Button size="sm" variant="ghost" onClick={startEdit} title="Edit"><Pencil className="h-3.5 w-3.5" /></Button>
             <Button size="sm" variant="ghost" onClick={generate} disabled={generating} title="Regenerate brief">
               {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}

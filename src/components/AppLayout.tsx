@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Bell, Calendar, LayoutDashboard, Users, UsersRound } from "lucide-react";
+import { Bell, Calendar, LayoutDashboard, Plug, Users, UsersRound } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { DemoBadge } from "@/components/DemoBadge";
@@ -25,6 +25,7 @@ const links = [
   { to: "/app/groups", label: "Groups", icon: UsersRound, tour: "groups", prefetch: ["groups"] },
   { to: "/app/dates", label: "Dates", icon: Calendar, tour: "dates", prefetch: ["contacts"] },
   { to: "/app/reminders", label: "Reminders", icon: Bell, tour: "reminders", prefetch: ["reminders"] },
+  { to: "/app/integrations", label: "Integrations", icon: Plug, tour: "integrations" },
 ];
 
 // Lightweight prefetch handlers — query keys mirror what each page asks for.
