@@ -6,6 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { GoogleSheetImportCard } from "@/components/GoogleSheetImportCard";
+import { GranolaSyncCard } from "@/components/GranolaSyncCard";
 
 type IntegrationKey = "gmail" | "gcal" | "outlook" | "ical";
 
