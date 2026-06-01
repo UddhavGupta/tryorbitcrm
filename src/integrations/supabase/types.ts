@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      brief_access_log: {
+        Row: {
+          accessed_at: string
+          country: string | null
+          id: string
+          ip_hash: string | null
+          share_token: string
+          user_agent: string | null
+        }
+        Insert: {
+          accessed_at?: string
+          country?: string | null
+          id?: string
+          ip_hash?: string | null
+          share_token: string
+          user_agent?: string | null
+        }
+        Update: {
+          accessed_at?: string
+          country?: string | null
+          id?: string
+          ip_hash?: string | null
+          share_token?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       contact_groups: {
         Row: {
           contact_id: string
@@ -156,6 +183,48 @@ export type Database = {
           notes?: string | null
           recurring?: boolean
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      granola_pending_attendees: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          source_excerpt: string | null
+          source_meeting_at: string | null
+          source_note_id: string
+          source_note_title: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          source_excerpt?: string | null
+          source_meeting_at?: string | null
+          source_note_id: string
+          source_note_title?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          source_excerpt?: string | null
+          source_meeting_at?: string | null
+          source_note_id?: string
+          source_note_title?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }
