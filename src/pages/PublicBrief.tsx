@@ -34,8 +34,9 @@ const PublicBrief = () => {
   useEffect(() => {
     if (!token) return setState("not-found");
     (async () => {
-      const { data, error } = await supabase.rpc("get_shared_brief", { _token: token });
-      if (error || !data) return setState("not-found");
+      // Route through edge function so every access is logged for abuse monitoring.
+      const { data, error } = await supabase.functions.invoke("get-shared-brief", { body: { token } });
+      if (error || !data || (data as any).error) return setState("not-found");
       setBrief(data as unknown as SharedBrief);
       setState("ok");
     })();

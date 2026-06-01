@@ -6,6 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { GoogleSheetImportCard } from "@/components/GoogleSheetImportCard";
+import { GranolaSyncCard } from "@/components/GranolaSyncCard";
 
 type IntegrationKey = "gmail" | "gcal" | "outlook" | "ical";
 
@@ -96,8 +98,16 @@ const Integrations = () => {
     <AppLayout>
       <PageHeader
         title="Integrations"
-        description="Bring in email and calendar context — strictly read-only, fully opt-in, and never automatic."
+        description="Bring in email, calendar, sheets, and meeting context — strictly read-only, fully opt-in, and never automatic."
       />
+
+      <div className="space-y-4 mb-8">
+        <p className="eyebrow-serif">Live integrations</p>
+        <GoogleSheetImportCard />
+        <GranolaSyncCard />
+      </div>
+
+      <p className="eyebrow-serif mb-3">Coming soon</p>
 
       <div className="surface-card p-5 mb-6 border-primary/20 bg-[hsl(var(--primary-soft)/0.4)]">
         <div className="flex items-start gap-3">
