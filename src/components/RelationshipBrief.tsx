@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy, Share2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy, Share2, Mic, Square } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +34,62 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
   const [generating, setGenerating] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<BriefContent | null>(null);
+
+  // ---- Voice playback (press-and-hold mic) ----
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [speakState, setSpeakState] = useState<"idle" | "loading" | "playing">("idle");
+  const speakAbort = useRef<AbortController | null>(null);
+
+  const stopSpeak = () => {
+    speakAbort.current?.abort();
+    speakAbort.current = null;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      if (audioRef.current.src.startsWith("blob:")) URL.revokeObjectURL(audioRef.current.src);
+      audioRef.current = null;
+    }
+    setSpeakState("idle");
+  };
+
+  const startSpeak = async () => {
+    if (speakState !== "idle") return;
+    setSpeakState("loading");
+    const ctrl = new AbortController();
+    speakAbort.current = ctrl;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Sign in to use voice playback");
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/speak-brief`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ contactId }),
+        signal: ctrl.signal,
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({ error: `Failed (${res.status})` }));
+        throw new Error(j.error ?? "Voice synthesis failed");
+      }
+      const blob = await res.blob();
+      if (ctrl.signal.aborted) return;
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      audio.onended = () => stopSpeak();
+      audio.onerror = () => { toast.error("Couldn't play audio"); stopSpeak(); };
+      setSpeakState("playing");
+      await audio.play();
+    } catch (e: any) {
+      if (e?.name !== "AbortError") toast.error(e.message ?? "Voice unavailable");
+      stopSpeak();
+    }
+  };
+
+  useEffect(() => () => stopSpeak(), []);
 
   const { data: brief, isLoading } = useQuery({
     queryKey: ["relationship-brief", contactId],
@@ -132,6 +188,25 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
         </div>
         {brief && !editing && (
           <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              title={speakState === "playing" ? "Release to stop" : "Press and hold to hear a 20-second voice brief"}
+              aria-pressed={speakState !== "idle"}
+              onMouseDown={startSpeak}
+              onMouseUp={stopSpeak}
+              onMouseLeave={() => speakState === "playing" && stopSpeak()}
+              onTouchStart={(e) => { e.preventDefault(); startSpeak(); }}
+              onTouchEnd={stopSpeak}
+              onTouchCancel={stopSpeak}
+              className={speakState === "playing" ? "text-primary" : ""}
+            >
+              {speakState === "loading"
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                : speakState === "playing"
+                ? <Square className="h-3.5 w-3.5 fill-current" />
+                : <Mic className="h-3.5 w-3.5" />}
+            </Button>
             <Button size="sm" variant="ghost" onClick={share} title={brief.share_token ? "Copy share link" : "Create read-only share link"}>
               <Share2 className="h-3.5 w-3.5" />
             </Button>

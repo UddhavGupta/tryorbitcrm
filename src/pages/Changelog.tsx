@@ -249,6 +249,18 @@ const RELEASES: Release[] = [
     ],
   },
   {
+    version: "v1.9",
+    title: "Voice briefs & the product film",
+    date: "Jun 2026",
+    status: "shipped",
+    items: [
+      "Press-and-hold the mic on any relationship brief to hear a ~20-second spoken summary, narrated by ElevenLabs (Sarah voice)",
+      "Voice script is synthesized server-side from the saved brief — never sends raw contact data to the browser",
+      "Replaced the static orbit constellation on the landing with a 30-second autoplaying product film: cursor moves, contact opens, AI brief streams in, draft chip appears, reminder gets completed",
+      "Film is pure React + CSS with caption beats, a thin progress bar, and prefers-reduced-motion fallback — no video file, fully responsive",
+    ],
+  },
+  {
     version: "vNext",
     title: "On the roadmap",
     status: "next",
