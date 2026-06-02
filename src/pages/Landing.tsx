@@ -94,9 +94,9 @@ const Landing = () => {
       </section>
 
 
-      {/* Orbit constellation — branded hero visual */}
+      {/* Product film — 30s autoplaying choreographed UI demo */}
       <section className="container py-12 md:py-16 animate-fade-up-delay-2">
-        <OrbitConstellation />
+        <ProductFilm />
       </section>
 
       {/* Product tour — moved up so visitors see real screens right under the hero */}
