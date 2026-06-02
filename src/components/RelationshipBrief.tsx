@@ -188,6 +188,25 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
         </div>
         {brief && !editing && (
           <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              title={speakState === "playing" ? "Release to stop" : "Press and hold to hear a 20-second voice brief"}
+              aria-pressed={speakState !== "idle"}
+              onMouseDown={startSpeak}
+              onMouseUp={stopSpeak}
+              onMouseLeave={() => speakState === "playing" && stopSpeak()}
+              onTouchStart={(e) => { e.preventDefault(); startSpeak(); }}
+              onTouchEnd={stopSpeak}
+              onTouchCancel={stopSpeak}
+              className={speakState === "playing" ? "text-primary" : ""}
+            >
+              {speakState === "loading"
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                : speakState === "playing"
+                ? <Square className="h-3.5 w-3.5 fill-current" />
+                : <Mic className="h-3.5 w-3.5" />}
+            </Button>
             <Button size="sm" variant="ghost" onClick={share} title={brief.share_token ? "Copy share link" : "Create read-only share link"}>
               <Share2 className="h-3.5 w-3.5" />
             </Button>
