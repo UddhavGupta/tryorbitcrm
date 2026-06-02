@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy, Share2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy, Share2, Mic, Square } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
