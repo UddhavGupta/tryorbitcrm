@@ -215,22 +215,42 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
           <div className="flex items-center gap-1">
             <Button
               size="sm"
-              variant="ghost"
-              title={speakState === "playing" ? "Release to stop" : "Press and hold to hear a 20-second voice brief"}
-              aria-pressed={speakState !== "idle"}
-              onMouseDown={startSpeak}
-              onMouseUp={stopSpeak}
-              onMouseLeave={() => speakState === "playing" && stopSpeak()}
-              onTouchStart={(e) => { e.preventDefault(); startSpeak(); }}
-              onTouchEnd={stopSpeak}
-              onTouchCancel={stopSpeak}
-              className={speakState === "playing" ? "text-primary" : ""}
+              variant={speakState === "idle" ? "ghost" : "secondary"}
+              title="Click to play or pause · hold to stop · voice by ElevenLabs"
+              aria-label={
+                speakState === "playing" ? "Pause voice brief"
+                : speakState === "paused" ? "Resume voice brief"
+                : speakState === "loading" ? "Loading voice brief"
+                : "Play voice brief"
+              }
+              aria-pressed={speakState === "playing"}
+              onMouseDown={onMicPressStart}
+              onMouseUp={onMicPressEnd}
+              onMouseLeave={onMicPressCancel}
+              onTouchStart={(e) => { e.preventDefault(); onMicPressStart(); }}
+              onTouchEnd={(e) => { e.preventDefault(); onMicPressEnd(); }}
+              onTouchCancel={onMicPressCancel}
+              className={`h-8 gap-1.5 px-2 ${speakState === "playing" ? "text-primary" : ""}`}
             >
-              {speakState === "loading"
-                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                : speakState === "playing"
-                ? <Square className="h-3.5 w-3.5 fill-current" />
-                : <Mic className="h-3.5 w-3.5" />}
+              {speakState === "loading" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : speakState === "playing" ? (
+                <Pause className="h-3.5 w-3.5" />
+              ) : (
+                <Play className="h-3.5 w-3.5" />
+              )}
+              <span className="text-[11px] font-medium">
+                {speakState === "loading" ? "Loading…"
+                  : speakState === "playing" ? "Pause"
+                  : speakState === "paused" ? "Resume"
+                  : "Listen"}
+              </span>
+              {speakState !== "idle" && speakState !== "loading" && (
+                <Square
+                  className="h-3 w-3 opacity-50"
+                  aria-hidden
+                />
+              )}
             </Button>
             <Button size="sm" variant="ghost" onClick={share} title={brief.share_token ? "Copy share link" : "Create read-only share link"}>
               <Share2 className="h-3.5 w-3.5" />
@@ -242,6 +262,11 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
           </div>
         )}
       </div>
+      {brief && !editing && speakState !== "idle" && (
+        <p className="text-[10px] text-muted-foreground -mt-0.5 mb-2">
+          {speakState === "loading" ? "Synthesizing voice…" : "Click again to " + (speakState === "playing" ? "pause" : "resume") + " · hold to stop"}
+        </p>
+      )}
       <p className="text-[11px] text-muted-foreground italic mb-4">
         {isDemoSeed
           ? "Sample brief generated from this demo contact's profile and history — regenerate to call the live AI model."
