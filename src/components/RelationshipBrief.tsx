@@ -270,7 +270,12 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
       <p className="text-[11px] text-muted-foreground italic mb-4">
         {isDemoSeed
           ? "Sample brief generated from this demo contact's profile and history — regenerate to call the live AI model."
-          : "Generated from this contact's profile, notes, interactions, and follow-ups. AI uses your selected CRM data only — you stay in control."}
+          : "Generated from this contact's profile, notes, interactions, and follow-ups."}
+        {brief && (
+          <span className="not-italic ml-1 text-muted-foreground/80">
+            Drafts via <span className="text-primary/90 font-medium">Google Gemini</span>; voice via <span className="text-primary/90 font-medium">ElevenLabs</span>.
+          </span>
+        )}
       </p>
 
       {!brief && !generating && (
