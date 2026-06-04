@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy, Share2, Mic, Square } from "lucide-react";
+import { Sparkles, RefreshCw, Loader2, Pencil, Check, X, Copy, Share2, Play, Pause, Square } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,10 +35,12 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<BriefContent | null>(null);
 
-  // ---- Voice playback (press-and-hold mic) ----
+  // ---- Voice playback (click=play/pause, long-press=stop) ----
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [speakState, setSpeakState] = useState<"idle" | "loading" | "playing">("idle");
+  const [speakState, setSpeakState] = useState<"idle" | "loading" | "playing" | "paused">("idle");
   const speakAbort = useRef<AbortController | null>(null);
+  const holdTimer = useRef<number | null>(null);
+  const heldRef = useRef(false);
 
   const stopSpeak = () => {
     speakAbort.current?.abort();
@@ -51,8 +53,7 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
     setSpeakState("idle");
   };
 
-  const startSpeak = async () => {
-    if (speakState !== "idle") return;
+  const loadAndPlay = async () => {
     setSpeakState("loading");
     const ctrl = new AbortController();
     speakAbort.current = ctrl;
@@ -81,12 +82,36 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
       audioRef.current = audio;
       audio.onended = () => stopSpeak();
       audio.onerror = () => { toast.error("Couldn't play audio"); stopSpeak(); };
-      setSpeakState("playing");
+      audio.onpause = () => { if (!audio.ended && audioRef.current === audio) setSpeakState((s) => s === "playing" ? "paused" : s); };
+      audio.onplay = () => setSpeakState("playing");
       await audio.play();
     } catch (e: any) {
       if (e?.name !== "AbortError") toast.error(e.message ?? "Voice unavailable");
       stopSpeak();
     }
+  };
+
+  // Click toggles play/pause. If long-pressed (>=550ms), the press stops playback instead.
+  const onMicPressStart = () => {
+    heldRef.current = false;
+    if (holdTimer.current) window.clearTimeout(holdTimer.current);
+    holdTimer.current = window.setTimeout(() => {
+      heldRef.current = true;
+      stopSpeak();
+      toast("Voice brief stopped");
+    }, 550);
+  };
+  const onMicPressEnd = () => {
+    if (holdTimer.current) { window.clearTimeout(holdTimer.current); holdTimer.current = null; }
+    if (heldRef.current) return; // long-press already handled
+    // Treat as click
+    if (speakState === "idle") void loadAndPlay();
+    else if (speakState === "playing") audioRef.current?.pause();
+    else if (speakState === "paused") void audioRef.current?.play();
+  };
+  const onMicPressCancel = () => {
+    if (holdTimer.current) { window.clearTimeout(holdTimer.current); holdTimer.current = null; }
+    heldRef.current = false;
   };
 
   useEffect(() => () => stopSpeak(), []);
@@ -190,22 +215,42 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
           <div className="flex items-center gap-1">
             <Button
               size="sm"
-              variant="ghost"
-              title={speakState === "playing" ? "Release to stop" : "Press and hold to hear a 20-second voice brief"}
-              aria-pressed={speakState !== "idle"}
-              onMouseDown={startSpeak}
-              onMouseUp={stopSpeak}
-              onMouseLeave={() => speakState === "playing" && stopSpeak()}
-              onTouchStart={(e) => { e.preventDefault(); startSpeak(); }}
-              onTouchEnd={stopSpeak}
-              onTouchCancel={stopSpeak}
-              className={speakState === "playing" ? "text-primary" : ""}
+              variant={speakState === "idle" ? "ghost" : "secondary"}
+              title="Click to play or pause · hold to stop · voice by ElevenLabs"
+              aria-label={
+                speakState === "playing" ? "Pause voice brief"
+                : speakState === "paused" ? "Resume voice brief"
+                : speakState === "loading" ? "Loading voice brief"
+                : "Play voice brief"
+              }
+              aria-pressed={speakState === "playing"}
+              onMouseDown={onMicPressStart}
+              onMouseUp={onMicPressEnd}
+              onMouseLeave={onMicPressCancel}
+              onTouchStart={(e) => { e.preventDefault(); onMicPressStart(); }}
+              onTouchEnd={(e) => { e.preventDefault(); onMicPressEnd(); }}
+              onTouchCancel={onMicPressCancel}
+              className={`h-8 gap-1.5 px-2 ${speakState === "playing" ? "text-primary" : ""}`}
             >
-              {speakState === "loading"
-                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                : speakState === "playing"
-                ? <Square className="h-3.5 w-3.5 fill-current" />
-                : <Mic className="h-3.5 w-3.5" />}
+              {speakState === "loading" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : speakState === "playing" ? (
+                <Pause className="h-3.5 w-3.5" />
+              ) : (
+                <Play className="h-3.5 w-3.5" />
+              )}
+              <span className="text-[11px] font-medium">
+                {speakState === "loading" ? "Loading…"
+                  : speakState === "playing" ? "Pause"
+                  : speakState === "paused" ? "Resume"
+                  : "Listen"}
+              </span>
+              {speakState !== "idle" && speakState !== "loading" && (
+                <Square
+                  className="h-3 w-3 opacity-50"
+                  aria-hidden
+                />
+              )}
             </Button>
             <Button size="sm" variant="ghost" onClick={share} title={brief.share_token ? "Copy share link" : "Create read-only share link"}>
               <Share2 className="h-3.5 w-3.5" />
@@ -217,10 +262,20 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
           </div>
         )}
       </div>
+      {brief && !editing && speakState !== "idle" && (
+        <p className="text-[10px] text-muted-foreground -mt-0.5 mb-2">
+          {speakState === "loading" ? "Synthesizing voice…" : "Click again to " + (speakState === "playing" ? "pause" : "resume") + " · hold to stop"}
+        </p>
+      )}
       <p className="text-[11px] text-muted-foreground italic mb-4">
         {isDemoSeed
           ? "Sample brief generated from this demo contact's profile and history — regenerate to call the live AI model."
-          : "Generated from this contact's profile, notes, interactions, and follow-ups. AI uses your selected CRM data only — you stay in control."}
+          : "Generated from this contact's profile, notes, interactions, and follow-ups."}
+        {brief && (
+          <span className="not-italic ml-1 text-muted-foreground/80">
+            Drafts via <span className="text-primary/90 font-medium">Google Gemini</span>; voice via <span className="text-primary/90 font-medium">ElevenLabs</span>.
+          </span>
+        )}
       </p>
 
       {!brief && !generating && (

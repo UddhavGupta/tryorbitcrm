@@ -8,8 +8,7 @@ import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFoo
 import { SEO } from "@/components/SEO";
 import { Reveal, RevealStagger } from "@/components/Reveal";
 import { ProductFilm } from "@/components/landing/ProductFilm";
-
-import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
+import { OrbitConstellation } from "@/components/landing/OrbitConstellation";
 import { DigestPreview } from "@/components/landing/DigestPreview";
 
 import { Faq } from "@/components/landing/Faq";
@@ -94,33 +93,26 @@ const Landing = () => {
       </section>
 
 
-      {/* Product film — 30s autoplaying choreographed UI demo */}
+      {/* Hero orbit constellation */}
       <section className="container py-12 md:py-16 animate-fade-up-delay-2">
-        <ProductFilm />
+        <OrbitConstellation />
       </section>
 
-      {/* Product tour — moved up so visitors see real screens right under the hero */}
+      {/* Product film — choreographed 16s walkthrough replacing the old static tour */}
       <section className="container py-20 md:py-28">
         <Reveal>
-          <div className="section-opener section-opener-center mb-12 text-center mx-auto">
+          <div className="section-opener section-opener-center mb-10 text-center mx-auto">
             <p className="eyebrow-serif justify-center">Product tour</p>
             <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
               Three surfaces, <span className="italic" style={{ color: "hsl(var(--primary))" }}>one calm loop.</span>
             </h2>
+            <p className="text-muted-foreground mt-3 leading-relaxed max-w-2xl mx-auto">
+              Open a contact, let Orbit draft the brief, close the loop with a follow-up — in about fifteen seconds.
+            </p>
           </div>
         </Reveal>
         <Reveal delay={120}>
-          {/* Gallery matte frame around the carousel */}
-          <div
-            className="rounded-2xl p-3 sm:p-4"
-            style={{
-              background: "hsl(var(--card-elevated))",
-              border: "1px solid hsl(var(--brass) / 0.35)",
-              boxShadow: "var(--shadow-elevated)",
-            }}
-          >
-            <ScreenshotCarousel />
-          </div>
+          <ProductFilm />
         </Reveal>
       </section>
 
@@ -167,13 +159,17 @@ const Landing = () => {
             <p className="text-muted-foreground mt-3 leading-relaxed max-w-2xl mx-auto">
               OrbitCRM reads your own notes and history, then drafts briefs you can edit. Nothing is auto-sent, nothing leaves your orbit without your say-so.
             </p>
+            <p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Drafts powered by <span className="text-primary font-medium">Google Gemini</span> · Voice playback by <span className="text-primary font-medium">ElevenLabs</span>
+            </p>
           </div>
         </Reveal>
         <RevealStagger className="mt-12 grid md:grid-cols-3 gap-6" step={100}>
           {[
-            { t: "Relationship Briefs", d: "An at-a-glance summary of how you know someone, what matters to them, and what's open — generated from your notes and interactions." },
+            { t: "Relationship Briefs", d: "An at-a-glance summary of how you know someone, what matters to them, and what's open — generated from your notes and interactions by Google Gemini." },
             { t: "60-second Pre-Meeting Prep", d: "Before a call, get talking points, smart questions, and the latest context — distilled into a card you can skim in a minute." },
             { t: "Ask Orbit, in plain English", d: "Search your network like you'd ask a friend: \"Who should I reconnect with this week?\" or \"Who do I know in fintech?\"" },
+            { t: "Voice briefs (ElevenLabs)", d: "Tap the mic on any brief and hear a 20-second narration — perfect for the walk into a meeting. Click to play/pause, hold to stop." },
           ].map((s) => (
             <div key={s.t} className="surface-card p-7 lift h-full">
               <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-medium text-primary">
