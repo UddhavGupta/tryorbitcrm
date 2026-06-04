@@ -8,8 +8,7 @@ import { DocModal, PORTFOLIO_DISCLAIMER, type DocKey } from "@/components/AppFoo
 import { SEO } from "@/components/SEO";
 import { Reveal, RevealStagger } from "@/components/Reveal";
 import { ProductFilm } from "@/components/landing/ProductFilm";
-
-import { ScreenshotCarousel } from "@/components/landing/ScreenshotCarousel";
+import { OrbitConstellation } from "@/components/landing/OrbitConstellation";
 import { DigestPreview } from "@/components/landing/DigestPreview";
 
 import { Faq } from "@/components/landing/Faq";
