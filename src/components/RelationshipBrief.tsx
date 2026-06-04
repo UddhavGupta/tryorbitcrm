@@ -35,10 +35,12 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<BriefContent | null>(null);
 
-  // ---- Voice playback (press-and-hold mic) ----
+  // ---- Voice playback (click=play/pause, long-press=stop) ----
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [speakState, setSpeakState] = useState<"idle" | "loading" | "playing">("idle");
+  const [speakState, setSpeakState] = useState<"idle" | "loading" | "playing" | "paused">("idle");
   const speakAbort = useRef<AbortController | null>(null);
+  const holdTimer = useRef<number | null>(null);
+  const heldRef = useRef(false);
 
   const stopSpeak = () => {
     speakAbort.current?.abort();
@@ -51,8 +53,7 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
     setSpeakState("idle");
   };
 
-  const startSpeak = async () => {
-    if (speakState !== "idle") return;
+  const loadAndPlay = async () => {
     setSpeakState("loading");
     const ctrl = new AbortController();
     speakAbort.current = ctrl;
@@ -81,12 +82,36 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
       audioRef.current = audio;
       audio.onended = () => stopSpeak();
       audio.onerror = () => { toast.error("Couldn't play audio"); stopSpeak(); };
-      setSpeakState("playing");
+      audio.onpause = () => { if (!audio.ended && audioRef.current === audio) setSpeakState((s) => s === "playing" ? "paused" : s); };
+      audio.onplay = () => setSpeakState("playing");
       await audio.play();
     } catch (e: any) {
       if (e?.name !== "AbortError") toast.error(e.message ?? "Voice unavailable");
       stopSpeak();
     }
+  };
+
+  // Click toggles play/pause. If long-pressed (>=550ms), the press stops playback instead.
+  const onMicPressStart = () => {
+    heldRef.current = false;
+    if (holdTimer.current) window.clearTimeout(holdTimer.current);
+    holdTimer.current = window.setTimeout(() => {
+      heldRef.current = true;
+      stopSpeak();
+      toast("Voice brief stopped");
+    }, 550);
+  };
+  const onMicPressEnd = () => {
+    if (holdTimer.current) { window.clearTimeout(holdTimer.current); holdTimer.current = null; }
+    if (heldRef.current) return; // long-press already handled
+    // Treat as click
+    if (speakState === "idle") void loadAndPlay();
+    else if (speakState === "playing") audioRef.current?.pause();
+    else if (speakState === "paused") void audioRef.current?.play();
+  };
+  const onMicPressCancel = () => {
+    if (holdTimer.current) { window.clearTimeout(holdTimer.current); holdTimer.current = null; }
+    heldRef.current = false;
   };
 
   useEffect(() => () => stopSpeak(), []);
