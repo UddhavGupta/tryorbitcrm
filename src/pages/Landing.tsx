@@ -93,33 +93,26 @@ const Landing = () => {
       </section>
 
 
-      {/* Product film — 30s autoplaying choreographed UI demo */}
+      {/* Hero orbit constellation */}
       <section className="container py-12 md:py-16 animate-fade-up-delay-2">
-        <ProductFilm />
+        <OrbitConstellation />
       </section>
 
-      {/* Product tour — moved up so visitors see real screens right under the hero */}
+      {/* Product film — choreographed 16s walkthrough replacing the old static tour */}
       <section className="container py-20 md:py-28">
         <Reveal>
-          <div className="section-opener section-opener-center mb-12 text-center mx-auto">
+          <div className="section-opener section-opener-center mb-10 text-center mx-auto">
             <p className="eyebrow-serif justify-center">Product tour</p>
             <h2 className="display-lg mt-3" style={{ color: "hsl(var(--primary-ink))" }}>
               Three surfaces, <span className="italic" style={{ color: "hsl(var(--primary))" }}>one calm loop.</span>
             </h2>
+            <p className="text-muted-foreground mt-3 leading-relaxed max-w-2xl mx-auto">
+              Open a contact, let Orbit draft the brief, close the loop with a follow-up — in about fifteen seconds.
+            </p>
           </div>
         </Reveal>
         <Reveal delay={120}>
-          {/* Gallery matte frame around the carousel */}
-          <div
-            className="rounded-2xl p-3 sm:p-4"
-            style={{
-              background: "hsl(var(--card-elevated))",
-              border: "1px solid hsl(var(--brass) / 0.35)",
-              boxShadow: "var(--shadow-elevated)",
-            }}
-          >
-            <ScreenshotCarousel />
-          </div>
+          <ProductFilm />
         </Reveal>
       </section>
 
