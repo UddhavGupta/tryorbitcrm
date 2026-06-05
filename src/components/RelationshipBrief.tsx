@@ -37,7 +37,9 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
 
   // ---- Voice playback (click=play/pause, long-press=stop) ----
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [speakState, setSpeakState] = useState<"idle" | "loading" | "playing" | "paused">("idle");
+  const [voiceMode, setVoiceMode] = useState<"elevenlabs" | "demo" | null>(null);
   const speakAbort = useRef<AbortController | null>(null);
   const holdTimer = useRef<number | null>(null);
   const heldRef = useRef(false);
@@ -50,7 +52,36 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
       if (audioRef.current.src.startsWith("blob:")) URL.revokeObjectURL(audioRef.current.src);
       audioRef.current = null;
     }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    utterRef.current = null;
     setSpeakState("idle");
+    setVoiceMode(null);
+  };
+
+  const playDemoScript = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      toast.error("Your browser doesn't support voice playback");
+      stopSpeak();
+      return;
+    }
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.02;
+    u.pitch = 1.0;
+    // Prefer an English female voice if available
+    const voices = synth.getVoices();
+    const pick = voices.find(v => /samantha|female|google us english/i.test(v.name) && /en/i.test(v.lang))
+      ?? voices.find(v => /en[-_]?US/i.test(v.lang)) ?? voices[0];
+    if (pick) u.voice = pick;
+    u.onstart = () => setSpeakState("playing");
+    u.onend = () => stopSpeak();
+    u.onerror = () => stopSpeak();
+    utterRef.current = u;
+    setVoiceMode("demo");
+    synth.speak(u);
   };
 
   const loadAndPlay = async () => {
@@ -75,11 +106,23 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
         const j = await res.json().catch(() => ({ error: `Failed (${res.status})` }));
         throw new Error(j.error ?? "Voice synthesis failed");
       }
-      const blob = await res.blob();
       if (ctrl.signal.aborted) return;
+      const ctype = res.headers.get("Content-Type") ?? "";
+      if (ctype.includes("application/json")) {
+        // Demo fallback — ElevenLabs not configured or provider failed.
+        const j = await res.json();
+        if (j?.demo && typeof j.script === "string") {
+          toast("Playing in demo voice", { description: "Using your browser's built-in speech. Connect ElevenLabs for studio narration." });
+          playDemoScript(j.script);
+          return;
+        }
+        throw new Error(j?.error ?? "Voice unavailable");
+      }
+      const blob = await res.blob();
       const audioUrl = URL.createObjectURL(blob);
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
+      setVoiceMode("elevenlabs");
       audio.onended = () => stopSpeak();
       audio.onerror = () => { toast.error("Couldn't play audio"); stopSpeak(); };
       audio.onpause = () => { if (!audio.ended && audioRef.current === audio) setSpeakState((s) => s === "playing" ? "paused" : s); };
