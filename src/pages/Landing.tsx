@@ -166,10 +166,9 @@ const Landing = () => {
         </Reveal>
         <RevealStagger className="mt-12 grid md:grid-cols-3 gap-6" step={100}>
           {[
-            { t: "Relationship Briefs", d: "An at-a-glance summary of how you know someone, what matters to them, and what's open — generated from your notes and interactions by Google Gemini." },
+            { t: "Relationship Briefs + Voice", d: "Google Gemini drafts an at-a-glance summary of how you know someone, what matters, and what's open. Tap the mic for a 20-second ElevenLabs narration — perfect for the walk into a meeting." },
             { t: "60-second Pre-Meeting Prep", d: "Before a call, get talking points, smart questions, and the latest context — distilled into a card you can skim in a minute." },
             { t: "Ask Orbit, in plain English", d: "Search your network like you'd ask a friend: \"Who should I reconnect with this week?\" or \"Who do I know in fintech?\"" },
-            { t: "Voice briefs (ElevenLabs)", d: "Tap the mic on any brief and hear a 20-second narration — perfect for the walk into a meeting. Click to play/pause, hold to stop." },
           ].map((s) => (
             <div key={s.t} className="surface-card p-7 lift h-full">
               <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-medium text-primary">
