@@ -284,7 +284,7 @@ const FrameContent = ({
           </div>
           <div className="overflow-hidden py-2 px-1.5">
             <SectionLabel>Cooling — reach out</SectionLabel>
-            <ListRow active={t > 1.85} highlight={t > 1.4 && t < 2.2} name="Maya Chen" meta="Design lead · Linear" initials="MC" days="6w" />
+            <ListRow active={t > 1.25} highlight={t > 0.9 && t < 1.6} name="Maya Chen" meta="Design lead · Linear" initials="MC" days="6w" />
             <ListRow name="Jordan Hayes" meta="Founder · Brookline" initials="JH" days="4w" />
             <ListRow name="Priya Raman" meta="VP Eng · Stripe" initials="PR" days="3w" />
             <SectionLabel>This week</SectionLabel>
