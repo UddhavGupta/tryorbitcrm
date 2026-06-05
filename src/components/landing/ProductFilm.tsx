@@ -16,7 +16,7 @@ import { Sparkles, Check, Bell, Search, Mail, Calendar, MapPin, Plus, Users, Hom
  * 13.0 – 16.0s "Logged" badge + soft outro caption, then loop
  */
 
-const DURATION = 16; // seconds
+const DURATION = 12; // seconds — snappier loop
 const FPS = 30;
 
 const BRIEF_LINES = [
@@ -28,12 +28,12 @@ const BRIEF_LINES = [
 ];
 
 const CAPTIONS: Array<{ at: number; text: string }> = [
-  { at: 0.2,  text: "A calm list of the people who matter." },
-  { at: 2.2,  text: "Open anyone — context loads instantly." },
-  { at: 3.4,  text: "Gemini drafts the brief from your own notes." },
-  { at: 7.2,  text: "One tap turns it into a follow-up." },
-  { at: 9.4,  text: "Reminders close the loop, gently." },
-  { at: 13.2, text: "That's the whole loop — in fifteen seconds." },
+  { at: 0.0,  text: "A calm list of the people who matter." },
+  { at: 1.4,  text: "Open anyone — their full context loads instantly." },
+  { at: 2.6,  text: "Gemini drafts the brief from your own notes." },
+  { at: 5.6,  text: "One tap turns insight into a follow-up." },
+  { at: 7.4,  text: "Reminders close the loop, gently." },
+  { at: 9.8,  text: "That's the whole loop — in twelve seconds." },
 ];
 
 // 920 x 575 design canvas
