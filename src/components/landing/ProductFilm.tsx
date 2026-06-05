@@ -69,25 +69,25 @@ export const ProductFilm = () => {
   const lerp = (a: number, b: number, x: number) => a + (b - a) * Math.max(0, Math.min(1, x));
   const ease = (x: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, x)), 3);
 
-  // Cursor keyframes (canvas coords). Snappier transitions.
+  // Cursor keyframes (canvas coords). Snappy & purposeful.
   const cursor = (() => {
-    // 0–1.6s: drift from top into the list row
-    if (t < 1.6) {
-      const p = ease(t / 1.6);
+    // 0–1.1s: drift from top into the list row
+    if (t < 1.1) {
+      const p = ease(t / 1.1);
       return { x: lerp(360, 200, p), y: lerp(80, 220, p) };
     }
-    // 1.6–7.0s: rest on list row
-    if (t < 7.0) return { x: 200, y: 220 };
-    // 7.0–8.4s: glide to "Draft intro" chip
-    if (t < 8.4) {
-      const p = ease((t - 7.0) / 1.4);
+    // 1.1–5.4s: rest on list row while profile + brief stream in
+    if (t < 5.4) return { x: 200, y: 220 };
+    // 5.4–6.4s: glide to "Draft intro" chip
+    if (t < 6.4) {
+      const p = ease((t - 5.4) / 1.0);
       return { x: lerp(200, 540, p), y: lerp(220, 388, p) };
     }
-    // 8.4–11.6s: rest on chip
-    if (t < 11.6) return { x: 540, y: 388 };
-    // 11.6–12.8s: glide to checkbox
-    if (t < 12.8) {
-      const p = ease((t - 11.6) / 1.2);
+    // 6.4–8.6s: rest on chip
+    if (t < 8.6) return { x: 540, y: 388 };
+    // 8.6–9.4s: glide to checkbox
+    if (t < 9.4) {
+      const p = ease((t - 8.6) / 0.8);
       return { x: lerp(540, 360, p), y: lerp(388, 488, p) };
     }
     return { x: 360, y: 488 };
@@ -95,23 +95,24 @@ export const ProductFilm = () => {
 
   const click = (start: number) => {
     const d = t - start;
-    if (d < 0 || d > 0.35) return 0;
-    return 1 - d / 0.35;
+    if (d < 0 || d > 0.32) return 0;
+    return 1 - d / 0.32;
   };
 
-  const profileOpen = t > 1.9;
-  const profileP = ease((t - 1.9) / 0.5);
+  const profileOpen = t > 1.25;
+  const profileP = ease((t - 1.25) / 0.35);
 
+  // Brief streams 5 lines between 2.4s and 5.1s — ~0.55s per line.
   const visibleBriefLines = Math.min(
     BRIEF_LINES.length,
-    Math.max(0, Math.floor((t - 3.0) / 0.75)),
+    Math.max(0, Math.floor((t - 2.4) / 0.55)),
   );
 
-  const chipPressed = t > 8.3 && t < 8.9;
-  const reminderShown = t > 9.2;
-  const reminderP = ease((t - 9.2) / 0.45);
-  const reminderChecked = t > 12.75;
-  const outroFade = t > 14.8 ? ease((t - 14.8) / 1.0) : 0;
+  const chipPressed = t > 6.35 && t < 6.85;
+  const reminderShown = t > 7.0;
+  const reminderP = ease((t - 7.0) / 0.4);
+  const reminderChecked = t > 9.35;
+  const outroFade = t > 11.0 ? ease((t - 11.0) / 1.0) : 0;
 
   const activeCap = [...CAPTIONS].reverse().find((c) => t >= c.at);
 
