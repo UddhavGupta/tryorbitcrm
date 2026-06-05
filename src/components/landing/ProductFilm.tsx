@@ -158,7 +158,7 @@ export const ProductFilm = () => {
               <path d="M3 2 L17 11 L10 12 L13 19 L11 20 L8 13 L3 17 Z"
                 fill="hsl(var(--primary-ink))" stroke="white" strokeWidth="1.2" strokeLinejoin="round" />
             </svg>
-            {[1.7, 8.5, 12.85].map((time) => {
+            {[1.15, 6.45, 9.45].map((time) => {
               const o = click(time);
               if (o === 0) return null;
               return (
