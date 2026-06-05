@@ -42,7 +42,6 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
     const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-    if (!ELEVENLABS_API_KEY) throw new Error("ELEVENLABS_API_KEY is not configured");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
@@ -82,6 +81,14 @@ Deno.serve(async (req) => {
     const fullName = [contact.name, contact.last_name].filter(Boolean).join(" ");
     const text = script(fullName || "this contact", brief.content as Brief);
 
+    // Demo fallback: when no API key is configured, return the narration script
+    // as JSON so the client can read it aloud with the browser's built-in voice.
+    if (!ELEVENLABS_API_KEY) {
+      return new Response(JSON.stringify({ demo: true, script: text }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json", "X-Voice-Mode": "demo" },
+      });
+    }
+
     const vid = (voiceId && typeof voiceId === "string") ? voiceId : DEFAULT_VOICE;
     const ttsRes = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${vid}?output_format=mp3_44100_128`,
@@ -102,8 +109,9 @@ Deno.serve(async (req) => {
     if (!ttsRes.ok) {
       const errText = await ttsRes.text();
       console.error("ElevenLabs error", ttsRes.status, errText);
-      return new Response(JSON.stringify({ error: `Voice synthesis failed (${ttsRes.status})` }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      // Graceful fallback to browser speech synthesis on any provider failure.
+      return new Response(JSON.stringify({ demo: true, script: text, reason: `provider_${ttsRes.status}` }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json", "X-Voice-Mode": "demo" },
       });
     }
 

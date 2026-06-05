@@ -255,15 +255,6 @@ export const OrbitConstellation = () => {
             "radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.22), transparent 65%)",
         }}
       />
-      {/* Soft aurora wash behind the orbits */}
-      <div
-        aria-hidden
-        className="absolute inset-[10%] rounded-full opacity-70 blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.22), transparent 65%)",
-        }}
-      />
 
       <svg
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}

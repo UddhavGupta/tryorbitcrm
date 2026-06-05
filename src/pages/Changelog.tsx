@@ -261,6 +261,21 @@ const RELEASES: Release[] = [
     ],
   },
   {
+    version: "v2.0",
+    title: "Brand attribution, voice resilience, calmer landing",
+    date: "Jun 2026",
+    status: "shipped",
+    items: [
+      "Voice brief now plays on a single click (play / pause) with a long-press to stop — clearer affordance, with helper text spelling it out",
+      "Demo-mode voice fallback: if the ElevenLabs key is missing or the provider errors, the brief is read aloud with the browser's built-in speech so the feature is always previewable safely",
+      "ElevenLabs and Google Gemini attribution surfaced on both the contact brief and the landing-page AI section — clear who powers what",
+      "Tightened the product film from 16s to a 12s loop and re-choreographed the cursor to match the real app layout: People list → contact profile → brief streams in → Draft intro chip → checkbox completes the reminder",
+      "Restored the orbit constellation to its original spot below the hero and fixed a duplicated aurora wash that was causing a banding glitch",
+      "Landing 'AI-powered intelligence' section collapsed from 4 cards across 2 rows to one clean row of 3 — voice briefs now live inside the Relationship Briefs card",
+      "Updated the on-contact brief footer to explicitly credit Gemini (drafts) and ElevenLabs (voice) so the technical stack is legible to anyone reviewing the project",
+    ],
+  },
+  {
     version: "vNext",
     title: "On the roadmap",
     status: "next",
