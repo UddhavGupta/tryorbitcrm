@@ -148,9 +148,15 @@ export const RelationshipBrief = ({ contactId }: { contactId: string }) => {
     if (holdTimer.current) { window.clearTimeout(holdTimer.current); holdTimer.current = null; }
     if (heldRef.current) return; // long-press already handled
     // Treat as click
+    const synth = (typeof window !== "undefined" && "speechSynthesis" in window) ? window.speechSynthesis : null;
     if (speakState === "idle") void loadAndPlay();
-    else if (speakState === "playing") audioRef.current?.pause();
-    else if (speakState === "paused") void audioRef.current?.play();
+    else if (speakState === "playing") {
+      if (voiceMode === "demo" && synth) { synth.pause(); setSpeakState("paused"); }
+      else audioRef.current?.pause();
+    } else if (speakState === "paused") {
+      if (voiceMode === "demo" && synth) { synth.resume(); setSpeakState("playing"); }
+      else void audioRef.current?.play();
+    }
   };
   const onMicPressCancel = () => {
     if (holdTimer.current) { window.clearTimeout(holdTimer.current); holdTimer.current = null; }
